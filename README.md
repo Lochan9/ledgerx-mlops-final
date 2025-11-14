@@ -75,7 +75,7 @@ Airflow DAG executes all tasks in order:
 ---
 
 ## Repository Structure
-
+```
 ledgerx-mlops-final/
 ├── airflow/
 │   ├── dags/
@@ -98,7 +98,7 @@ ledgerx-mlops-final/
 ├── dvc.yaml
 ├── requirements.txt
 └── README.md
-
+```
 ---
 
 ## How to Use This Repository
