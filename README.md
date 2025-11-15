@@ -1,167 +1,276 @@
-# LedgerX – Fatura OCR Data Pipeline (Pre–Option 3 Version)
-
-This repository contains the complete MLOps data pipeline for processing Fatura invoices. It includes preprocessing, schema validation, unit testing, bias detection, report generation, DVC tracking, and full Airflow orchestration.
-
-This README includes everything completed BEFORE selecting Option 3. MinIO and production storage setup are NOT included here.
+# 🧾 LedgerX – Fatura MLOps Data Pipeline  
+#### **AI-powered invoice (Fatura) ingestion, validation, testing, versioning & automation using Apache Airflow + DVC**
 
 ---
 
-## Project Overview
+## 📌 Overview
+LedgerX (Fatura Edition) is a production-grade **MLOps pipeline** for invoice OCR data processing.  
+The system automates:
 
-The LedgerX Fatura Pipeline automates the complete OCR processing lifecycle:
+- **Data acquisition** (Fatura images → OCR output)
+- **Preprocessing / cleaning**
+- **Schema validation**
+- **Unit testing for reliability**
+- **Bias checking**
+- **Data versioning with DVC**
+- **Report generation**
+- **End-to-end orchestration via Airflow**
 
-1. Load raw Fatura invoice images
-2. Extract OCR text and preprocess fields
-3. Validate schema integrity using Great Expectations
-4. Execute unit tests for preprocessing functions
-5. Detect dataset bias via slice-based analysis
-6. Generate reports at each stage
-7. Version processed data through DVC
-8. Run everything automatically using Airflow DAGs
-
-This system is reproducible, modular, and aligned with MLOps course expectations.
-
----
-
-## Pipeline Stages
-
-### 1. OCR Preprocessing
-- Extracts text from invoice images
-- Normalizes numeric and string fields
-- Detects blur and incomplete scans
-- Outputs fatura_ocr.csv
-
-### 2. Schema Validation
-- Enforces required column presence
-- Checks data types and numeric validity
-- Detects missing values 
-- Outputs schema_check.txt
-
-### 3. Unit Testing
-- Tests OCR preprocessing logic
-- Ensures CSV format correctness
-- Prevents silent data corruption
-- Outputs test_report.txt
-
-### 4. Bias Detection
-- Performs dataset slicing
-- Evaluates representation imbalance
-- Detects bias across categories
-- Outputs bias_check_summary.txt
-
-### 5. Reporting
-- summary_report.txt aggregates:
-  - OCR status
-  - Schema validation pass/fail
-  - Unit test results
-  - Bias analysis notes
-
-### 6. DVC Tracking
-- Versions processed output
-- Ensures reproducible pipeline runs
-- Tracks added/modified processed files
-
-### 7. Airflow Orchestration
-Airflow DAG executes all tasks in order:
-
-1. Check OCR file presence  
-2. Preprocess invoices  
-3. Run schema validation  
-4. Execute unit tests  
-5. Run bias detection  
-6. Generate reports  
-7. Track data using DVC  
+This repository implements the **IE7305 – MLOps Data Pipeline Submission** requirements and serves as the foundation of the larger LedgerX invoice intelligence platform.
 
 ---
 
-## Repository Structure
+## 🚀 Key Features (Aligned to MLOps Guidelines)
+- **Automated OCR ingestion** for Fatura datasets  
+- **Preprocessing**: normalization, cleaning, text extraction  
+- **Data validation** using Great Expectations / schema checks  
+- **Unit tests** (pytest) for transformations & workflows  
+- **Bias detection** using slice-based analysis  
+- **DVC tracking** (`raw`, `processed`)  
+- **Airflow DAG orchestration** for full workflow automation  
+- **Logs + reports** stored locally for reproducibility  
+- **Containerized environment** using Docker Compose (Airflow ready)
 
+---
+
+## 📁 Repository Structure
+```
 ledgerx-mlops-final/
-├── airflow/
-│   ├── dags/
-│   │   └── ledgerx_fatura_pipeline.py
-│   ├── reports/
-│   │   ├── summary_report.txt
-│   │   ├── schema_check.txt
-│   │   ├── test_report.txt
-│   │   └── bias_check_summary.txt
-│   └── data/
-│       └── processed/
-│           ├── fatura_ocr.csv
-│           └── fatura_ocr_cache.csv
+│
+├── dags/                     # Airflow DAGs
+│   └── ledgerx_fatura_pipeline.py
+│
+├── data/
+│   ├── raw/                  # Raw OCR inputs
+│   ├── processed/            # Processed CSV (OCR normalized)
+│   └── reports/              # Schema, tests, bias reports
+│
 ├── src/
+│   ├── acquire_fatura_data.py
 │   ├── preprocess_fatura.py
-│   ├── schema_validation.py
-│   ├── bias_detection.py
-│   └── tests/
-│       └── test_preprocess.py
-├── dvc.yaml
+│   ├── validate_schema.py
+│   ├── test_runner.py
+│   ├── generate_report.py
+│   └── bias_check.py
+│
+├── tests/
+│   ├── test_preprocess.py
+│   └── test_schema.py
+│
+├── dvc.yaml                  # DVC pipeline definition
+├── Dockerfile                # Airflow custom image
+├── docker-compose.yml        # Airflow environment
 ├── requirements.txt
 └── README.md
+```
 
 ---
 
-## How to Use This Repository
+## ⚙️ Installation & Environment Setup
 
-Follow these steps to run the pipeline locally.
-
-### 1. Clone the repository
-
+### **1️⃣ Clone the repository**
+```
 git clone https://github.com/Lochan9/ledgerx-mlops-final.git
 cd ledgerx-mlops-final
+```
 
-### 2. Create and activate a virtual environment
-
+### **2️⃣ Create virtual environment**
+```
 python -m venv .venv
-.venv\Scripts\activate
-
-### 3. Install dependencies
-
+. .venv/Scripts/activate
 pip install -r requirements.txt
+```
 
-### 4. Launch Airflow using Docker
+### **3️⃣ Install DVC**
+```
+pip install dvc
+```
 
-docker compose up --build
-
-After startup, open Airflow UI:
-http://localhost:8081
-
-### 5. Trigger the Pipeline
-
-1. Open Airflow web UI
-2. Enable the DAG: ledgerx_fatura_pipeline
-3. Click “Trigger DAG”
-4. Pipeline will run automatically through all stages
-
-### 6. View Output Files
-
-Processed data:
-airflow/data/processed/fatura_ocr.csv
-
-Reports:
-airflow/reports/
-- summary_report.txt
-- schema_check.txt
-- test_report.txt
-- bias_check_summary.txt
-
-### 7. Track Data Using DVC (Local)
-
-dvc add airflow/data/processed/fatura_ocr.csv
-dvc commit
-dvc push  (local default cache)
+### **4️⃣ Initialize DVC**
+```
+dvc init
+```
 
 ---
 
-## Completion Status (Before Option 3)
+## 🐳 Running Airflow (Docker)
+This project includes a **ready-to-run** Airflow Docker environment.
 
-All these tasks are completed and included:
-✓ OCR preprocessing  
-✓ Schema validation  
-✓ Unit testing  
-✓ Bias detection  
-✓ Report generation  
-✓ Airflow DAG  
-✓ DVC local tracking  
-✓ Fully working end-to-end pipeline  
+### **1️⃣ Start Airflow**
+```
+docker compose up --build
+```
+
+### **2️⃣ Access Airflow UI**  
+Open browser → **http://localhost:8081**
+
+### **3️⃣ Locate your DAG**  
+Search for: **ledgerx_fatura_pipeline**
+
+Enable → Trigger DAG
+
+---
+
+## 🔁 Pipeline Flow (Airflow DAG)
+The pipeline follows the required academic MLOps flow:
+
+1. **Acquire Data**  
+   `acquire_fatura_data.py` loads the OCR dataset.
+
+2. **Skip Preprocessing (OCR already processed)**  
+   For Fatura, preprocessing is minimal.
+
+3. **Schema Validation**  
+   Checks formatting, columns, missing values.
+
+4. **Unit Tests**  
+   Pytest runs all tests under `/tests`.
+
+5. **DVC Versioning**  
+   Creates `.dvc` files for processed data.
+
+6. **Bias Detection**  
+   Splits by slices and evaluates fairness.
+
+7. **Generate Reports**  
+   Output stored in `/reports`:
+   - `schema_check.txt`
+   - `test_report.txt`
+   - `bias_check_summary.txt`
+   - `summary_report.txt`
+
+---
+
+## 📊 Running Each Component Manually (Optional)
+
+### **1️⃣ Acquire**
+```
+python src/acquire_fatura_data.py
+```
+
+### **2️⃣ Preprocess**
+```
+python src/preprocess_fatura.py
+```
+
+### **3️⃣ Schema Validation**
+```
+python src/validate_schema.py
+```
+
+### **4️⃣ Unit Tests**
+```
+pytest -q
+```
+
+### **5️⃣ Bias Check**
+```
+python src/bias_check.py
+```
+
+### **6️⃣ Report Generation**
+```
+python src/generate_report.py
+```
+
+### **7️⃣ Track data with DVC**
+```
+dvc add data/processed/fatura_ocr.csv
+git add data/processed/fatura_ocr.csv.dvc
+git commit -m "Versioned processed data"
+```
+
+---
+
+## 📘 Logs & Where to Find Them
+Logs are automatically generated inside the container:
+
+```
+/opt/airflow/logs/<dag_id>/<task_id>/
+```
+
+To view logs locally:
+```
+docker logs ledgerx-airflow
+```
+
+Reports are saved locally:
+```
+data/reports/
+```
+
+Expected files:
+- `schema_check.txt`
+- `test_report.txt`
+- `bias_check_summary.txt`
+- `summary_report.txt`
+
+---
+
+## 📑 Deliverables Covered (Matches IE7305 Guidelines)
+✔ Data acquisition  
+✔ Preprocessing  
+✔ Schema validation  
+✔ Unit tests  
+✔ Bias detection (slice-based)  
+✔ Airflow DAG orchestration  
+✔ DVC versioning  
+✔ Logging + report generation  
+✔ Clean professional documentation  
+
+---
+
+## 🧪 Testing
+Run all tests:
+```
+pytest
+```
+
+Specific test:
+```
+pytest tests/test_preprocess.py
+```
+
+---
+
+## 📦 DVC Workflow
+Check status:
+```
+dvc status
+```
+
+Push to remote (if configured):
+```
+dvc push
+```
+
+Pull versions:
+```
+dvc pull
+```
+
+---
+
+## 🧠 Project Summary
+This repository implements a **full MLOps data pipeline** tailored for the **Fatura invoice OCR dataset** and satisfies the complete academic submission requirements:
+
+- Reproducible  
+- Automated  
+- Versioned  
+- Validated  
+- Tested  
+- Orchestrated  
+
+This will serve as the foundation for the **Stage-3 Model Pipeline** and **Stage-4 Deployment** phases.
+
+---
+
+## 👥 Contributors
+- Lochan Enugula  
+- Team LedgerX  
+
+---
+
+## 📄 License
+This project is for academic use under the IE7305 MLOps course guidelines.
 
