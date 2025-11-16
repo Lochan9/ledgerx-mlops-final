@@ -4,7 +4,6 @@ FROM apache/airflow:2.9.3-python3.12
 # ---------- Switch to root for system-level installs ----------
 USER root
 
-# Install OS dependencies (Tesseract, Poppler, Git, etc.)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         tesseract-ocr \
@@ -14,7 +13,7 @@ RUN apt-get update && \
         git && \
     rm -rf /var/lib/apt/lists/*
 
-# ---------- Switch to airflow user for pip installs ----------
+# ---------- Switch to airflow for pip ----------
 USER airflow
 
 COPY requirements.txt /requirements.txt
@@ -22,19 +21,22 @@ COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir -r /requirements.txt
 
-# ---------- Back to root for project setup ----------
+# ---------- Project Setup ----------
 USER root
 
 RUN mkdir -p /opt/airflow/{dags,src,data,tests,reports}
 
-# Copy project folders into Airflow
 COPY ./dags /opt/airflow/dags/
 COPY ./src /opt/airflow/src/
 COPY ./tests /opt/airflow/tests/
 COPY ./reports /opt/airflow/reports/
+
+# COPY THE SCRIPT (clean LF file)
 COPY ./start_ledgerx.sh /opt/airflow/start_ledgerx.sh
-COPY ./drive_creds.json /opt/airflow/drive_creds.json
-COPY ./src /opt/airflow/src/
+
+# Force convert CRLF → LF inside Linux image
+RUN sed -i 's/\r$//' /opt/airflow/start_ledgerx.sh && \
+    chmod +x /opt/airflow/start_ledgerx.sh
 
 
 # Permissions
@@ -47,5 +49,5 @@ ENV AIRFLOW_HOME=/opt/airflow \
 
 WORKDIR /opt/airflow
 
-# ---------- Start Command ----------
-CMD ["bash", "/opt/airflow/start_ledgerx.sh"]
+# ---------- Default CMD ----------
+CMD ["bash", "/opt/airflow/start_ledgerx.sh", "webserver"]

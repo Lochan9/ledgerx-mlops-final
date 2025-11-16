@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "ledgerx-dvc-storage",
+  "private_key_id": "2b875c5a835d88e9da8ac00d082594831aff821e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCqnAlSMTvR+k3/\nDkZigUGd1eSZqU7srqsKNRzO/MglEBfbirxA9cAcC5N/f86m9JSY5XZYYNA0TqZM\nJ+xHNEnTCYCiiyPLzDq3fLXmC51XEK9U79z9aG2Jgj0j98r4q+O5TUDxNzsMadHD\nEhfEgdaMVIIak6GFNRLYoYgBuDfzgt9JrvCjE3JABfp26nQhJO9ZSv3N2ZFXBnoj\nt7WQD0xjkt/heAN7uKYYvZB/vip8fLzmQc9WKhmbDv2BcVn7Bn29oJkRxRPfQCJ2\nZlWawQAZmrHS9qpGnL1X+uS3fQCGaGBeZ79bDpqYS2UBR/1jqJy/Fd+ovAbMD5BF\nZxuoEDeDAgMBAAECggEAS9/dHVqb+gRRj67vintljSZE5jmvyf7cPkvkpgExmZoQ\noiiPFGy2pUJYtIlIhGOdemoCOcfEkJ6xwoi2wev1MQ+2z5MFtmr7agLieo6LyN64\nuxN5upEotdDgFBDtia4YNp6u1Rf1AM5G5XQ0ccY0fnBO9DbXzIAQA5vC+tDMwVSm\nQqD/RDs/62xDZ2RL5Z0DiqvKnc2SUqZTvU43VrNr3NcjAdhv+JcQXKK71O0MbWlb\nJi+jXCFCqi+GMrW8rS/1xcEgkXPoVhj2qSJuMHr4UR6E3mWnXSNuxCktYiegvKR1\n8hKbb3PtqI/f8h2SHqAk5+3pNy0oAZJDVDDpn3E1IQKBgQDhV8kvOqx0NrZTSL9l\nsCYZuSq0A7qVfKME017vMoEyUgljyEcfWuDREzBPuOcS2kyQFTth4l7kg1KTLCv9\n8KaJfMn8dvDqgl2rQiQeSN+YAa9IDhaP5B3+0S16roRKb4af6TdgUEV0ipgX7gsj\nXEc8RssthqEfKsd3A/cm4ouZ6wKBgQDB0gC4qpbXwKdNxMm5s0RIf0O+gagXTtUq\nD6qc1GMp7dCqn8HM+9+kFVoqNNpZDEsMF/zgD0n/QWuR5C1H6yK1QvA9H+AA3xhs\nik75uQ6rSRBfqP4OczGuCPRvFSLqk49b0DKEyuIwZWFLjANjihwUhzvghHU9eOSy\nu2+ovVeayQKBgFetC0cIAi9ZVklDRczv43Mgu3+876zYCKmJACf7M497odGkDCAk\nANL4L1TlcWrBawaobClipV8txUQj7J3qMzHNTt2e/Y+Q15cZrenmmrCO/z7+1EJ6\nFD2f750LJ8e6atvvJq+fq9ZzUkgFQ2onrkPCm60D886nm2IwNcp4XK6vAoGAOjqG\nHvSZFr55ROLvG8wgooshZhV702zKm7VTM4SXOhyJSQlv5s5w1NHZYb65LnGEBmEa\nhpHxUC9uSsk7VVTt+3jdxe9Sk9ByfQFcUqfnIUx1D9gsY1j2PuvPy6OU9tZYBmRZ\nGQ3+wD1k6pZo2jm+z+gE9CG3Oz2br5qiJBamQAkCgYBZnogNumHedvGn2yqilVaa\nhNKKuAsD4Es2r4hYipw5/tBfRxVee7xsAbygu4j7ECrbUuzju1erwPvhd0ky9c9Q\nFhSKX9zyW2w6jhpPZGoMvao2JqESivhSPY8tq37/LXyoYt/A5qiswI6Us5VwfKXO\nLSJjBwS+fH8oqn43OA5FPw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "dvc-gdrive-sa@ledgerx-dvc-storage.iam.gserviceaccount.com",
+  "client_id": "106083590267544020487",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dvc-gdrive-sa%40ledgerx-dvc-storage.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

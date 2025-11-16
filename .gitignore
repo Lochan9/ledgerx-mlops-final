@@ -1,32 +1,10 @@
-# Python
+# Python cache
 __pycache__/
 *.pyc
+
+# Virtual environments (do NOT upload)
 .venv/
 
-# VS Code
-.vscode/
-
-# Data (do NOT commit from data folder)
-data/
-!data/.gitkeep
-
-# Reports (runtime)
-reports/*.txt
-reports/*.json
-reports/*.csv
-
-# Credentials / secrets
-drive_creds.json
-*.pem
-*.key
-*.token
-.env
-
-# DVC cache
-*.dvc
-.cache/
-.dvc/
-
-# OS trash
+# OS files
 Thumbs.db
 .DS_Store

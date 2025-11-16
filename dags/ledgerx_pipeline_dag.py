@@ -3,13 +3,14 @@ LedgerX Fatura Pipeline DAG
 -----------------------------------
 Full pipeline including:
   1. Data acquisition
-  2. Skip preprocessing step (OCR done offline)
-  3. Great Expectations validation
-  4. Schema check
-  5. Bias check
-  6. Unit tests
-  7. DVC versioning (mocked inside container)
-  8. Summary report generation
+  2. OCR → structured transform
+  3. Data cleaning
+  4. Great Expectations validation
+  5. Schema check
+  6. Bias check
+  7. Unit tests
+  8. DVC versioning (mocked inside container)
+  9. Summary report generation
 """
 
 from datetime import datetime, timedelta
@@ -54,31 +55,43 @@ with DAG(
         ),
     )
 
-    # 2️⃣ Skip preprocessing if OCR file already exists
+    # 2️⃣ Check that OCR raw file exists
     check_ocr_file = ShortCircuitOperator(
         task_id="check_ocr_file",
         python_callable=check_ocr_output,
     )
 
-    # 3️⃣ Great Expectations validation
+    # 3️⃣ OCR → structured schema
+    transform_ocr = BashOperator(
+        task_id="transform_ocr_to_structured",
+        bash_command="python /opt/airflow/src/stages/transform_ocr_to_structured.py",
+    )
+
+    # 4️⃣ Cleaning structured data
+    clean_structured = BashOperator(
+        task_id="clean_structured_data",
+        bash_command="python /opt/airflow/src/stages/clean_fatura_data.py",
+    )
+
+    # 5️⃣ Great Expectations validation (assume it uses cleaned file)
     validate_schema_ge = BashOperator(
         task_id="validate_schema_ge",
         bash_command="python /opt/airflow/src/stages/run_great_expectations.py",
     )
 
-    # 4️⃣ Schema check
+    # 6️⃣ Schema check
     run_schema_check = BashOperator(
         task_id="run_schema_check",
         bash_command="python /opt/airflow/src/stages/schema_check.py",
     )
 
-    # 5️⃣ Bias check
+    # 7️⃣ Bias check
     run_bias_check = BashOperator(
         task_id="run_bias_check",
         bash_command="python /opt/airflow/src/stages/bias_check.py",
     )
 
-    # 6️⃣ Unit tests
+    # 8️⃣ Unit tests
     run_tests = BashOperator(
         task_id="run_tests",
         bash_command=(
@@ -87,30 +100,32 @@ with DAG(
         ),
     )
 
-    # 7️⃣ DVC add + push (mocked inside container for reproducibility)
+    # 9️⃣ DVC add + push (mocked inside container for reproducibility)
     dvc_push = BashOperator(
         task_id="dvc_push",
         bash_command="""
-            echo "🔄 Starting DVC versioning step..."
+            echo "Starting DVC versioning step..."
 
             cd /opt/airflow || true
 
-            echo "📌 Attempting DVC add..."
-            dvc add data/processed/fatura_ocr.csv \
-                || echo "⚠️ DVC add failed (expected in container)"
+            echo "Attempting DVC add..."
+            dvc add data/processed/fatura_cleaned.csv \
+                || echo "DVC add failed (expected in container)"
 
-            echo "📌 Attempting DVC push..."
-            dvc push || echo "⚠️ DVC push skipped or failed (mocked mode)"
+            echo "Attempting DVC push..."
+            dvc push || echo "DVC push skipped or failed (mocked mode)"
 
-            echo "✅ DVC versioning step complete."
+            echo "DVC versioning step complete."
         """,
     )
 
-    # 8️⃣ Generate final summary report
+    # 🔟 Generate final summary report
     generate_report = BashOperator(
         task_id="generate_report",
         bash_command="python /opt/airflow/src/reporting/generate_summary_report.py",
     )
 
     # 🔗 Final dependency chain
-    acquire_data >> check_ocr_file >> validate_schema_ge >> run_schema_check >> run_bias_check >> run_tests >> dvc_push >> generate_report
+    acquire_data >> check_ocr_file >> transform_ocr >> clean_structured \
+        >> validate_schema_ge >> run_schema_check >> run_bias_check \
+        >> run_tests >> dvc_push >> generate_report

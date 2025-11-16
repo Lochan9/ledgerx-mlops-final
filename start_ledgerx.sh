@@ -1,21 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Booting LedgerX Airflow Environment..."
+ROLE="$1"   # webserver or scheduler
 
-# -----------------------------
-# 1. Database upgrade
-# -----------------------------
-echo "🔧 Initializing Airflow DB..."
+echo "Booting LedgerX Airflow Environment for role: ${ROLE}"
+
+echo "Initializing Airflow DB..."
 airflow db upgrade
 
-# -----------------------------
-# 2. Create Admin user IF NOT EXISTS
-# -----------------------------
-echo "👤 Ensuring admin user exists..."
-
-airflow users list | grep -w "admin" >/dev/null 2>&1
-if [ $? -ne 0 ]; then
+echo "Ensuring admin user exists..."
+if ! airflow users list | grep -w "admin" >/dev/null 2>&1; then
     airflow users create \
         --username admin \
         --firstname Admin \
@@ -23,22 +17,24 @@ if [ $? -ne 0 ]; then
         --password admin \
         --role Admin \
         --email admin@example.com
-    echo "✅ Admin user created"
+    echo "Admin user created"
 else
-    echo "ℹ️ Admin user already exists"
+    echo "Admin user already exists"
 fi
 
-# -----------------------------
-# 3. Configure Git (for DVC)
-# -----------------------------
-echo "🌐 Configuring DVC + Git..."
+echo "Configuring Git + DVC..."
 git config --global user.name "LedgerX Pipeline"
 git config --global user.email "pipeline@ledgerx.local"
 
-# -----------------------------
-# 4. Start Airflow services
-# -----------------------------
-echo "🚀 Starting Airflow Webserver + Scheduler..."
+if [ "$ROLE" = "webserver" ]; then
+    echo "Starting Airflow WEB SERVER..."
+    exec airflow webserver
 
-airflow webserver &
-airflow scheduler
+elif [ "$ROLE" = "scheduler" ]; then
+    echo "Starting Airflow SCHEDULER..."
+    exec airflow scheduler
+
+else
+    echo "Unknown role: ${ROLE}. Use 'webserver' or 'scheduler'."
+    exit 1
+fi

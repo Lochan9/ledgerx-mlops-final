@@ -1,38 +1,48 @@
 import pandas as pd
 from pathlib import Path
+from loguru import logger
 
-# 👇 Absolute paths inside Airflow container
-INPUT_FILE = Path("/opt/airflow/data/processed/fatura_ocr.csv")
+# Cleaned structured file
+INPUT_FILE = Path("/opt/airflow/data/processed/fatura_cleaned.csv")
 OUTPUT_FILE = Path("/opt/airflow/reports/schema_check.txt")
 
 def check_schema():
-    # ✔ Ensure report directory exists
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-    # ✔ Load the OCR CSV
+    if not INPUT_FILE.exists():
+        msg = f"❌ File not found: {INPUT_FILE}"
+        OUTPUT_FILE.write_text(msg)
+        print(msg)
+        return
+
     df = pd.read_csv(INPUT_FILE)
 
-    # ✔ Define expected schema
-    expected_columns = ["file_name", "ocr_text"]
+    # ✔ Expected FINAL structured schema
+    expected_columns = [
+        "invoice_number",
+        "invoice_date",
+        "vendor_name",
+        "currency",
+        "total_amount",
+    ]
 
     results = []
 
-    # Check columns exist
+    # Check required columns
     for col in expected_columns:
         if col in df.columns:
             results.append(f"✔ Column present: {col}")
         else:
             results.append(f"❌ MISSING column: {col}")
 
-    # Check number of records
+    # Row count
     results.append(f"Total rows: {len(df)}")
 
     # Save report
-    with open(OUTPUT_FILE, "w") as f:
-        f.write("\n".join(results))
+    OUTPUT_FILE.write_text("\n".join(results))
 
-    print(f"Schema check complete → {OUTPUT_FILE}")
-
+    logger.info(f"Schema check complete → {OUTPUT_FILE}")
+    print("Schema check complete.")
 
 if __name__ == "__main__":
     check_schema()
