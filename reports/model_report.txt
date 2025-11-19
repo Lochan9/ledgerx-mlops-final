@@ -1,0 +1,15 @@
+LedgerX Multi-Model Training Summary
+=====================================
+
+QUALITY MODEL RESULTS:
+  -       logreg | Acc=0.7603 | Prec=0.9972 | Rec=0.7512 | F1=0.8569 | AUC=0.8660522807627659
+  - random_forest | Acc=0.9507 | Prec=0.9554 | Rec=0.9948 | F1=0.9747 | AUC=0.8680171564365617
+  -     catboost | Acc=0.9547 | Prec=0.9556 | Rec=0.9990 | F1=0.9768 | AUC=0.8627427114125079
+  BEST_MODEL: catboost (F1=0.9768)
+
+FAILURE MODEL RESULTS:
+  -       logreg | Acc=0.9412 | Prec=0.8405 | Rec=1.0000 | F1=0.9134 | AUC=0.9693477428117055
+  - random_forest | Acc=0.9357 | Prec=0.8409 | Rec=0.9775 | F1=0.9041 | AUC=0.9700268146308054
+  -     catboost | Acc=0.9382 | Prec=0.8411 | Rec=0.9871 | F1=0.9083 | AUC=0.9731064343505867
+  BEST_MODEL: logreg (F1=0.9134)
+

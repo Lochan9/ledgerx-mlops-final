@@ -1,0 +1,15 @@
+Permutation Importance — FAILURE
+======================================================================
+
+has_critical_missing                | mean=0.389636 | std=0.007687
+num_missing_fields                  | mean=0.000249 | std=0.000249
+amount_bucket                       | mean=0.000000 | std=0.000000
+invoice_number_present              | mean=0.000000 | std=0.000000
+vendor_name_length                  | mean=0.000000 | std=0.000000
+total_amount                        | mean=0.000000 | std=0.000000
+vendor_freq                         | mean=0.000000 | std=0.000000
+file_size_kb                        | mean=0.000000 | std=0.000000
+num_pages                           | mean=0.000000 | std=0.000000
+ocr_confidence                      | mean=0.000000 | std=0.000000
+contrast_score                      | mean=0.000000 | std=0.000000
+blur_score                          | mean=0.000000 | std=0.000000

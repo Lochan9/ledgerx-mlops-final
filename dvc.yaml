@@ -1,0 +1,8 @@
+stages:
+  preprocess_fatura:
+    cmd: python src/stages/preprocess_fatura.py
+    deps:
+    - data/raw/FATURA
+    - src/stages/preprocess_fatura.py
+    outs:
+    - data/processed/fatura_ocr.csv

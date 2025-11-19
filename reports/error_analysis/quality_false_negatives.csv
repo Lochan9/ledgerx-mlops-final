@@ -1,0 +1,3 @@
+blur_score,contrast_score,ocr_confidence,num_missing_fields,has_critical_missing,num_pages,file_size_kb,vendor_freq,true_label,pred_label,correct
+7013.856829101879,45.71309770719144,0.4679470198675496,1,1,1,60.4052734375,0.0051,1,0,0
+7045.667706508728,45.84522404483061,0.4691554054054054,1,1,1,61.08203125,0.0051,1,0,0

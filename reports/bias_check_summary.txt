@@ -1,0 +1,1 @@
+✔ No bias found in structured invoice fields.

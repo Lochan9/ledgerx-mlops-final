@@ -1,0 +1,84 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: ledgerx-postgres
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ledgerx-airflow-auto
+    container_name: ledgerx-airflow-web
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_super_secret_key_ledgerx
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - PYTHONWARNINGS=ignore::SyntaxWarning
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_super_secret_key_ledgerx_123456
+    command: ["bash", "/opt/airflow/start_ledgerx.sh", "webserver"]
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./data:/opt/airflow/data
+      - ./reports:/opt/airflow/reports
+      - ./src:/opt/airflow/src
+
+  scheduler:
+    image: ledgerx-airflow-auto
+    container_name: ledgerx-airflow-scheduler
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - PYTHONWARNINGS=ignore::SyntaxWarning
+      - AIRFLOW__WEBSERVER__SECRET_KEY=my_super_secret_key_ledgerx_123456
+    command: ["bash", "/opt/airflow/start_ledgerx.sh", "scheduler"]
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./data:/opt/airflow/data
+      - ./reports:/opt/airflow/reports
+      - ./src:/opt/airflow/src
+
+  minio:
+    image: minio/minio:latest
+    container_name: ledgerx-minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=ledgerx
+      - MINIO_ROOT_PASSWORD=ledgerx123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+  minio-mc:
+    image: minio/mc:latest
+    container_name: ledgerx-minio-mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set ledgerx-minio http://minio:9000 ledgerx ledgerx123 &&
+      mc mb -p ledgerx-minio/ledgerx-data || true &&
+      mc mb -p ledgerx-minio/ledgerx-models || true &&
+      sleep 5
+      "
+
+volumes:
+  postgres_data:
+  minio_data:

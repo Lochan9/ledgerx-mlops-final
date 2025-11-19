@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  preprocess_fatura:
+    cmd: python src/stages/preprocess_fatura.py
+    deps:
+    - path: data/raw/FATURA
+      hash: md5
+      md5: 0f9fde2f47c4300dd3f931eab0f935bf.dir
+      size: 473677037
+      nfiles: 40004
+    - path: src/stages/preprocess_fatura.py
+      hash: md5
+      md5: eab2b5047c84efb1ed75e40c589389d1
+      size: 1001
+    outs:
+    - path: data/processed/fatura_ocr.csv
+      hash: md5
+      md5: fc39caaf6c352eebc951a82ff95437e7
+      size: 6400008

@@ -1,0 +1,4 @@
+ocr_slice,count,accuracy
+low_ocr,1971,0.9563673262303399
+medium_ocr,36,0.8611111111111112
+high_ocr,0,

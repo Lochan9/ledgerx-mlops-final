@@ -1,0 +1,11 @@
+Permutation Importance — QUALITY
+======================================================================
+
+ocr_confidence                      | mean=0.001910 | std=0.001235
+blur_score                          | mean=0.001495 | std=0.000814
+file_size_kb                        | mean=0.000913 | std=0.000993
+contrast_score                      | mean=0.000913 | std=0.001034
+vendor_freq                         | mean=0.000623 | std=0.000791
+num_pages                           | mean=0.000000 | std=0.000000
+has_critical_missing                | mean=-0.000000 | std=0.000538
+num_missing_fields                  | mean=-0.000125 | std=0.000503

@@ -1,0 +1,6 @@
+✔ Column present: invoice_number
+✔ Column present: invoice_date
+✔ Column present: vendor_name
+✔ Column present: currency
+✔ Column present: total_amount
+Total rows: 10000

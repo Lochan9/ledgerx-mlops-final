@@ -1,0 +1,5 @@
+outs:
+- md5: b03b52d55d6460c6cee29efcfa35694d
+  size: 28
+  hash: md5
+  path: .remote_test.txt

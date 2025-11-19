@@ -1,0 +1,1 @@
+blur_score,contrast_score,ocr_confidence,num_missing_fields,has_critical_missing,num_pages,file_size_kb,vendor_freq,total_amount,vendor_name_length,invoice_number_present,amount_bucket,true_label,pred_label,correct

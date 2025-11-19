@@ -1,0 +1,6 @@
+LedgerX CatBoost Model Training Report
+========================================
+
+{'task': 'quality', 'accuracy': 0.9995, 'precision': 1.0, 'recall': 0.9994997498749375, 'f1': 0.9997498123592694, 'model_path': 'D:\\vsCOde\\ledgerx-mlops-final\\models\\quality_catboost.cbm'}
+
+{'task': 'failure', 'accuracy': 1.0, 'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'model_path': 'D:\\vsCOde\\ledgerx-mlops-final\\models\\failure_catboost.cbm'}

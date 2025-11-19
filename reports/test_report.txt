@@ -1,0 +1,16 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.4, pytest-8.3.2, pluggy-1.5.0 -- /home/airflow/.local/bin/python
+cachedir: .pytest_cache
+rootdir: /opt/airflow/tests
+plugins: time-machine-2.14.2, anyio-4.4.0, hydra-core-1.3.2
+collecting ... collected 7 items
+
+../../opt/airflow/tests/test_preprocess_fatura.py::test_preprocess_creates_csv PASSED [ 14%]
+../../opt/airflow/tests/test_training.py::test_train_quality_model_runs PASSED [ 28%]
+../../opt/airflow/tests/test_training.py::test_train_failure_model_runs PASSED [ 42%]
+../../opt/airflow/tests/test_training.py::test_quality_model_accuracy_threshold PASSED [ 57%]
+../../opt/airflow/tests/test_training.py::test_failure_model_accuracy_threshold PASSED [ 71%]
+../../opt/airflow/tests/test_training.py::test_feature_columns_exist_after_prepare_data PASSED [ 85%]
+../../opt/airflow/tests/test_validate_fatura.py::test_validate_reports PASSED [100%]
+
+================== 7 passed, 13 warnings in 103.64s (0:01:43) ==================

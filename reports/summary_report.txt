@@ -1,0 +1,22 @@
+LedgerX - Summary Report
+==============================
+
+Total rows (quality): 10032
+
+Total rows (failure): 10032
+
+
+Quality Label Distribution:
+
+label_quality_bad
+1    9584
+0     448
+Name: count, dtype: int64
+
+
+Failure Label Distribution:
+
+label_failure
+0    6924
+1    3108
+Name: count, dtype: int64

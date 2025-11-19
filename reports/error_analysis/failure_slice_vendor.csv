@@ -1,0 +1,4 @@
+vendor_slice,count,accuracy
+rare_vendor,339,0.9321533923303835
+medium_vendor,417,0.9376498800959233
+frequent_vendor,1251,0.9448441247002398
