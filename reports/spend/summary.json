@@ -1,0 +1,1729 @@
+{
+  "total_spend": 2202793.02,
+  "n_invoices": 6945,
+  "n_vendors": 1071,
+  "top_vendors": [
+    {
+      "vendor_name": "| LCO jj",
+      "total_spend": 964329.3200000001
+    },
+    {
+      "vendor_name": "y| LCO |",
+      "total_spend": 258303.41
+    },
+    {
+      "vendor_name": "TAX INVOICE",
+      "total_spend": 173138.86000000002
+    },
+    {
+      "vendor_name": "INVOICE",
+      "total_spend": 152033.13
+    },
+    {
+      "vendor_name": "COMMERCIAL INVOICE",
+      "total_spend": 122259.95
+    },
+    {
+      "vendor_name": "Huff-Bryan",
+      "total_spend": 42541.61
+    },
+    {
+      "vendor_name": "Address:4894 Melanie Pass Apt. 742",
+      "total_spend": 37470.83
+    },
+    {
+      "vendor_name": "Ba.",
+      "total_spend": 33128.090000000004
+    },
+    {
+      "vendor_name": "Huft-Bryan",
+      "total_spend": 32756.09
+    },
+    {
+      "vendor_name": "Duran, Morgan andl Loper, COMMERCIAL INVOIC",
+      "total_spend": 31153.18
+    }
+  ],
+  "monthly_totals": [
+    {
+      "year_month": "1804-02",
+      "total_spend": 35.11
+    },
+    {
+      "year_month": "1805-02",
+      "total_spend": 285.08
+    },
+    {
+      "year_month": "1806-05",
+      "total_spend": 10.59
+    },
+    {
+      "year_month": "1808-03",
+      "total_spend": 268.59
+    },
+    {
+      "year_month": "1808-04",
+      "total_spend": 6.82
+    },
+    {
+      "year_month": "1808-05",
+      "total_spend": 40.2
+    },
+    {
+      "year_month": "1850-08",
+      "total_spend": 157.33
+    },
+    {
+      "year_month": "1865-01",
+      "total_spend": 26.76
+    },
+    {
+      "year_month": "1867-05",
+      "total_spend": 95.15
+    },
+    {
+      "year_month": "1883-02",
+      "total_spend": 119.04
+    },
+    {
+      "year_month": "1883-03",
+      "total_spend": 741.24
+    },
+    {
+      "year_month": "1885-02",
+      "total_spend": 4.0
+    },
+    {
+      "year_month": "1885-07",
+      "total_spend": 4.0
+    },
+    {
+      "year_month": "1887-09",
+      "total_spend": 530.05
+    },
+    {
+      "year_month": "1894-03",
+      "total_spend": 132.69
+    },
+    {
+      "year_month": "1897-04",
+      "total_spend": 2.02
+    },
+    {
+      "year_month": "1899-03",
+      "total_spend": 27.53
+    },
+    {
+      "year_month": "1903-11",
+      "total_spend": 9.19
+    },
+    {
+      "year_month": "1904-01",
+      "total_spend": 37.11
+    },
+    {
+      "year_month": "1904-04",
+      "total_spend": 80.75
+    },
+    {
+      "year_month": "1904-08",
+      "total_spend": 607.68
+    },
+    {
+      "year_month": "1904-12",
+      "total_spend": 8.0
+    },
+    {
+      "year_month": "1905-02",
+      "total_spend": 251.62
+    },
+    {
+      "year_month": "1905-03",
+      "total_spend": 25.27
+    },
+    {
+      "year_month": "1905-05",
+      "total_spend": 61.12
+    },
+    {
+      "year_month": "1905-07",
+      "total_spend": 13.0
+    },
+    {
+      "year_month": "1906-11",
+      "total_spend": 660.34
+    },
+    {
+      "year_month": "1908-04",
+      "total_spend": 33.02
+    },
+    {
+      "year_month": "1908-07",
+      "total_spend": 8.0
+    },
+    {
+      "year_month": "1908-10",
+      "total_spend": 192.97
+    },
+    {
+      "year_month": "1909-03",
+      "total_spend": 602.88
+    },
+    {
+      "year_month": "1909-06",
+      "total_spend": 23.43
+    },
+    {
+      "year_month": "1959-06",
+      "total_spend": 42.68
+    },
+    {
+      "year_month": "1963-04",
+      "total_spend": 120.79
+    },
+    {
+      "year_month": "1963-11",
+      "total_spend": 3.0
+    },
+    {
+      "year_month": "1967-11",
+      "total_spend": 90.76
+    },
+    {
+      "year_month": "1969-12",
+      "total_spend": 6.0
+    },
+    {
+      "year_month": "1983-04",
+      "total_spend": 79.16
+    },
+    {
+      "year_month": "1983-06",
+      "total_spend": 1.0
+    },
+    {
+      "year_month": "1983-08",
+      "total_spend": 16.62
+    },
+    {
+      "year_month": "1983-09",
+      "total_spend": 75.73
+    },
+    {
+      "year_month": "1983-10",
+      "total_spend": 4.0
+    },
+    {
+      "year_month": "1983-12",
+      "total_spend": 11.0
+    },
+    {
+      "year_month": "1987-11",
+      "total_spend": 6.0
+    },
+    {
+      "year_month": "1988-02",
+      "total_spend": 5.0
+    },
+    {
+      "year_month": "1988-04",
+      "total_spend": 630.71
+    },
+    {
+      "year_month": "1988-08",
+      "total_spend": 27.65
+    },
+    {
+      "year_month": "1989-08",
+      "total_spend": 25.12
+    },
+    {
+      "year_month": "1989-11",
+      "total_spend": 145.92000000000002
+    },
+    {
+      "year_month": "1993-01",
+      "total_spend": 2344.63
+    },
+    {
+      "year_month": "1993-02",
+      "total_spend": 3129.29
+    },
+    {
+      "year_month": "1993-03",
+      "total_spend": 704.69
+    },
+    {
+      "year_month": "1993-04",
+      "total_spend": 3767.64
+    },
+    {
+      "year_month": "1993-05",
+      "total_spend": 3076.29
+    },
+    {
+      "year_month": "1993-06",
+      "total_spend": 352.28
+    },
+    {
+      "year_month": "1993-07",
+      "total_spend": 915.85
+    },
+    {
+      "year_month": "1993-08",
+      "total_spend": 2728.77
+    },
+    {
+      "year_month": "1993-09",
+      "total_spend": 1816.05
+    },
+    {
+      "year_month": "1993-10",
+      "total_spend": 1574.39
+    },
+    {
+      "year_month": "1993-11",
+      "total_spend": 3222.19
+    },
+    {
+      "year_month": "1993-12",
+      "total_spend": 578.77
+    },
+    {
+      "year_month": "1994-01",
+      "total_spend": 3012.63
+    },
+    {
+      "year_month": "1994-02",
+      "total_spend": 1970.2600000000002
+    },
+    {
+      "year_month": "1994-03",
+      "total_spend": 2653.68
+    },
+    {
+      "year_month": "1994-04",
+      "total_spend": 1361.07
+    },
+    {
+      "year_month": "1994-05",
+      "total_spend": 1885.73
+    },
+    {
+      "year_month": "1994-06",
+      "total_spend": 2064.73
+    },
+    {
+      "year_month": "1994-07",
+      "total_spend": 2327.79
+    },
+    {
+      "year_month": "1994-08",
+      "total_spend": 2205.21
+    },
+    {
+      "year_month": "1994-09",
+      "total_spend": 1267.47
+    },
+    {
+      "year_month": "1994-10",
+      "total_spend": 2497.83
+    },
+    {
+      "year_month": "1994-11",
+      "total_spend": 4174.16
+    },
+    {
+      "year_month": "1994-12",
+      "total_spend": 1134.37
+    },
+    {
+      "year_month": "1995-01",
+      "total_spend": 1495.3400000000001
+    },
+    {
+      "year_month": "1995-02",
+      "total_spend": 3129.28
+    },
+    {
+      "year_month": "1995-03",
+      "total_spend": 3709.04
+    },
+    {
+      "year_month": "1995-04",
+      "total_spend": 2290.5
+    },
+    {
+      "year_month": "1995-05",
+      "total_spend": 3164.66
+    },
+    {
+      "year_month": "1995-06",
+      "total_spend": 2389.52
+    },
+    {
+      "year_month": "1995-07",
+      "total_spend": 833.0500000000001
+    },
+    {
+      "year_month": "1995-08",
+      "total_spend": 11266.58
+    },
+    {
+      "year_month": "1995-09",
+      "total_spend": 1040.15
+    },
+    {
+      "year_month": "1995-10",
+      "total_spend": 2963.49
+    },
+    {
+      "year_month": "1995-11",
+      "total_spend": 3456.21
+    },
+    {
+      "year_month": "1995-12",
+      "total_spend": 1778.43
+    },
+    {
+      "year_month": "1996-01",
+      "total_spend": 641.01
+    },
+    {
+      "year_month": "1996-02",
+      "total_spend": 2432.9
+    },
+    {
+      "year_month": "1996-03",
+      "total_spend": 4831.45
+    },
+    {
+      "year_month": "1996-04",
+      "total_spend": 2202.98
+    },
+    {
+      "year_month": "1996-05",
+      "total_spend": 258.93
+    },
+    {
+      "year_month": "1996-06",
+      "total_spend": 2528.49
+    },
+    {
+      "year_month": "1996-07",
+      "total_spend": 891.01
+    },
+    {
+      "year_month": "1996-08",
+      "total_spend": 1826.5700000000002
+    },
+    {
+      "year_month": "1996-09",
+      "total_spend": 1709.73
+    },
+    {
+      "year_month": "1996-10",
+      "total_spend": 1912.89
+    },
+    {
+      "year_month": "1996-11",
+      "total_spend": 2777.52
+    },
+    {
+      "year_month": "1996-12",
+      "total_spend": 2202.6800000000003
+    },
+    {
+      "year_month": "1997-01",
+      "total_spend": 1635.77
+    },
+    {
+      "year_month": "1997-02",
+      "total_spend": 470.64
+    },
+    {
+      "year_month": "1997-03",
+      "total_spend": 2448.4
+    },
+    {
+      "year_month": "1997-04",
+      "total_spend": 1211.76
+    },
+    {
+      "year_month": "1997-05",
+      "total_spend": 2797.75
+    },
+    {
+      "year_month": "1997-06",
+      "total_spend": 2837.12
+    },
+    {
+      "year_month": "1997-07",
+      "total_spend": 2428.34
+    },
+    {
+      "year_month": "1997-08",
+      "total_spend": 2587.68
+    },
+    {
+      "year_month": "1997-09",
+      "total_spend": 3978.81
+    },
+    {
+      "year_month": "1997-10",
+      "total_spend": 1317.4
+    },
+    {
+      "year_month": "1997-11",
+      "total_spend": 4441.32
+    },
+    {
+      "year_month": "1997-12",
+      "total_spend": 2030.37
+    },
+    {
+      "year_month": "1998-01",
+      "total_spend": 2845.69
+    },
+    {
+      "year_month": "1998-02",
+      "total_spend": 1676.34
+    },
+    {
+      "year_month": "1998-03",
+      "total_spend": 2181.81
+    },
+    {
+      "year_month": "1998-04",
+      "total_spend": 2723.82
+    },
+    {
+      "year_month": "1998-05",
+      "total_spend": 9570.12
+    },
+    {
+      "year_month": "1998-06",
+      "total_spend": 1085.74
+    },
+    {
+      "year_month": "1998-07",
+      "total_spend": 2042.78
+    },
+    {
+      "year_month": "1998-08",
+      "total_spend": 20698.420000000002
+    },
+    {
+      "year_month": "1998-09",
+      "total_spend": 838.3
+    },
+    {
+      "year_month": "1998-10",
+      "total_spend": 3547.54
+    },
+    {
+      "year_month": "1998-11",
+      "total_spend": 934.3299999999999
+    },
+    {
+      "year_month": "1998-12",
+      "total_spend": 2021.78
+    },
+    {
+      "year_month": "1999-01",
+      "total_spend": 6535.700000000001
+    },
+    {
+      "year_month": "1999-02",
+      "total_spend": 1201.21
+    },
+    {
+      "year_month": "1999-03",
+      "total_spend": 10998.64
+    },
+    {
+      "year_month": "1999-04",
+      "total_spend": 1863.15
+    },
+    {
+      "year_month": "1999-05",
+      "total_spend": 4725.47
+    },
+    {
+      "year_month": "1999-06",
+      "total_spend": 1882.16
+    },
+    {
+      "year_month": "1999-07",
+      "total_spend": 2276.22
+    },
+    {
+      "year_month": "1999-08",
+      "total_spend": 1672.01
+    },
+    {
+      "year_month": "1999-09",
+      "total_spend": 2815.0499999999997
+    },
+    {
+      "year_month": "1999-10",
+      "total_spend": 2585.09
+    },
+    {
+      "year_month": "1999-11",
+      "total_spend": 949.0300000000001
+    },
+    {
+      "year_month": "1999-12",
+      "total_spend": 2959.19
+    },
+    {
+      "year_month": "2000-01",
+      "total_spend": 1926.5900000000001
+    },
+    {
+      "year_month": "2000-02",
+      "total_spend": 3610.1299999999997
+    },
+    {
+      "year_month": "2000-03",
+      "total_spend": 1113.04
+    },
+    {
+      "year_month": "2000-04",
+      "total_spend": 2379.44
+    },
+    {
+      "year_month": "2000-05",
+      "total_spend": 2519.99
+    },
+    {
+      "year_month": "2000-06",
+      "total_spend": 256750.23
+    },
+    {
+      "year_month": "2000-07",
+      "total_spend": 1668.53
+    },
+    {
+      "year_month": "2000-08",
+      "total_spend": 308.43
+    },
+    {
+      "year_month": "2000-09",
+      "total_spend": 2550.4700000000003
+    },
+    {
+      "year_month": "2000-10",
+      "total_spend": 1663.88
+    },
+    {
+      "year_month": "2000-11",
+      "total_spend": 4654.01
+    },
+    {
+      "year_month": "2000-12",
+      "total_spend": 939.0
+    },
+    {
+      "year_month": "2001-01",
+      "total_spend": 1772.94
+    },
+    {
+      "year_month": "2001-02",
+      "total_spend": 2895.6800000000003
+    },
+    {
+      "year_month": "2001-03",
+      "total_spend": 3298.7799999999997
+    },
+    {
+      "year_month": "2001-04",
+      "total_spend": 2164.37
+    },
+    {
+      "year_month": "2001-05",
+      "total_spend": 1130.3600000000001
+    },
+    {
+      "year_month": "2001-06",
+      "total_spend": 9596.55
+    },
+    {
+      "year_month": "2001-07",
+      "total_spend": 1702.06
+    },
+    {
+      "year_month": "2001-08",
+      "total_spend": 5476.11
+    },
+    {
+      "year_month": "2001-09",
+      "total_spend": 1606.81
+    },
+    {
+      "year_month": "2001-10",
+      "total_spend": 2247.51
+    },
+    {
+      "year_month": "2001-11",
+      "total_spend": 3805.47
+    },
+    {
+      "year_month": "2001-12",
+      "total_spend": 1275.6399999999999
+    },
+    {
+      "year_month": "2002-01",
+      "total_spend": 2179.62
+    },
+    {
+      "year_month": "2002-02",
+      "total_spend": 2640.99
+    },
+    {
+      "year_month": "2002-03",
+      "total_spend": 1633.6100000000001
+    },
+    {
+      "year_month": "2002-04",
+      "total_spend": 4208.2
+    },
+    {
+      "year_month": "2002-05",
+      "total_spend": 1579.38
+    },
+    {
+      "year_month": "2002-06",
+      "total_spend": 1183.2
+    },
+    {
+      "year_month": "2002-07",
+      "total_spend": 5543.59
+    },
+    {
+      "year_month": "2002-08",
+      "total_spend": 1622.75
+    },
+    {
+      "year_month": "2002-09",
+      "total_spend": 2572.9
+    },
+    {
+      "year_month": "2002-10",
+      "total_spend": 3303.4
+    },
+    {
+      "year_month": "2002-11",
+      "total_spend": 3216.41
+    },
+    {
+      "year_month": "2002-12",
+      "total_spend": 472.41
+    },
+    {
+      "year_month": "2003-01",
+      "total_spend": 50888.32
+    },
+    {
+      "year_month": "2003-02",
+      "total_spend": 3331.96
+    },
+    {
+      "year_month": "2003-03",
+      "total_spend": 566.48
+    },
+    {
+      "year_month": "2003-04",
+      "total_spend": 2952.34
+    },
+    {
+      "year_month": "2003-05",
+      "total_spend": 1030.27
+    },
+    {
+      "year_month": "2003-06",
+      "total_spend": 1692.4099999999999
+    },
+    {
+      "year_month": "2003-07",
+      "total_spend": 1811.3200000000002
+    },
+    {
+      "year_month": "2003-08",
+      "total_spend": 2321.81
+    },
+    {
+      "year_month": "2003-09",
+      "total_spend": 2337.19
+    },
+    {
+      "year_month": "2003-10",
+      "total_spend": 4239.27
+    },
+    {
+      "year_month": "2003-11",
+      "total_spend": 2681.45
+    },
+    {
+      "year_month": "2003-12",
+      "total_spend": 2970.6499999999996
+    },
+    {
+      "year_month": "2004-01",
+      "total_spend": 1558.9999999999998
+    },
+    {
+      "year_month": "2004-02",
+      "total_spend": 740.97
+    },
+    {
+      "year_month": "2004-03",
+      "total_spend": 2560.78
+    },
+    {
+      "year_month": "2004-04",
+      "total_spend": 1659.84
+    },
+    {
+      "year_month": "2004-05",
+      "total_spend": 1767.83
+    },
+    {
+      "year_month": "2004-06",
+      "total_spend": 3892.63
+    },
+    {
+      "year_month": "2004-07",
+      "total_spend": 1111.76
+    },
+    {
+      "year_month": "2004-08",
+      "total_spend": 4184.8099999999995
+    },
+    {
+      "year_month": "2004-09",
+      "total_spend": 3131.21
+    },
+    {
+      "year_month": "2004-10",
+      "total_spend": 1908.55
+    },
+    {
+      "year_month": "2004-11",
+      "total_spend": 2563.68
+    },
+    {
+      "year_month": "2004-12",
+      "total_spend": 1927.78
+    },
+    {
+      "year_month": "2005-01",
+      "total_spend": 2125.17
+    },
+    {
+      "year_month": "2005-02",
+      "total_spend": 2032.5499999999997
+    },
+    {
+      "year_month": "2005-03",
+      "total_spend": 2556.92
+    },
+    {
+      "year_month": "2005-04",
+      "total_spend": 1244.0900000000001
+    },
+    {
+      "year_month": "2005-05",
+      "total_spend": 3736.21
+    },
+    {
+      "year_month": "2005-06",
+      "total_spend": 1459.33
+    },
+    {
+      "year_month": "2005-07",
+      "total_spend": 4238.17
+    },
+    {
+      "year_month": "2005-08",
+      "total_spend": 2973.5699999999997
+    },
+    {
+      "year_month": "2005-09",
+      "total_spend": 383.25
+    },
+    {
+      "year_month": "2005-10",
+      "total_spend": 2775.5
+    },
+    {
+      "year_month": "2005-11",
+      "total_spend": 2756.51
+    },
+    {
+      "year_month": "2005-12",
+      "total_spend": 573.44
+    },
+    {
+      "year_month": "2006-01",
+      "total_spend": 1402.72
+    },
+    {
+      "year_month": "2006-02",
+      "total_spend": 973.21
+    },
+    {
+      "year_month": "2006-03",
+      "total_spend": 2950.8599999999997
+    },
+    {
+      "year_month": "2006-04",
+      "total_spend": 932.4199999999998
+    },
+    {
+      "year_month": "2006-05",
+      "total_spend": 1192.32
+    },
+    {
+      "year_month": "2006-06",
+      "total_spend": 3096.2
+    },
+    {
+      "year_month": "2006-07",
+      "total_spend": 2138.18
+    },
+    {
+      "year_month": "2006-08",
+      "total_spend": 1784.29
+    },
+    {
+      "year_month": "2006-09",
+      "total_spend": 1162.81
+    },
+    {
+      "year_month": "2006-10",
+      "total_spend": 3277.02
+    },
+    {
+      "year_month": "2006-11",
+      "total_spend": 4093.51
+    },
+    {
+      "year_month": "2006-12",
+      "total_spend": 483.9
+    },
+    {
+      "year_month": "2007-01",
+      "total_spend": 1227.97
+    },
+    {
+      "year_month": "2007-02",
+      "total_spend": 2285.3399999999997
+    },
+    {
+      "year_month": "2007-03",
+      "total_spend": 2444.62
+    },
+    {
+      "year_month": "2007-04",
+      "total_spend": 1718.28
+    },
+    {
+      "year_month": "2007-05",
+      "total_spend": 1975.07
+    },
+    {
+      "year_month": "2007-06",
+      "total_spend": 1101.48
+    },
+    {
+      "year_month": "2007-07",
+      "total_spend": 92.11
+    },
+    {
+      "year_month": "2007-08",
+      "total_spend": 1237.25
+    },
+    {
+      "year_month": "2007-09",
+      "total_spend": 1881.11
+    },
+    {
+      "year_month": "2007-10",
+      "total_spend": 1070.44
+    },
+    {
+      "year_month": "2007-11",
+      "total_spend": 2571.83
+    },
+    {
+      "year_month": "2007-12",
+      "total_spend": 266.27
+    },
+    {
+      "year_month": "2008-01",
+      "total_spend": 4004.96
+    },
+    {
+      "year_month": "2008-02",
+      "total_spend": 5198.34
+    },
+    {
+      "year_month": "2008-03",
+      "total_spend": 5108.73
+    },
+    {
+      "year_month": "2008-04",
+      "total_spend": 4544.58
+    },
+    {
+      "year_month": "2008-05",
+      "total_spend": 10555.130000000001
+    },
+    {
+      "year_month": "2008-06",
+      "total_spend": 1907.48
+    },
+    {
+      "year_month": "2008-07",
+      "total_spend": 4844.46
+    },
+    {
+      "year_month": "2008-08",
+      "total_spend": 4728.37
+    },
+    {
+      "year_month": "2008-09",
+      "total_spend": 10412.09
+    },
+    {
+      "year_month": "2008-10",
+      "total_spend": 2340.91
+    },
+    {
+      "year_month": "2008-11",
+      "total_spend": 3482.9
+    },
+    {
+      "year_month": "2008-12",
+      "total_spend": 1698.4299999999998
+    },
+    {
+      "year_month": "2009-01",
+      "total_spend": 3229.5
+    },
+    {
+      "year_month": "2009-02",
+      "total_spend": 1271.5900000000001
+    },
+    {
+      "year_month": "2009-03",
+      "total_spend": 4104.99
+    },
+    {
+      "year_month": "2009-04",
+      "total_spend": 1017.92
+    },
+    {
+      "year_month": "2009-05",
+      "total_spend": 825.6
+    },
+    {
+      "year_month": "2009-06",
+      "total_spend": 1688.49
+    },
+    {
+      "year_month": "2009-07",
+      "total_spend": 811.85
+    },
+    {
+      "year_month": "2009-08",
+      "total_spend": 2145.14
+    },
+    {
+      "year_month": "2009-09",
+      "total_spend": 1886.6399999999999
+    },
+    {
+      "year_month": "2009-10",
+      "total_spend": 1375.42
+    },
+    {
+      "year_month": "2009-11",
+      "total_spend": 2728.04
+    },
+    {
+      "year_month": "2009-12",
+      "total_spend": 990.75
+    },
+    {
+      "year_month": "2010-01",
+      "total_spend": 4323.6900000000005
+    },
+    {
+      "year_month": "2010-02",
+      "total_spend": 2174.5
+    },
+    {
+      "year_month": "2010-03",
+      "total_spend": 1711.47
+    },
+    {
+      "year_month": "2010-04",
+      "total_spend": 13056.01
+    },
+    {
+      "year_month": "2010-05",
+      "total_spend": 5289.29
+    },
+    {
+      "year_month": "2010-06",
+      "total_spend": 4806.889999999999
+    },
+    {
+      "year_month": "2010-07",
+      "total_spend": 983.74
+    },
+    {
+      "year_month": "2010-08",
+      "total_spend": 1827.42
+    },
+    {
+      "year_month": "2010-09",
+      "total_spend": 1496.2
+    },
+    {
+      "year_month": "2010-10",
+      "total_spend": 540.73
+    },
+    {
+      "year_month": "2010-11",
+      "total_spend": 3716.61
+    },
+    {
+      "year_month": "2010-12",
+      "total_spend": 3851.6
+    },
+    {
+      "year_month": "2011-01",
+      "total_spend": 1610.5700000000002
+    },
+    {
+      "year_month": "2011-02",
+      "total_spend": 1346.65
+    },
+    {
+      "year_month": "2011-03",
+      "total_spend": 3619.0499999999997
+    },
+    {
+      "year_month": "2011-04",
+      "total_spend": 436.98
+    },
+    {
+      "year_month": "2011-05",
+      "total_spend": 940.1999999999999
+    },
+    {
+      "year_month": "2011-06",
+      "total_spend": 1098.5
+    },
+    {
+      "year_month": "2011-07",
+      "total_spend": 1884.74
+    },
+    {
+      "year_month": "2011-08",
+      "total_spend": 2101.22
+    },
+    {
+      "year_month": "2011-09",
+      "total_spend": 3256.39
+    },
+    {
+      "year_month": "2011-10",
+      "total_spend": 3896.73
+    },
+    {
+      "year_month": "2011-11",
+      "total_spend": 1862.6399999999999
+    },
+    {
+      "year_month": "2011-12",
+      "total_spend": 1702.75
+    },
+    {
+      "year_month": "2012-01",
+      "total_spend": 2725.2400000000002
+    },
+    {
+      "year_month": "2012-02",
+      "total_spend": 2622.7599999999998
+    },
+    {
+      "year_month": "2012-03",
+      "total_spend": 1641.28
+    },
+    {
+      "year_month": "2012-04",
+      "total_spend": 679.95
+    },
+    {
+      "year_month": "2012-05",
+      "total_spend": 819.54
+    },
+    {
+      "year_month": "2012-06",
+      "total_spend": 4437.69
+    },
+    {
+      "year_month": "2012-07",
+      "total_spend": 5294.5599999999995
+    },
+    {
+      "year_month": "2012-08",
+      "total_spend": 2371.36
+    },
+    {
+      "year_month": "2012-09",
+      "total_spend": 554.0600000000001
+    },
+    {
+      "year_month": "2012-10",
+      "total_spend": 2309.38
+    },
+    {
+      "year_month": "2012-11",
+      "total_spend": 3424.45
+    },
+    {
+      "year_month": "2012-12",
+      "total_spend": 1449.54
+    },
+    {
+      "year_month": "2013-01",
+      "total_spend": 1461.19
+    },
+    {
+      "year_month": "2013-02",
+      "total_spend": 6515.56
+    },
+    {
+      "year_month": "2013-03",
+      "total_spend": 1692.5100000000002
+    },
+    {
+      "year_month": "2013-04",
+      "total_spend": 3024.51
+    },
+    {
+      "year_month": "2013-05",
+      "total_spend": 1567.46
+    },
+    {
+      "year_month": "2013-06",
+      "total_spend": 4640.52
+    },
+    {
+      "year_month": "2013-07",
+      "total_spend": 2790.89
+    },
+    {
+      "year_month": "2013-08",
+      "total_spend": 7349.96
+    },
+    {
+      "year_month": "2013-09",
+      "total_spend": 1311.83
+    },
+    {
+      "year_month": "2013-10",
+      "total_spend": 109.51
+    },
+    {
+      "year_month": "2013-11",
+      "total_spend": 3564.53
+    },
+    {
+      "year_month": "2013-12",
+      "total_spend": 169.64000000000001
+    },
+    {
+      "year_month": "2014-01",
+      "total_spend": 3592.3199999999997
+    },
+    {
+      "year_month": "2014-02",
+      "total_spend": 1270.3
+    },
+    {
+      "year_month": "2014-03",
+      "total_spend": 1904.24
+    },
+    {
+      "year_month": "2014-04",
+      "total_spend": 1114.17
+    },
+    {
+      "year_month": "2014-05",
+      "total_spend": 4015.5699999999997
+    },
+    {
+      "year_month": "2014-06",
+      "total_spend": 961860.5599999999
+    },
+    {
+      "year_month": "2014-07",
+      "total_spend": 1799.92
+    },
+    {
+      "year_month": "2014-08",
+      "total_spend": 8186.389999999999
+    },
+    {
+      "year_month": "2014-09",
+      "total_spend": 8400.74
+    },
+    {
+      "year_month": "2014-10",
+      "total_spend": 3012.26
+    },
+    {
+      "year_month": "2014-11",
+      "total_spend": 3612.63
+    },
+    {
+      "year_month": "2014-12",
+      "total_spend": 740.39
+    },
+    {
+      "year_month": "2015-01",
+      "total_spend": 546.83
+    },
+    {
+      "year_month": "2015-02",
+      "total_spend": 2537.16
+    },
+    {
+      "year_month": "2015-03",
+      "total_spend": 2766.99
+    },
+    {
+      "year_month": "2015-04",
+      "total_spend": 407.23
+    },
+    {
+      "year_month": "2015-05",
+      "total_spend": 2573.52
+    },
+    {
+      "year_month": "2015-06",
+      "total_spend": 2850.06
+    },
+    {
+      "year_month": "2015-07",
+      "total_spend": 1528.0800000000002
+    },
+    {
+      "year_month": "2015-08",
+      "total_spend": 3494.63
+    },
+    {
+      "year_month": "2015-09",
+      "total_spend": 995.53
+    },
+    {
+      "year_month": "2015-10",
+      "total_spend": 1866.9
+    },
+    {
+      "year_month": "2015-11",
+      "total_spend": 989.4300000000001
+    },
+    {
+      "year_month": "2015-12",
+      "total_spend": 2156.67
+    },
+    {
+      "year_month": "2016-01",
+      "total_spend": 2185.58
+    },
+    {
+      "year_month": "2016-02",
+      "total_spend": 1853.07
+    },
+    {
+      "year_month": "2016-03",
+      "total_spend": 2202.5
+    },
+    {
+      "year_month": "2016-04",
+      "total_spend": 3292.54
+    },
+    {
+      "year_month": "2016-05",
+      "total_spend": 3008.49
+    },
+    {
+      "year_month": "2016-06",
+      "total_spend": 2179.01
+    },
+    {
+      "year_month": "2016-07",
+      "total_spend": 5180.0599999999995
+    },
+    {
+      "year_month": "2016-08",
+      "total_spend": 2196.3199999999997
+    },
+    {
+      "year_month": "2016-09",
+      "total_spend": 1898.25
+    },
+    {
+      "year_month": "2016-10",
+      "total_spend": 996.04
+    },
+    {
+      "year_month": "2016-11",
+      "total_spend": 3543.54
+    },
+    {
+      "year_month": "2016-12",
+      "total_spend": 2099.33
+    },
+    {
+      "year_month": "2017-01",
+      "total_spend": 739.8299999999999
+    },
+    {
+      "year_month": "2017-02",
+      "total_spend": 2691.15
+    },
+    {
+      "year_month": "2017-03",
+      "total_spend": 775.62
+    },
+    {
+      "year_month": "2017-04",
+      "total_spend": 4516.4400000000005
+    },
+    {
+      "year_month": "2017-05",
+      "total_spend": 3783.74
+    },
+    {
+      "year_month": "2017-06",
+      "total_spend": 1203.8899999999999
+    },
+    {
+      "year_month": "2017-07",
+      "total_spend": 2217.82
+    },
+    {
+      "year_month": "2017-08",
+      "total_spend": 1075.33
+    },
+    {
+      "year_month": "2017-09",
+      "total_spend": 4198.01
+    },
+    {
+      "year_month": "2017-10",
+      "total_spend": 1226.66
+    },
+    {
+      "year_month": "2017-11",
+      "total_spend": 4591.7300000000005
+    },
+    {
+      "year_month": "2017-12",
+      "total_spend": 2088.2
+    },
+    {
+      "year_month": "2018-01",
+      "total_spend": 1325.53
+    },
+    {
+      "year_month": "2018-02",
+      "total_spend": 2682.31
+    },
+    {
+      "year_month": "2018-03",
+      "total_spend": 4052.02
+    },
+    {
+      "year_month": "2018-04",
+      "total_spend": 3135.9900000000002
+    },
+    {
+      "year_month": "2018-05",
+      "total_spend": 2007.2800000000002
+    },
+    {
+      "year_month": "2018-06",
+      "total_spend": 3245.1800000000003
+    },
+    {
+      "year_month": "2018-07",
+      "total_spend": 2238.27
+    },
+    {
+      "year_month": "2018-08",
+      "total_spend": 4975.75
+    },
+    {
+      "year_month": "2018-09",
+      "total_spend": 5269.48
+    },
+    {
+      "year_month": "2018-10",
+      "total_spend": 2436.81
+    },
+    {
+      "year_month": "2018-11",
+      "total_spend": 3204.57
+    },
+    {
+      "year_month": "2018-12",
+      "total_spend": 2707.36
+    },
+    {
+      "year_month": "2019-01",
+      "total_spend": 1550.21
+    },
+    {
+      "year_month": "2019-02",
+      "total_spend": 1069.3799999999999
+    },
+    {
+      "year_month": "2019-03",
+      "total_spend": 2687.0
+    },
+    {
+      "year_month": "2019-04",
+      "total_spend": 594.01
+    },
+    {
+      "year_month": "2019-05",
+      "total_spend": 2212.01
+    },
+    {
+      "year_month": "2019-06",
+      "total_spend": 621.8199999999999
+    },
+    {
+      "year_month": "2019-07",
+      "total_spend": 428.96000000000004
+    },
+    {
+      "year_month": "2019-08",
+      "total_spend": 2861.06
+    },
+    {
+      "year_month": "2019-09",
+      "total_spend": 3785.11
+    },
+    {
+      "year_month": "2019-10",
+      "total_spend": 608.12
+    },
+    {
+      "year_month": "2019-11",
+      "total_spend": 1533.63
+    },
+    {
+      "year_month": "2019-12",
+      "total_spend": 1505.3700000000001
+    },
+    {
+      "year_month": "2020-01",
+      "total_spend": 1293.74
+    },
+    {
+      "year_month": "2020-02",
+      "total_spend": 2652.63
+    },
+    {
+      "year_month": "2020-03",
+      "total_spend": 7409.59
+    },
+    {
+      "year_month": "2020-04",
+      "total_spend": 4756.77
+    },
+    {
+      "year_month": "2020-05",
+      "total_spend": 3211.06
+    },
+    {
+      "year_month": "2020-06",
+      "total_spend": 901.9000000000001
+    },
+    {
+      "year_month": "2020-07",
+      "total_spend": 1921.3700000000001
+    },
+    {
+      "year_month": "2020-08",
+      "total_spend": 1998.58
+    },
+    {
+      "year_month": "2020-09",
+      "total_spend": 3092.21
+    },
+    {
+      "year_month": "2020-10",
+      "total_spend": 1027.9
+    },
+    {
+      "year_month": "2020-11",
+      "total_spend": 3016.21
+    },
+    {
+      "year_month": "2020-12",
+      "total_spend": 1393.31
+    },
+    {
+      "year_month": "2021-01",
+      "total_spend": 1131.03
+    },
+    {
+      "year_month": "2021-02",
+      "total_spend": 1284.86
+    },
+    {
+      "year_month": "2021-03",
+      "total_spend": 2400.23
+    },
+    {
+      "year_month": "2021-04",
+      "total_spend": 2527.81
+    },
+    {
+      "year_month": "2021-05",
+      "total_spend": 3255.2700000000004
+    },
+    {
+      "year_month": "2021-06",
+      "total_spend": 497.15999999999997
+    },
+    {
+      "year_month": "2021-07",
+      "total_spend": 2473.99
+    },
+    {
+      "year_month": "2021-08",
+      "total_spend": 2192.87
+    },
+    {
+      "year_month": "2021-09",
+      "total_spend": 2703.2
+    },
+    {
+      "year_month": "2021-10",
+      "total_spend": 1566.39
+    },
+    {
+      "year_month": "2021-11",
+      "total_spend": 1778.79
+    },
+    {
+      "year_month": "2021-12",
+      "total_spend": 3171.5
+    },
+    {
+      "year_month": "2022-01",
+      "total_spend": 5097.13
+    },
+    {
+      "year_month": "2022-02",
+      "total_spend": 2642.1800000000003
+    },
+    {
+      "year_month": "2022-03",
+      "total_spend": 3778.7799999999997
+    },
+    {
+      "year_month": "2022-04",
+      "total_spend": 4646.88
+    },
+    {
+      "year_month": "2022-05",
+      "total_spend": 4376.75
+    },
+    {
+      "year_month": "2022-06",
+      "total_spend": 499.86
+    },
+    {
+      "year_month": "2022-07",
+      "total_spend": 747.47
+    },
+    {
+      "year_month": "2022-08",
+      "total_spend": 5222.79
+    },
+    {
+      "year_month": "2022-09",
+      "total_spend": 2696.56
+    },
+    {
+      "year_month": "2022-10",
+      "total_spend": 790.45
+    },
+    {
+      "year_month": "2022-11",
+      "total_spend": 2305.38
+    },
+    {
+      "year_month": "2022-12",
+      "total_spend": 2985.0699999999997
+    },
+    {
+      "year_month": "2023-01",
+      "total_spend": 55.12
+    },
+    {
+      "year_month": "2024-01",
+      "total_spend": 1.23
+    },
+    {
+      "year_month": "2024-02",
+      "total_spend": 79.84
+    },
+    {
+      "year_month": "2024-03",
+      "total_spend": 1218.52
+    },
+    {
+      "year_month": "2024-05",
+      "total_spend": 98.33
+    },
+    {
+      "year_month": "2024-06",
+      "total_spend": 6.28
+    },
+    {
+      "year_month": "2024-07",
+      "total_spend": 138.57999999999998
+    },
+    {
+      "year_month": "2024-11",
+      "total_spend": 21.48
+    },
+    {
+      "year_month": "2028-01",
+      "total_spend": 79.46
+    },
+    {
+      "year_month": "2041-06",
+      "total_spend": 921.25
+    },
+    {
+      "year_month": "2041-10",
+      "total_spend": 94.0
+    }
+  ]
+}

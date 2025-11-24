@@ -1,0 +1,29 @@
+{
+    "vendor_name": "address:16424 timothy mission",
+    "invoice_number": "date",
+    "invoice_date": "20-mar-2008",
+    "due_date": "16-oct-2016",
+    "subtotal": 725.3,
+    "tax": 20.0,
+    "total": 734.33,
+    "currency": "EUR",
+    "bill_to": "16424 timothy mission markville, ak 58294 us tol:+(952)259-8443 email:melvin40@example.net site:http:/ismith.org/",
+    "items": [
+        {
+            "description": "mather consider",
+            "qty": 1.0,
+            "price": 0.0
+        },
+        {
+            "description": "tv fous",
+            "qty": 4.0,
+            "price": 40.28
+        },
+        {
+            "description": "bank account number",
+            "qty": 1169543.0,
+            "price": 5.0
+        }
+    ],
+    "full_text": "address:16424 timothy mission\nmarkville, ak 58294 us.\n\nemail:melvinso@example.net\n\u2018www.thompsonandsons.org\n(gstin: 12345670 00070007\n\ntax invoice\n\ndate: 20-mar-2008\ndue date : 16-oct-2016\n\nbill to:denise perez\n16424 timothy mission\nmarkville, ak 58294 us\ntol:+(952)259-8443\nemail:melvin40@example.net\nsite:http:/ismith.org/\n\ngstin: og@aamfco376k124\n\ntems quantity price\ndata score fre. 6.00 $57.80\ndetermine ha, 2.00 $2470\n\nmodel rea. 100 $86.14\n\nmather consider 1.00 seta\n\ntv fous 4.00 $40.28\n\ntotal in words: seven hundred and thirt-\n\ny-four point three three\nbank name state bank of california\n\nbranch name raf camp.\nbank account number 11695435\nbank swift code sbininbb250\n\nnote:\nthis order is shipped through blue dart couri\n\n\u2018sub_total : 725.30 eur\ndiscount(1.85%): (-) 13.42\ntax:vat (3.88%): 28.18 eur\n\ntotal : 734.33 eur\n"
+}

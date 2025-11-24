@@ -1,0 +1,17 @@
+name: LedgerX CI Trigger
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  trigger-airflow:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Trigger Airflow DAG
+      run: |
+        curl -X POST "http://localhost:8081/api/v1/dags/ledgerx_fatura_pipeline_enterprise/dagRuns" \
+        -H "Content-Type: application/json" \
+        -d '{"conf": {}, "dag_run_id": "ci_run_${{ github.run_number }}"}'

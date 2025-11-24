@@ -1,0 +1,48 @@
+address:16424 timothy mission
+markville, ak 58294 us.
+
+email:melvinso@example.net
+‘www.thompsonandsons.org
+(gstin: 12345670 00070007
+
+tax invoice
+
+date: 20-mar-2008
+due date : 16-oct-2016
+
+bill to:denise perez
+16424 timothy mission
+markville, ak 58294 us
+tol:+(952)259-8443
+email:melvin40@example.net
+site:http:/ismith.org/
+
+gstin: og@aamfco376k124
+
+tems quantity price
+data score fre. 6.00 $57.80
+determine ha, 2.00 $2470
+
+model rea. 100 $86.14
+
+mather consider 1.00 seta
+
+tv fous 4.00 $40.28
+
+total in words: seven hundred and thirt-
+
+y-four point three three
+bank name state bank of california
+
+branch name raf camp.
+bank account number 11695435
+bank swift code sbininbb250
+
+note:
+this order is shipped through blue dart couri
+
+‘sub_total : 725.30 eur
+discount(1.85%): (-) 13.42
+tax:vat (3.88%): 28.18 eur
+
+total : 734.33 eur
