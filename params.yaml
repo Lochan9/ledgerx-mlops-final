@@ -1,0 +1,17 @@
+# LedgerX DVC Parameters
+augmentation_rate: 0.3
+corruption_rate: 0.2
+
+quality_model:
+  algorithm: "catboost"
+  depth: 6
+  learning_rate: 0.08
+  iterations: 300
+  
+failure_model:
+  algorithm: "random_forest"
+  n_estimators: 400
+  class_weight: "balanced"
+
+test_size: 0.2
+random_state: 42

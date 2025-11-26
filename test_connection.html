@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><title>API Test</title></head>
+<body>
+<h1>Testing API Connection...</h1>
+<div id="result"></div>
+<script>
+console.log('Testing connection to http://localhost:8000/health');
+fetch('http://localhost:8000/health')
+  .then(r => {
+    console.log('Response received:', r.status);
+    return r.json();
+  })
+  .then(d => {
+    console.log('Data:', d);
+    document.getElementById('result').innerHTML = '<h2 style="color:green">✅ API Connected!</h2><pre>' + JSON.stringify(d, null, 2) + '</pre>';
+  })
+  .catch(e => {
+    console.error('Connection error:', e);
+    document.getElementById('result').innerHTML = '<h2 style="color:red">❌ Connection Failed</h2><p>' + e.message + '</p><p>Make sure API is running on port 8000</p>';
+  });
+</script>
+</body>
+</html>

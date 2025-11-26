@@ -1,8 +1,76 @@
+# LedgerX Complete DVC Pipeline
 stages:
-  preprocess_fatura:
-    cmd: python src/stages/preprocess_fatura.py
+  
+  acquire_data:
+    cmd: python src/stages/data_acquisition_fatura.py
     deps:
-    - data/raw/FATURA
-    - src/stages/preprocess_fatura.py
+      - src/stages/data_acquisition_fatura.py
     outs:
-    - data/processed/fatura_ocr.csv
+      - data/raw/cord_receipts.csv
+  
+  preprocess_enterprise:
+    cmd: python src/stages/preprocess_fatura_enterprise.py
+    deps:
+      - data/raw/FATURA
+      - data/raw/cord_receipts.csv
+      - src/stages/preprocess_fatura_enterprise.py
+    outs:
+      - data/processed/fatura_enterprise_preprocessed.csv
+  
+  prepare_training:
+    cmd: python src/training/prepare_training_data.py
+    deps:
+      - data/processed/fatura_enterprise_preprocessed.csv
+      - src/training/prepare_training_data.py
+    outs:
+      - data/processed/quality_training.csv
+      - data/processed/failure_training.csv
+  
+  train_models:
+    cmd: python src/training/train_all_models.py
+    deps:
+      - data/processed/quality_training.csv
+      - data/processed/failure_training.csv
+      - src/training/train_all_models.py
+    outs:
+      - models/quality_model.pkl
+      - models/failure_model.pkl
+    metrics:
+      - reports/model_leaderboard.json:
+          cache: false
+  
+  evaluate_models:
+    cmd: python src/training/evaluate_models.py
+    deps:
+      - data/processed/quality_training.csv
+      - data/processed/failure_training.csv
+      - models/quality_model.pkl
+      - models/failure_model.pkl
+      - src/training/evaluate_models.py
+    outs:
+      - reports/quality_best_roc.png
+      - reports/failure_best_roc.png
+      - reports/quality_perm_importance.png
+      - reports/failure_perm_importance.png
+  
+  error_analysis:
+    cmd: python src/training/error_analysis.py
+    deps:
+      - data/processed/quality_training.csv
+      - data/processed/failure_training.csv
+      - models/quality_model.pkl
+      - models/failure_model.pkl
+      - src/training/error_analysis.py
+    outs:
+      - reports/error_analysis/quality_false_positives.csv
+      - reports/error_analysis/quality_false_negatives.csv
+      - reports/error_analysis/failure_false_positives.csv
+      - reports/error_analysis/failure_false_negatives.csv
+  
+  generate_summary:
+    cmd: python src/reporting/generate_summary_report.py
+    deps:
+      - reports/model_leaderboard.json
+      - src/reporting/generate_summary_report.py
+    outs:
+      - reports/summary_report.txt

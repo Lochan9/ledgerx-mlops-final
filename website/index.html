@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LedgerX – Invoice Intelligence Dashboard</title>
+
+    <!-- Icons + Fonts + Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Your 3 External CSS Files -->
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="components.css">
+
+</head>
+<body>
+
+    <!-- Loading overlay -->
+    <div class="loading" id="loading"><div class="spinner"></div></div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content" id="toastTitle"></div>
+        <div class="toast-msg" id="toastMsg"></div>
+    </div>
+
+    <!-- Status bubble -->
+    <div class="status">
+        <span class="dot" id="dot"></span>
+        <span id="statusTxt">Connecting...</span>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="logo-text">
+                <h1>LedgerX</h1>
+                <p>AI Intelligence</p>
+            </div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-title">Main</div>
+
+            <a class="nav-link active" onclick="go('dash')">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+
+            <a class="nav-link" onclick="go('inv')">
+                <i class="fas fa-file-invoice"></i> All Invoices
+            </a>
+
+            <a class="nav-link" onclick="go('up')">
+                <i class="fas fa-upload"></i> Upload
+            </a>
+
+            <div class="nav-title" style="margin-top:16px">Analytics</div>
+
+            <a class="nav-link" onclick="go('ml')">
+                <i class="fas fa-brain"></i> ML Stats
+            </a>
+
+            <a class="nav-link" onclick="go('set')">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- NEW TOP BAR -->
+        <div class="top">
+            <div class="top-left">
+                <h1 class="title" id="title">Dashboard Overview</h1>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px">
+                <button class="theme-toggle" id="themeToggle">
+                    <span id="themeLabel">Light</span>
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                <div class="avatar">LX</div>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content">
+
+            <!-- DASHBOARD PAGE -->
+            <div id="dash" class="page active">
+
+                <div class="dash-layout">
+
+                    <!-- MAIN CENTER COLUMN -->
+                    <div class="dash-main">
+
+                        <!-- KPI CARDS -->
+                        <div class="grid">
+                            <div class="card">
+                                <div class="card-label">Total Invoices</div>
+                                <div class="card-value" id="v1">0</div>
+                                <div class="card-trend">+0 this month</div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-label">Total Spend</div>
+                                <div class="card-value" id="v2">$0</div>
+                                <div class="card-trend">+$0</div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-label">Approved</div>
+                                <div class="card-value" id="v3">0</div>
+                                <div class="card-trend" id="t3">0%</div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-label">Rejected</div>
+                                <div class="card-value" id="v4">0</div>
+                                <div class="card-trend" style="color:#EF4444" id="t4">0%</div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-label">Review</div>
+                                <div class="card-value" id="v5">0</div>
+                                <div class="card-trend" id="t5">0%</div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-label">Saved</div>
+                                <div class="card-value" id="v6">$0</div>
+                                <div class="card-trend">From detection</div>
+                            </div>
+                        </div>
+
+                        <!-- CHARTS -->
+                        <div class="chart-row">
+                            <div class="chart-box">
+                                <h3 class="chart-title">📈 Processing Trends</h3>
+                                <canvas id="c1"></canvas>
+                            </div>
+
+                            <div class="chart-box">
+                                <h3 class="chart-title">📊 Distribution</h3>
+                                <canvas id="c2"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- ALL INVOICES TABLE -->
+                        <div class="table-box">
+                            <div class="table-head">
+                                <h3 class="table-title">🕒 Recent Activity</h3>
+                            </div>
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Vendor</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="rec">
+                                    <tr>
+                                        <td colspan="4">
+                                            <div class="empty">
+                                                <i class="fas fa-inbox"></i>No invoices yet
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div> <!-- end dash-main -->
+
+
+                    <!-- RIGHT SIDE ANALYTICS -->
+                    <div class="dash-side">
+
+                        <div class="side-panel">
+                            <div class="side-header">
+                                <div>
+                                    <div class="side-title">Vendor Insights</div>
+                                    <div class="side-sub">Auto-updated</div>
+                                </div>
+                                <div class="side-chip">Live</div>
+                            </div>
+
+                            <div class="side-table-wrap">
+                                <table class="side-table" id="vendorTbl">
+                                    <thead>
+                                        <tr>
+                                            <th>Vendor</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="2">No data</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div> <!-- end dash-side -->
+
+                </div> <!-- dash-layout -->
+
+            </div> <!-- dash -->
+
+
+
+            <!-- ALL INVOICES PAGE -->
+            <div id="inv" class="page">
+
+                <div class="table-box">
+                    <div class="table-head">
+                        <h3 class="table-title">📄 All Invoices (<span id="cnt">0</span>)</h3>
+                        <button class="btn btn-primary btn-sm" onclick="exp()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Vendor</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Quality</th>
+                                <th>Risk</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="all">
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty"><i class="fas fa-folder-open"></i>No invoices</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+
+            <!-- UPLOAD PAGE -->
+            <div id="up" class="page">
+
+                <div class="upload-zone" id="drop" onclick="document.getElementById('file').click()">
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h2 style="font-size:20px;font-weight:700;color:var(--text-main);margin-bottom:8px">Drop Files Here</h2>
+                    <p style="color:var(--text-muted);margin-bottom:10px">or click to browse</p>
+                    <p style="color:var(--text-muted);font-size:12px">PDF, PNG, JPG • Max 10MB</p>
+                    <input type="file" id="file" style="display:none" accept=".pdf,.png,.jpg,.jpeg" multiple>
+                </div>
+
+                <!-- File list -->
+                <div class="upload-files">
+                    <strong>Selected files</strong>
+                    <ul id="fileList"><li>No files yet</li></ul>
+                </div>
+
+                <br>
+
+                <div class="chart-box">
+                    <h3 class="chart-title">✍️ Manual Entry</h3>
+                    <div class="form-grid">
+
+                        <div>
+                            <label class="form-label">Invoice # *</label>
+                            <input class="form-input" id="f1" placeholder="INV-001">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Vendor *</label>
+                            <input class="form-input" id="f2" placeholder="Acme Corp">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Date *</label>
+                            <input type="date" class="form-input" id="f3">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Amount *</label>
+                            <input type="number" class="form-input" id="f4" placeholder="5000.00" step="0.01">
+                        </div>
+
+                        <div>
+                            <label class="form-label">Blur Score</label>
+                            <input type="number" class="form-input" id="f5" value="45.2">
+                        </div>
+
+                        <div>
+                            <label class="form-label">OCR Confidence</label>
+                            <input type="number" class="form-input" id="f6" value="0.87" step="0.01">
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:12px;margin-top:20px">
+                        <button class="btn btn-primary" onclick="proc()" style="flex:1">
+                            <i class="fas fa-rocket"></i> Process
+                        </button>
+
+                        <button class="btn btn-secondary" onclick="sample()">
+                            <i class="fas fa-magic"></i> Sample
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <!-- ML STATS PAGE -->
+            <div id="ml" class="page">
+
+                <div class="grid">
+                    <div class="card"><div class="card-label">Quality F1</div><div class="card-value">97.7%</div></div>
+                    <div class="card"><div class="card-label">Failure F1</div><div class="card-value">91.3%</div></div>
+                    <div class="card"><div class="card-label">Avg Blur</div><div class="card-value" id="m1">0</div></div>
+                    <div class="card"><div class="card-label">Avg OCR</div><div class="card-value" id="m2">0%</div></div>
+                    <div class="card"><div class="card-label">Cache Rate</div><div class="card-value" id="m3">0%</div></div>
+                    <div class="card"><div class="card-label">Avg Time</div><div class="card-value" id="m4">0ms</div></div>
+                </div>
+
+                <div class="chart-box">
+                    <h3 class="chart-title">📊 Features</h3>
+                    <canvas id="c3" height="250"></canvas>
+                </div>
+
+            </div>
+
+
+
+            <!-- SETTINGS PAGE -->
+            <div id="set" class="page">
+
+                <div class="chart-box">
+                    <h3 class="chart-title">⚙️ API Settings</h3>
+
+                    <div>
+                        <label class="form-label">Username</label>
+                        <input class="form-input" id="usr" value="john_doe">
+                    </div>
+
+                    <div style="margin-top:16px">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="pwd" value="password123">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="test()" style="margin-top:20px">
+                        <i class="fas fa-heartbeat"></i> Test Connection
+                    </button>
+                </div>
+
+            </div>
+
+
+        </div> <!-- content -->
+
+    </div> <!-- main -->
+
+
+
+    <!-- ===========================
+         INVOICE DETAIL DRAWER
+    ============================ -->
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <div class="drawer" id="drawer">
+
+        <div class="drawer-header">
+            <div class="drawer-title">Invoice details</div>
+            <button class="drawer-close" id="drawerClose">&times;</button>
+        </div>
+
+        <div class="drawer-body">
+
+            <div class="drawer-section">
+                <h4>Invoice</h4>
+                <div class="drawer-kv"><span>Number</span><span id="dwInvNum">-</span></div>
+                <div class="drawer-kv"><span>Vendor</span><span id="dwVendor">-</span></div>
+                <div class="drawer-kv"><span>Date</span><span id="dwDate">-</span></div>
+                <div class="drawer-kv"><span>Amount</span><span id="dwAmount">-</span></div>
+                <div class="drawer-kv"><span>Status</span><span id="dwStatus">-</span></div>
+            </div>
+
+            <div class="drawer-section">
+                <h4>Model scores</h4>
+                <div class="drawer-kv"><span>Quality</span><span id="dwQuality">-</span></div>
+                <div class="drawer-kv"><span>Quality prob</span><span id="dwQProb">-</span></div>
+                <div class="drawer-kv"><span>Failure risk</span><span id="dwRisk">-</span></div>
+                <div class="drawer-kv"><span>Failure prob</span><span id="dwFProb">-</span></div>
+            </div>
+
+            <div class="drawer-section">
+                <h4>Image & OCR</h4>
+                <div class="drawer-kv"><span>Blur score</span><span id="dwBlur">-</span></div>
+                <div class="drawer-kv"><span>OCR confidence</span><span id="dwOCR">-</span></div>
+                <div class="drawer-kv"><span>File size</span><span id="dwSize">-</span></div>
+            </div>
+
+            <div class="drawer-section">
+                <h4>Runtime</h4>
+                <div class="drawer-kv"><span>Latency</span><span id="dwLat">-</span></div>
+                <div class="drawer-kv"><span>From cache</span><span id="dwCache">-</span></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- ===========================
+         COMMAND PALETTE (CTRL+K)
+    ============================ -->
+    <div class="cmdk-backdrop" id="cmdkBackdrop"></div>
+    <div class="cmdk" id="cmdk">
+        <input class="cmdk-input" id="cmdkInput" placeholder="Search invoices by # or vendor…">
+        <div class="cmdk-list" id="cmdkList"></div>
+        <div class="cmdk-hint">Press Esc to close · Use Ctrl/Cmd + K to toggle</div>
+    </div>
+
+
+
+
+    <!-- ===========================
+         MAIN JAVASCRIPT
+    ============================ -->
+<script>
+/* ===========================
+   Your Existing JS Engine + Upgrades
+   =========================== */
+
+const S={inv:[],tok:null,api:'http://localhost:8000',ch:{},st:{req:0,hit:0,lat:0}};
+
+// Initial
+window.onload=()=>{
+    document.getElementById('f3').value=new Date().toISOString().split('T')[0];
+    initCh();
+    ld();
+    setTimeout(test,600);
+    setupUpload();
+};
+
+/* ============ UPLOAD HANDLING ============== */
+function setupUpload(){
+    const z=document.getElementById('drop');
+    z.ondragover=e=>{e.preventDefault();z.classList.add('dragover')};
+    z.ondragleave=()=>z.classList.remove('dragover');
+    z.ondrop=e=>{e.preventDefault();z.classList.remove('dragover');handleFiles(e.dataTransfer.files)};
+    document.getElementById('file').onchange=e=>handleFiles(e.target.files);
+}
+
+function handleFiles(f){
+    if(!f.length)return;
+
+    const list=document.getElementById('fileList');
+    list.innerHTML='';
+
+    Array.from(f).forEach(x=>{
+        const li=document.createElement('li');
+        li.textContent=`${x.name} · ${(x.size/1024).toFixed(1)} KB`;
+        list.appendChild(li);
+    });
+
+    msg('Files Selected',`${f.length} file(s) selected`,'success');
+}
+
+/* ============ NAVIGATION ============== */
+function go(p){
+    document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.getElementById(p).classList.add('active');
+
+    const t={
+        dash:'Dashboard Overview',
+        inv:'All Invoices',
+        up:'Upload Invoice',
+        ml:'ML Performance',
+        set:'Settings'
+    };
+    document.getElementById('title').textContent=t[p];
+}
+
+/* ============ AUTH + HEALTH ============== */
+async function getTok(){
+    if(S.tok)return S.tok;
+    const r=await fetch(`${S.api}/token`,{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:`username=${document.getElementById('usr').value}&password=${document.getElementById('pwd').value}`
+    });
+    if(!r.ok)throw new Error('Auth failed');
+    S.tok=(await r.json()).access_token;
+    return S.tok;
+}
+
+async function test(){
+    try{
+        const r=await fetch(`${S.api}/health`);
+        if((await r.json()).status==='healthy'){
+            await getTok();
+            upStat(true);
+            msg('Connected','API operational','success');
+        }
+    }catch(e){
+        upStat(false);
+    }
+}
+
+function upStat(c){
+    document.getElementById('dot').classList.toggle('on',c);
+    document.getElementById('statusTxt').textContent=c?'Connected':'Disconnected';
+}
+
+/* ============ PROCESS INVOICE ============== */
+async function proc(){
+    const d={
+        invoice_number:document.getElementById('f1').value,
+        vendor_name:document.getElementById('f2').value,
+        invoice_date:document.getElementById('f3').value,
+        total_amount:parseFloat(document.getElementById('f4').value),
+        currency:'USD',
+        vendor_freq:0.03,
+        blur_score:parseFloat(document.getElementById('f5').value)||45.2,
+        contrast_score:28.5,
+        ocr_confidence:parseFloat(document.getElementById('f6').value)||0.87,
+        file_size_kb:245.3
+    };
+
+    if(!d.invoice_number||!d.vendor_name||!d.total_amount){
+        msg('Error','Fill required fields (*)','error');
+        return;
+    }
+
+    show(true);
+
+    try{
+        const tok=await getTok();
+        const st=performance.now();
+
+        const r=await fetch(`${S.api}/predict`,{
+            method:'POST',
+            headers:{
+                'Authorization':`Bearer ${tok}`,
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify(d)
+        });
+
+        const lat=Math.round(performance.now()-st);
+        if(!r.ok)throw new Error('Failed');
+
+        const res=await r.json();
+
+        S.st.req++;
+        S.st.lat+=lat;
+        if(res.from_cache)S.st.hit++;
+
+        const stat=(res.result.quality_bad&&res.result.failure_risk)
+            ? 'Rejected'
+            : (res.result.quality_bad||res.result.failure_risk)
+                ? 'Review'
+                : 'Approved';
+
+        S.inv.unshift({...d,pred:res.result,status:stat,lat:lat,cache:res.from_cache});
+        sv();
+        upAll();
+        msg('Processed',`${d.invoice_number} - ${stat}`,'success');
+        clr();
+        setTimeout(()=>go('inv'),1000);
+
+    }catch(e){
+        msg('Error',e.message,'error');
+    }finally{
+        show(false);
+    }
+}
+
+/* ============ UPDATE UI ============== */
+function upAll(){
+    const t=S.inv.length,
+        ap=S.inv.filter(i=>i.status==='Approved').length,
+        rj=S.inv.filter(i=>i.status==='Rejected').length,
+        rv=S.inv.filter(i=>i.status==='Review').length,
+        tot=S.inv.reduce((s,i)=>s+i.total_amount,0);
+
+    document.getElementById('v1').textContent=t;
+    document.getElementById('v2').textContent='$'+tot.toLocaleString();
+    document.getElementById('v3').textContent=ap;
+    document.getElementById('v4').textContent=rj;
+    document.getElementById('v5').textContent=rv;
+    document.getElementById('v6').textContent='$'+(rj*50).toLocaleString();
+    document.getElementById('cnt').textContent=t;
+
+    if(t>0){
+        document.getElementById('t3').textContent=(ap/t*100).toFixed(1)+'%';
+        document.getElementById('t4').textContent=(rj/t*100).toFixed(1)+'%';
+        document.getElementById('t5').textContent=(rv/t*100).toFixed(1)+'%';
+
+        const avgB=S.inv.reduce((s,i)=>s+i.blur_score,0)/t;
+        const avgO=S.inv.reduce((s,i)=>s+i.ocr_confidence,0)/t;
+
+        document.getElementById('m1').textContent=avgB.toFixed(1);
+        document.getElementById('m2').textContent=(avgO*100).toFixed(1)+'%';
+        document.getElementById('m3').textContent=((S.st.hit/S.st.req)*100).toFixed(1)+'%';
+        document.getElementById('m4').textContent=Math.round(S.st.lat/S.st.req)+'ms';
+    }
+
+    upTbl();
+    upCh();
+}
+
+/* ============ RECENT TABLE + ALL TABLE ============== */
+function upTbl(){
+    const rec=S.inv.slice(0,5);
+
+    /* Recent activity */
+    document.getElementById('rec').innerHTML=rec.length
+        ? rec.map(i=>`
+            <tr>
+                <td><b>${i.invoice_number}</b></td>
+                <td>${i.vendor_name}</td>
+                <td><b>$${i.total_amount.toLocaleString()}</b></td>
+                <td>
+                    <span class="badge badge-${
+                        i.status==='Approved'? 'success' :
+                        i.status==='Rejected'? 'danger' : 'warning'
+                    }">
+                        ${i.status}
+                    </span>
+                </td>
+            </tr>
+        `).join('')
+        : `<tr><td colspan="4"><div class="empty"><i class="fas fa-inbox"></i>No invoices</div></td></tr>`;
+
+    /* All invoices */
+    document.getElementById('all').innerHTML=S.inv.length
+        ? S.inv.map(i=>`
+            <tr>
+                <td><b>${i.invoice_number}</b></td>
+                <td>${i.vendor_name}</td>
+                <td>${i.invoice_date}</td>
+                <td><b>$${i.total_amount.toLocaleString()}</b></td>
+
+                <td>
+                    <span class="badge ${i.pred.quality_bad ? 'badge-danger' : 'badge-success'}">
+                        ${i.pred.quality_bad?'BAD':'GOOD'}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge ${i.pred.failure_risk?'badge-warning':'badge-success'}">
+                        ${i.pred.failure_risk?'RISK':'SAFE'}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge badge-${
+                        i.status==='Approved'? 'success' :
+                        i.status==='Rejected'? 'danger' : 'warning'
+                    }">${i.status}</span>
+                </td>
+
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="vw('${i.invoice_number}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('')
+
+        : `<tr><td colspan="8"><div class="empty"><i class="fas fa-folder-open"></i>No invoices</div></td></tr>`;
+}
+
+/* ============ CHARTS ============== */
+function initCh(){
+    Chart.defaults.font.family="'Inter',sans-serif";
+
+    S.ch.t=new Chart(document.getElementById('c1'),{
+        type:'line',
+        data:{
+            labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+            datasets:[{
+                data:[0,0,0,0,0,0,0],
+                borderColor:'#0E7490',
+                backgroundColor:'rgba(14,116,144,0.15)',
+                tension:0.4,
+                fill:true
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{y:{beginAtZero:true}}
+        }
+    });
+
+    S.ch.p=new Chart(document.getElementById('c2'),{
+        type:'doughnut',
+        data:{
+            labels:['Approved','Rejected','Review'],
+            datasets:[{
+                data:[0,0,0],
+                backgroundColor:['#22C55E','#EF4444','#FACC15']
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{position:'bottom'}}
+        }
+    });
+
+    S.ch.f=new Chart(document.getElementById('c3'),{
+        type:'bar',
+        data:{
+            labels:['Blur','OCR %','Size KB'],
+            datasets:[{
+                data:[0,0,0],
+                backgroundColor:['#0E7490','#38BDF8','#164E63']
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{y:{beginAtZero:true}}
+        }
+    });
+}
+
+function upCh(){
+    if(!S.inv.length)return;
+
+    const ap=S.inv.filter(i=>i.status==='Approved').length;
+    const rj=S.inv.filter(i=>i.status==='Rejected').length;
+    const rv=S.inv.filter(i=>i.status==='Review').length;
+
+    S.ch.p.data.datasets[0].data=[ap,rj,rv];
+    S.ch.p.update();
+
+    const t=S.inv.length;
+    const avgB=S.inv.reduce((s,i)=>s+i.blur_score,0)/t;
+    const avgO=S.inv.reduce((s,i)=>s+i.ocr_confidence,0)/t*100;
+    const avgS=S.inv.reduce((s,i)=>s+i.file_size_kb,0)/t;
+
+    S.ch.f.data.datasets[0].data=[avgB,avgO,avgS];
+    S.ch.f.update();
+}
+
+/* ============ VIEW → DRAWER ============== */
+function vw(n){
+    const i=S.inv.find(x=>x.invoice_number===n);
+    if(!i)return;
+
+    document.getElementById('dwInvNum').textContent=i.invoice_number;
+    document.getElementById('dwVendor').textContent=i.vendor_name;
+    document.getElementById('dwDate').textContent=i.invoice_date;
+    document.getElementById('dwAmount').textContent=`$${i.total_amount.toLocaleString()}`;
+    document.getElementById('dwStatus').textContent=i.status;
+
+    document.getElementById('dwQuality').textContent=i.pred.quality_bad?'BAD':'GOOD';
+    document.getElementById('dwQProb').textContent=(i.pred.quality_probability*100).toFixed(1)+'%';
+
+    document.getElementById('dwRisk').textContent=i.pred.failure_risk?'RISK':'SAFE';
+    document.getElementById('dwFProb').textContent=(i.pred.failure_probability*100).toFixed(1)+'%';
+
+    document.getElementById('dwBlur').textContent=i.blur_score.toFixed(1);
+    document.getElementById('dwOCR').textContent=(i.ocr_confidence*100).toFixed(1)+'%';
+    document.getElementById('dwSize').textContent=i.file_size_kb;
+
+    document.getElementById('dwLat').textContent=i.lat+' ms';
+    document.getElementById('dwCache').textContent=i.cache?'Yes':'No';
+
+    document.body.classList.add('drawer-open');
+}
+
+document.getElementById('drawerBackdrop').onclick=closeDrawer;
+document.getElementById('drawerClose').onclick=closeDrawer;
+
+function closeDrawer(){
+    document.body.classList.remove('drawer-open');
+}
+
+/* ============ DARK MODE ============== */
+const themeToggle=document.getElementById('themeToggle');
+const themeLabel=document.getElementById('themeLabel');
+
+if(localStorage.getItem('ldx_theme')==='dark'){
+    document.body.classList.add('dark');
+    themeLabel.textContent='Dark';
+}
+
+themeToggle.onclick=()=>{
+    document.body.classList.toggle('dark');
+    const isDark=document.body.classList.contains('dark');
+    themeLabel.textContent=isDark?'Dark':'Light';
+    localStorage.setItem('ldx_theme',isDark?'dark':'light');
+};
+
+/* ============ COMMAND PALETTE (CTRL+K) ============== */
+const cmdkBackdrop=document.getElementById('cmdkBackdrop');
+const cmdk=document.getElementById('cmdk');
+const cmdkInput=document.getElementById('cmdkInput');
+const cmdkList=document.getElementById('cmdkList');
+
+function openCmdk(){
+    document.body.classList.add('cmdk-open');
+    cmdkInput.value='';
+    renderCmdkList('');
+    setTimeout(()=>cmdkInput.focus(),0);
+}
+
+function closeCmdk(){
+    document.body.classList.remove('cmdk-open');
+}
+
+cmdkBackdrop.onclick=closeCmdk;
+
+cmdkInput.oninput=()=>renderCmdkList(cmdkInput.value);
+
+function renderCmdkList(q){
+    const query=q.toLowerCase();
+    const items=S.inv.filter(i=>
+        i.invoice_number.toLowerCase().includes(query) ||
+        i.vendor_name.toLowerCase().includes(query)
+    ).slice(0,20);
+
+    if(!items.length){
+        cmdkList.innerHTML='<div class="cmdk-item">No matches</div>';
+        return;
+    }
+
+    cmdkList.innerHTML=items.map(i=>`
+        <div class="cmdk-item" data-id="${i.invoice_number}">
+            <span><strong>${i.invoice_number}</strong> · ${i.vendor_name}</span>
+            <span>$${i.total_amount.toLocaleString()}</span>
+        </div>
+    `).join('');
+
+    cmdkList.querySelectorAll('.cmdk-item').forEach(el=>{
+        el.onclick=()=>{vw(el.dataset.id);closeCmdk();}
+    });
+}
+
+document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='k'){
+        e.preventDefault();
+        if(document.body.classList.contains('cmdk-open')) closeCmdk();
+        else openCmdk();
+    }else if(e.key==='Escape'){
+        if(document.body.classList.contains('cmdk-open')) closeCmdk();
+        if(document.body.classList.contains('drawer-open')) closeDrawer();
+    }
+});
+
+/* ============ Storage ============== */
+function sv(){
+    localStorage.setItem('ldx',JSON.stringify(S.inv));
+    localStorage.setItem('ldx_s',JSON.stringify(S.st));
+}
+
+function ld(){
+    const d=localStorage.getItem('ldx'), s=localStorage.getItem('ldx_s');
+    if(d){
+        S.inv=JSON.parse(d);
+        upAll();
+    }
+    if(s)S.st=JSON.parse(s);
+}
+
+/* ============ Export CSV ============== */
+function exp(){
+    if(!S.inv.length){
+        msg('No Data','Nothing to export','error');
+        return;
+    }
+
+    const csv=[[
+        'Invoice','Vendor','Date','Amount','Quality','Risk','Status'
+    ].join(','),
+        ...S.inv.map(i=>[
+            i.invoice_number,
+            `"${i.vendor_name}"`,
+            i.invoice_date,
+            i.total_amount,
+            i.pred.quality_bad?'BAD':'GOOD',
+            i.pred.failure_risk?'RISK':'SAFE',
+            i.status
+        ].join(','))
+    ].join('\n');
+
+    const b=new Blob([csv],{type:'text/csv'});
+    const u=URL.createObjectURL(b);
+    const a=document.createElement('a');
+    a.href=u;
+    a.download=`ledgerx_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+
+    msg('Exported',`${S.inv.length} invoices downloaded`,'success');
+}
+
+/* ============ Helpers ============== */
+function show(s){
+    document.getElementById('loading').classList.toggle('show',s);
+}
+
+function msg(t,m,type='success'){
+    document.getElementById('toastTitle').textContent=t;
+    document.getElementById('toastMsg').textContent=m;
+    document.getElementById('toast').className=`toast toast-${type} show`;
+    setTimeout(()=>document.getElementById('toast').classList.remove('show'),3000);
+}
+
+function clr(){
+    ['f1','f2','f4'].forEach(id=>document.getElementById(id).value='');
+}
+
+function sample(){
+    document.getElementById('f1').value='INV-'+Math.floor(Math.random()*10000);
+    document.getElementById('f2').value='Acme Corp';
+    document.getElementById('f3').value=new Date().toISOString().split('T')[0];
+    document.getElementById('f4').value='5000';
+    document.getElementById('f5').value='20';
+    document.getElementById('f6').value='0.95';
+    msg('Sample','Good quality data filled','success');
+}
+
+</script>
+
+</body>
+</html>

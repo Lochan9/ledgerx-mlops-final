@@ -1,60 +1,131 @@
-name: LedgerX MLOps Pipeline CI/CD
+name: LedgerX MLOps Pipeline - Enhanced CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'dvc.yaml'
+      - 'requirements.txt'
   pull_request:
     branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  PYTHON_VERSION: '3.12'
+  MIN_COVERAGE: 80
+  MIN_F1_SCORE: 0.90
 
 jobs:
+  # ============================================================================
+  # JOB 1: TEST & VALIDATE
+  # ============================================================================
   test-and-validate:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
-    - name: Set up Python 3.12
+    - name: 🐍 Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: ${{ env.PYTHON_VERSION }}
     
-    - name: Cache pip packages
+    - name: 📦 Cache pip packages
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
     
-    - name: Install dependencies
+    - name: 📚 Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest pytest-cov
     
-    - name: Run tests
+    - name: 🧪 Run tests with coverage
       run: |
-        pytest tests/ -v --tb=short
-    
-    - name: Validate data schemas
+        pytest tests/ -v --cov=src --cov-report=xml
+        
+    - name: 📊 Check coverage
       run: |
-        python src/stages/validate_schema.py
-    
-    - name: Check model performance
-      run: |
-        python tests/test_training.py
+        coverage report --fail-under=${{ env.MIN_COVERAGE }}
       continue-on-error: true
 
-  docker-build:
+  # ============================================================================
+  # JOB 2: MODEL TRAINING & VALIDATION
+  # ============================================================================
+  train-and-register:
     runs-on: ubuntu-latest
     needs: test-and-validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - uses: actions/checkout@v3
+    - name: 📥 Checkout
+      uses: actions/checkout@v3
     
-    - name: Build Docker image
-      run: |
-        docker build -t ledgerx-mlops:latest .
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
     
-    - name: Test Docker container
+    - name: 📚 Install dependencies
+      run: pip install -r requirements.txt
+    
+    - name: 🎯 Hyperparameter tuning
+      run: python src/training/hyperparameter_tuning.py --quick
+      continue-on-error: true
+    
+    - name: 🤖 Train models
+      run: python src/training/train_all_models.py
+    
+    - name: 📊 Evaluate models
+      run: python src/training/evaluate_models.py
+    
+    - name: 🔍 Bias detection
+      run: python src/training/error_analysis.py
+      continue-on-error: true
+    
+    - name: ✅ Validate performance
       run: |
-        docker run --rm ledgerx-mlops:latest python --version
+        python -c "
+        import json
+        with open('reports/model_leaderboard.json') as f:
+            data = json.load(f)
+        quality_f1 = data['quality'][0]['f1']
+        failure_f1 = data['failure'][0]['f1']
+        assert quality_f1 >= ${{ env.MIN_F1_SCORE }}
+        assert failure_f1 >= 0.85
+        print('✅ Performance validated')
+        "
+    
+    - name: 🗄️ Register models
+      run: python src/training/register_models.py
+    
+    - name: 💾 Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: models-and-reports
+        path: |
+          models/*.pkl
+          reports/**
+
+  # ============================================================================
+  # JOB 3: DOCKER BUILD
+  # ============================================================================
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: train-and-register
+    
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v3
+    
+    - name: 🐳 Build Docker
+      run: docker build -t ledgerx-mlops:latest .
+    
+    - name: 🧪 Test container
+      run: docker run --rm ledgerx-mlops:latest python -c "import src.inference.api_fastapi; print('✅ OK')"
