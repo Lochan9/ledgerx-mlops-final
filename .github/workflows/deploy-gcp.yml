@@ -57,8 +57,7 @@ jobs:
           --min-instances 0 \
           --max-instances 3 \
           --timeout 300 \
-          --no-cpu-throttling \
-          --startup-cpu-boost \
+          --cpu-boost \
           --service-account ledgerx-cloud-run-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
     
     - name: 📦 Upload ML Models
@@ -79,5 +78,5 @@ jobs:
         echo "📖 Docs: $SERVICE_URL/docs"
         echo "💚 Health: $SERVICE_URL/health"
         
-        echo "Testing health endpoint..."
+        sleep 10
         curl -f $SERVICE_URL/health || echo "Health check will be available shortly"
