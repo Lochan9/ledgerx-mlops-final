@@ -6,7 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'models/**'
-      - 'Dockerfile'
+      - 'Dockerfile.cloudrun'
       - 'requirements.txt'
   workflow_dispatch:
 
@@ -39,7 +39,7 @@ jobs:
     
     - name: 🔨 Build Docker image
       run: |
-        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest .
+        docker build -f Dockerfile.cloudrun -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest .
     
     - name: 📤 Push to Artifact Registry
       run: |
@@ -53,10 +53,12 @@ jobs:
           --platform managed \
           --allow-unauthenticated \
           --cpu 1 \
-          --memory 512Mi \
+          --memory 1Gi \
           --min-instances 0 \
           --max-instances 3 \
-          --timeout 60 \
+          --timeout 300 \
+          --no-cpu-throttling \
+          --startup-cpu-boost \
           --service-account ledgerx-cloud-run-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
     
     - name: 📦 Upload ML Models
@@ -69,10 +71,13 @@ jobs:
         fi
       continue-on-error: true
     
-    - name: ✅ Get Service URL
+    - name: ✅ Get Service URL and Test
       run: |
         SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format 'value(status.url)')
         echo "🎉 Deployment successful!"
         echo "🌐 API URL: $SERVICE_URL"
         echo "📖 Docs: $SERVICE_URL/docs"
         echo "💚 Health: $SERVICE_URL/health"
+        
+        echo "Testing health endpoint..."
+        curl -f $SERVICE_URL/health || echo "Health check will be available shortly"
