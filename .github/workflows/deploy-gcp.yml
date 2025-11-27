@@ -1,0 +1,78 @@
+﻿name: Deploy to GCP Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'models/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: ${{ secrets.GCP_REGION }}
+  SERVICE_NAME: ledgerx-api
+  REPOSITORY: ledgerx-docker
+  IMAGE_NAME: ledgerx-api
+
+jobs:
+  deploy:
+    name: Build and Deploy to Cloud Run
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+    
+    - name: 🔐 Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: ☁️ Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+    
+    - name: 🐳 Configure Docker
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+    
+    - name: 🔨 Build Docker image
+      run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest .
+    
+    - name: 📤 Push to Artifact Registry
+      run: |
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
+    
+    - name: 🚀 Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
+          --region ${{ env.REGION }} \
+          --platform managed \
+          --allow-unauthenticated \
+          --cpu 1 \
+          --memory 512Mi \
+          --min-instances 0 \
+          --max-instances 3 \
+          --timeout 60 \
+          --service-account ledgerx-cloud-run-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+    
+    - name: 📦 Upload ML Models
+      run: |
+        if [ -f "models/quality_model.pkl" ]; then
+          gsutil cp models/quality_model.pkl gs://${{ env.PROJECT_ID }}-ledgerx-models/
+        fi
+        if [ -f "models/failure_model.pkl" ]; then
+          gsutil cp models/failure_model.pkl gs://${{ env.PROJECT_ID }}-ledgerx-models/
+        fi
+      continue-on-error: true
+    
+    - name: ✅ Get Service URL
+      run: |
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format 'value(status.url)')
+        echo "🎉 Deployment successful!"
+        echo "🌐 API URL: $SERVICE_URL"
+        echo "📖 Docs: $SERVICE_URL/docs"
+        echo "💚 Health: $SERVICE_URL/health"

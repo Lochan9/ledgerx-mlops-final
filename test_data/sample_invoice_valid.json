@@ -1,0 +1,24 @@
+{
+    "invoice_number": "INV-2024-001",
+    "vendor_name": "Tech Supplies Inc",
+    "invoice_date": "2024-11-20",
+    "line_items": [
+        {
+            "description": "Laptop Dell XPS 15",
+            "quantity": 2,
+            "unit_price": 1200.00,
+            "amount": 2400.00
+        },
+        {
+            "description": "Wireless Mouse",
+            "quantity": 5,
+            "unit_price": 25.00,
+            "amount": 125.00
+        }
+    ],
+    "subtotal": 2525.00,
+    "discount_amount": 0.00,
+    "tax_rate": 8.5,
+    "tax_amount": 214.63,
+    "total_amount": 2739.63
+}

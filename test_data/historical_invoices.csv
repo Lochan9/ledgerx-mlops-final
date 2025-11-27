@@ -1,0 +1,5 @@
+invoice_number,vendor_name,total_amount,invoice_date,status
+INV-2024-001,Tech Supplies Inc,2739.63,2024-11-20,paid
+INV-2024-003,Office Supplies Co,1195.50,2024-11-15,paid
+INV-2024-004,ABC Corp,5000.00,2024-11-10,paid
+INV-2024-005,XYZ Ltd,1500.00,2024-10-25,paid

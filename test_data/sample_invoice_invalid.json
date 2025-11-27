@@ -1,0 +1,39 @@
+{
+  "invoice_number": "INV-2024-002",
+  "vendor_name": "Office Supplies Co",
+  "invoice_date": "2024-11-21",
+  "currency": "USD",
+  "line_items": [
+    {
+      "description": "Office Chair",
+      "quantity": 3,
+      "unit_price": 250.00,
+      "amount": 750.00
+    },
+    {
+      "description": "Desk Lamp",
+      "quantity": 5,
+      "unit_price": 45.00,
+      "amount": 225.00
+    },
+    {
+      "description": "Monitor Stand",
+      "quantity": 2,
+      "unit_price": 80.00,
+      "amount": 160.00
+    }
+  ],
+  "subtotal": 1100.00,
+  "discount_amount": 0.00,
+  "tax_rate": 8.5,
+  "tax_amount": 95.50,
+  "total_amount": 1200.00,
+  "blur_score": 55.0,
+  "contrast_score": 68.0,
+  "ocr_confidence": 0.92,
+  "file_size_kb": 180.5,
+  "vendor_freq": 0.08,
+  "num_missing_fields": 0,
+  "has_critical_missing": 0,
+  "num_pages": 1
+}

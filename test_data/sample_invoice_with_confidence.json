@@ -1,0 +1,33 @@
+{
+  "invoice_number": "INV-2024-010",
+  "invoice_number_confidence": 0.95,
+  "vendor_name": "Tech Solutions Ltd",
+  "vendor_name_confidence": 0.88,
+  "invoice_date": "2024-11-25",
+  "invoice_date_confidence": 0.92,
+  "currency": "USD",
+  "line_items": [
+    {
+      "description": "Laptop",
+      "quantity": 2,
+      "unit_price": 1500.00,
+      "amount": 3000.00
+    }
+  ],
+  "subtotal": 3000.00,
+  "subtotal_confidence": 0.65,
+  "discount_amount": 0.00,
+  "tax_rate": 10.0,
+  "tax_amount": 300.00,
+  "tax_amount_confidence": 0.58,
+  "total_amount": 3300.00,
+  "total_amount_confidence": 0.72,
+  "blur_score": 45.5,
+  "contrast_score": 62.3,
+  "ocr_confidence": 0.75,
+  "file_size_kb": 245.7,
+  "vendor_freq": 0.05,
+  "num_missing_fields": 0,
+  "has_critical_missing": 0,
+  "num_pages": 1
+}

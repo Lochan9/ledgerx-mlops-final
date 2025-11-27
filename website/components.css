@@ -171,12 +171,33 @@ tr:hover{background:rgba(56,189,248,0.04)}
 .upload-files ul{
     margin-top:6px;
     list-style:none;
-    max-height:120px;
+    max-height:200px;
     overflow:auto;
+    padding:0;
 }
 .upload-files li{
-    padding:4px 0;
+    padding:8px 10px;
     border-bottom:1px dashed rgba(148,163,184,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    transition:.2s;
+}
+.upload-files li:hover{
+    background:rgba(224,242,254,0.3);
+}
+.upload-files li i{
+    margin-right:8px;
+    color:var(--primary);
+}
+.btn-success{
+    background:linear-gradient(135deg,#10b981,#059669);
+    color:white;
+    box-shadow:0 6px 18px rgba(16,185,129,0.4);
+}
+.btn-success:hover{
+    transform:translateY(-1px);
+    box-shadow:0 10px 26px rgba(16,185,129,0.5);
 }
 
 /* Forms */
