@@ -10,7 +10,7 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 from datetime import datetime, timedelta
 import pandas as pd
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 logger = logging.getLogger(__name__)
 
