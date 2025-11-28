@@ -5,7 +5,7 @@
 resource "google_storage_bucket" "invoices" {
   name          = "${var.project_id}-${var.app_name}-invoices"
   location      = var.region
-  force_destroy = false
+  force_destroy = true
   uniform_bucket_level_access = true
   
   lifecycle_rule {
@@ -22,7 +22,7 @@ resource "google_storage_bucket" "invoices" {
 resource "google_storage_bucket" "models" {
   name          = "${var.project_id}-${var.app_name}-models"
   location      = var.region
-  force_destroy = false
+  force_destroy = true
   uniform_bucket_level_access = true
   
   versioning {
@@ -34,7 +34,7 @@ resource "google_storage_bucket" "models" {
 resource "google_storage_bucket" "historical_data" {
   name          = "${var.project_id}-${var.app_name}-historical"
   location      = var.region
-  force_destroy = false
+  force_destroy = true
   uniform_bucket_level_access = true
   labels        = var.labels
 }
