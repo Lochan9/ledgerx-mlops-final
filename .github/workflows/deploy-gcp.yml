@@ -57,7 +57,7 @@ jobs:
           --min-instances 0 \
           --max-instances 3 \
           --timeout 300 \
-          --cpu-boost \
+          --cpu-boost
     
     - name: 📦 Upload ML Models
       run: |
