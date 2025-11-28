@@ -58,7 +58,6 @@ jobs:
           --max-instances 3 \
           --timeout 300 \
           --cpu-boost \
-          --service-account ledgerx-cloud-run-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
     
     - name: 📦 Upload ML Models
       run: |
