@@ -266,26 +266,6 @@ python start_api.py
 # Swagger docs: http://localhost:8000/docs
 ```
 
----
-
-## 📖 Documentation
-
-### **Generated Reports**
-- `reports/model_leaderboard.json` - Performance comparison (all 6 models)
-- `reports/model_report.txt` - Training summary
-- `reports/error_analysis_summary.txt` - Bias analysis results
-- `reports/model_card.md` - Model documentation
-- `reports/quality_shap_summary.png` - SHAP feature importance
-- `reports/hyperparameter_tuning/tuning_summary.json` - Optimization results
-
-### **MLOps Guides**
-- [Complete Demonstration Guide](docs/FINAL_COMPLETE_DEMONSTRATION_GUIDE.md)
-- [Production Deployment Checklist](docs/PRODUCTION_READINESS_ANALYSIS.md)
-- [CI/CD Logs Guide](docs/CI_CD_LOGS_GUIDE.md)
-- [MLflow Quick Guide](docs/MLFLOW_QUICK_GUIDE.md)
-
----
-
 ## 🔬 MLOps Components
 
 ### **1. Experiment Tracking (MLflow)** ✅
