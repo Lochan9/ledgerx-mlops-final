@@ -928,29 +928,140 @@
         </div>
     </div>
 
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h2 style="margin-bottom: 8px; color: var(--primary);">
+                <i class="fas fa-lock"></i> Login Required
+            </h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Sign in to access LedgerX</p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Username</label>
+                <input type="text" id="loginUsername" placeholder="admin" 
+                    style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;"
+                    onkeypress="if(event.key === 'Enter') document.getElementById('loginPassword').focus()">
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Password</label>
+                <input type="password" id="loginPassword" placeholder="admin123" 
+                    style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;"
+                    onkeypress="if(event.key === 'Enter') attemptLogin()">
+            </div>
+            
+            <div id="loginError" style="display: none; padding: 12px; background: #FEE; border-radius: 8px; color: var(--danger); margin-bottom: 16px; font-size: 14px;">
+            </div>
+            
+            <button onclick="attemptLogin()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px; margin-bottom: 16px;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            
+            <div style="padding: 16px; background: var(--bg-main); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
+                <strong style="display: block; margin-bottom: 8px;">Test Credentials:</strong>
+                • Username: <code style="background: white; padding: 2px 6px; border-radius: 4px;">admin</code> Password: <code style="background: white; padding: 2px 6px; border-radius: 4px;">admin123</code><br>
+                • Username: <code style="background: white; padding: 2px 6px; border-radius: 4px;">john_doe</code> Password: <code style="background: white; padding: 2px 6px; border-radius: 4px;">password123</code>
+            </div>
+        </div>
+    </div>
+
     <script>
         const STATE = {
-            apiUrl: 'https://ledgerx-api-zyz6umftna-uc.a.run.app',
+            apiUrl: 'https://ledgerx-api-671429123152.us-central1.run.app',
             token: null,
+            username: null,
             invoices: [],
             filtered: [],
             filter: { quality: 'all', format: 'all', search: '' }
         };
 
+        // Login Functions
+        async function attemptLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Please enter username and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const res = await fetch(`${STATE.apiUrl}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    throw new Error('Invalid credentials');
+                }
+
+                const data = await res.json();
+                STATE.token = data.access_token;
+                STATE.username = username;
+
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                errorDiv.style.display = 'none';
+
+                console.log('✅ Login successful');
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                console.error('Login failed:', error);
+            }
+        }
+
+        function logout() {
+            STATE.token = null;
+            STATE.username = null;
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function checkAuth() {
+            if (!STATE.token) {
+                document.getElementById('loginModal').style.display = 'flex';
+                return false;
+            }
+            return true;
+        }
+
         window.onload = async () => {
             loadData();
+            
+            // Check if logged in
+            if (!STATE.token) {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+            
             await connect();
             setup();
             updateAll();
         };
 
         function loadData() {
-            const saved = localStorage.getItem('ledgerx_data');
-            if (saved) STATE.invoices = JSON.parse(saved);
+            try {
+                const saved = localStorage.getItem('ledgerx_data');
+                if (saved) STATE.invoices = JSON.parse(saved);
+            } catch (e) {
+                console.warn('localStorage blocked, using session only');
+            }
         }
 
         function saveData() {
-            localStorage.setItem('ledgerx_data', JSON.stringify(STATE.invoices));
+            try {
+                localStorage.setItem('ledgerx_data', JSON.stringify(STATE.invoices));
+            } catch (e) {
+                console.warn('localStorage blocked, data will not persist');
+            }
         }
 
         async function connect() {
@@ -996,14 +1107,19 @@
         }
 
         async function processFile(file) {
-            const valid = ['.jpg', '.jpeg', '.png', '.pdf', '.json'];
-            if (!valid.some(ext => file.name.toLowerCase().endsWith(ext))) {
-                alert('Invalid file type');
+            // Check authentication first
+            if (!checkAuth()) {
+                alert('Please login first');
                 return;
             }
 
-            const fmt = file.type.startsWith('image/') ? 'IMAGE' : 
-                        file.type === 'application/pdf' ? 'PDF' : 'JSON';
+            const valid = ['.jpg', '.jpeg', '.png', '.pdf'];
+            if (!valid.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                alert('Invalid file type. Please upload JPG, PNG, or PDF.');
+                return;
+            }
+
+            const fmt = file.type.startsWith('image/') ? 'IMAGE' : 'PDF';
             
             const queueDiv = document.getElementById('processingQueue');
             const cardId = `proc-${Date.now()}`;
@@ -1020,43 +1136,46 @@
             `;
 
             try {
-                await new Promise(r => setTimeout(r, 2000));
+                // 🔥 REAL API CALL - Upload image to backend WITH AUTH
+                const formData = new FormData();
+                formData.append('file', file);
 
-                const vendors = ['Tech Supplies', 'Office Depot', 'Amazon', 'Staples'];
-                const data = {
-                    invoice_number: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-                    vendor_name: vendors[Math.floor(Math.random() * vendors.length)],
-                    total_amount: parseFloat((Math.random() * 5000 + 100).toFixed(2)),
-                    currency: 'USD',
-                    invoice_date: new Date().toISOString().split('T')[0],
-                    vendor_freq: parseFloat((Math.random() * 0.1).toFixed(3)),
-                    blur_score: parseFloat((Math.random() * 30 + 50).toFixed(2)),
-                    contrast_score: parseFloat((Math.random() * 30 + 60).toFixed(2)),
-                    ocr_confidence: parseFloat((Math.random() * 0.2 + 0.75).toFixed(3)),
-                    file_size_kb: file.size / 1024
-                };
-
-                const res = await fetch(`${STATE.apiUrl}/validate/invoice-full`, {
+                const res = await fetch('https://ledgerx-api-671429123152.us-central1.run.app/upload/image', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${STATE.token}`
                     },
-                    body: JSON.stringify(data)
+                    body: formData
                 });
+
+                if (!res.ok) {
+                    throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                }
 
                 const result = await res.json();
 
+                // Extract data from API response
+                const data = result.extracted_data || {};
+                
                 const invoice = {
                     id: Date.now(),
                     fileName: file.name,
                     fileType: fmt,
                     fileSize: file.size,
-                    ...data,
-                    quality: result.quality?.prediction || 'unknown',
-                    qualityScore: result.quality?.probabilities?.good || 0,
-                    risk: result.failure?.prediction || 'unknown',
-                    riskScore: result.failure?.probabilities?.risk || 0,
+                    invoice_number: data.invoice_number || 'N/A',
+                    vendor_name: data.vendor_name || 'Unknown',
+                    total_amount: data.total_amount || 0,
+                    currency: data.currency || 'USD',
+                    invoice_date: data.invoice_date || new Date().toISOString().split('T')[0],
+                    vendor_freq: data.vendor_freq || 0,
+                    blur_score: data.blur_score || 0,
+                    contrast_score: data.contrast_score || 0,
+                    ocr_confidence: data.ocr_confidence || 0,
+                    file_size_kb: file.size / 1024,
+                    quality: result.quality?.prediction || result.quality?.quality || 'unknown',
+                    qualityScore: result.quality?.probabilities?.good || result.quality?.probability || 0,
+                    risk: result.failure?.prediction || result.failure?.risk || 'unknown',
+                    riskScore: result.failure?.probabilities?.risk || result.failure?.probability || 0,
                     timestamp: new Date().toISOString(),
                     result
                 };
@@ -1068,11 +1187,14 @@
                     <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success);"></i>
                     <h3 style="margin-top: 16px; color: var(--success);">✅ Processed Successfully!</h3>
                     <p style="margin-top: 12px;">${file.name}</p>
+                    <p style="margin-top: 8px; font-size: 14px; color: var(--text-muted);">
+                        ${invoice.vendor_name} • ${invoice.currency} ${invoice.total_amount}
+                    </p>
                     <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
                         <span class="badge badge-${invoice.quality === 'good' ? 'success' : 'danger'}">
                             ${invoice.quality}
                         </span>
-                        <span class="badge badge-${invoice.risk === 'safe' ? 'success' : 'warning'}">
+                        <span class="badge badge-${invoice.risk === 'safe' || invoice.risk === 'low' ? 'success' : 'warning'}">
                             ${invoice.risk}
                         </span>
                     </div>
@@ -1082,10 +1204,17 @@
                 updateAll();
 
             } catch (error) {
+                console.error('Upload error:', error);
+                
+                const errorMsg = error.message || error.toString() || 'Unknown error';
+                
                 document.getElementById(cardId).innerHTML = `
                     <i class="fas fa-times-circle" style="font-size: 60px; color: var(--danger);"></i>
                     <h3 style="margin-top: 16px; color: var(--danger);">Processing Failed</h3>
-                    <p style="margin-top: 8px; color: var(--text-muted);">${error.message}</p>
+                    <p style="margin-top: 8px; color: var(--text-muted);">${errorMsg}</p>
+                    <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+                        ${error.message && error.message.includes('401') ? '🔒 Please login first' : 'Check console for details'}
+                    </p>
                 `;
             }
         }
