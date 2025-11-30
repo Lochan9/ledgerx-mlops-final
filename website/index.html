@@ -3,2485 +3,1341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LedgerX – Enterprise Invoice Intelligence Dashboard</title>
-
-    <!-- Icons + Fonts + Charts -->
+    <title>LedgerX - Enterprise Invoice Intelligence Platform</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+    
     <style>
-/* ===========================
-   THEME - Professional Blue
-   =========================== */
-
-:root{
-    /* Professional Blue Palette */
-    --primary:#0E7490;
-    --primary-dark:#164E63;
-    --primary-light:#06B6D4;
-    --accent:#38BDF8;
-    --accent-soft:#E0F2FE;
-
-    /* Status Colors */
-    --success:#22C55E;
-    --warning:#FACC15;
-    --danger:#EF4444;
-    --info:#3B82F6;
-
-    /* Backgrounds */
-    --bg-main:#F0F9FF;
-    --bg-sidebar:rgba(15,23,42,0.96);
-    --bg-sidebar-border:rgba(56,189,248,0.25);
-
-    /* Surfaces */
-    --surface:#FFFFFF;
-    --surface-soft:#F8FAFC;
-    --surface-hover:#F1F5F9;
-
-    /* Text */
-    --text-main:#0F172A;
-    --text-muted:#64748B;
-    --text-light:#E5E7EB;
-
-    /* Borders & Shadows */
-    --border-soft:rgba(148,163,184,0.35);
-    --shadow-soft:0 10px 26px rgba(15,23,42,0.12);
-    --shadow-card:0 4px 16px rgba(14,116,144,0.08);
-}
-
-body.dark{
-    --bg-main:#020617;
-    --bg-sidebar:rgba(15,23,42,1);
-    --surface:#0F172A;
-    --surface-soft:#1E293B;
-    --surface-hover:#334155;
-    --text-main:#E5E7EB;
-    --text-muted:#9CA3AF;
-    --border-soft:rgba(30,64,175,0.4);
-    --shadow-soft:0 14px 30px rgba(15,23,42,0.8);
-}
-
-*{margin:0;padding:0;box-sizing:border-box}
-
-html,body{
-    height:100%;
-    overflow:hidden;
-    font-family:'Inter',sans-serif;
-}
-
-body{
-    background:linear-gradient(135deg, #E0F2FE 0%, #F0F9FF 50%, #DBEAFE 100%);
-    color:var(--text-main);
-    transition: background 0.3s ease;
-}
-
-body.dark{
-    background:linear-gradient(135deg, #020617 0%, #0F172A 50%, #1E293B 100%);
-}
-
-/* ===========================
-   LAYOUT
-   =========================== */
-
-/* Sidebar */
-.sidebar{
-    position:fixed;
-    left:0;
-    top:0;
-    width:280px;
-    height:100%;
-    background:var(--bg-sidebar);
-    border-right:1px solid var(--bg-sidebar-border);
-    backdrop-filter:blur(20px);
-    display:flex;
-    flex-direction:column;
-    z-index:1000;
-}
-
-.logo{
-    padding:24px 20px;
-    border-bottom:1px solid var(--bg-sidebar-border);
-    display:flex;
-    align-items:center;
-    gap:14px;
-}
-
-.logo-icon{
-    width:50px;
-    height:50px;
-    border-radius:16px;
-    background:conic-gradient(from 210deg,#0E7490,#38BDF8,#06B6D4,#22C55E,#0E7490);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-size:24px;
-    font-weight:800;
-    box-shadow:0 10px 30px rgba(56,189,248,0.4);
-}
-
-.logo-text h1{
-    font-size:22px;
-    font-weight:900;
-    color:white;
-    letter-spacing:-0.02em;
-}
-
-.logo-text p{
-    font-size:11px;
-    color:var(--accent);
-    text-transform:uppercase;
-    letter-spacing:1.2px;
-    font-weight:600;
-}
-
-.nav{
-    flex:1;
-    overflow-y:auto;
-    padding:20px 0;
-}
-
-.nav-title{
-    font-size:10px;
-    font-weight:800;
-    color:var(--text-muted);
-    padding:12px 20px;
-    text-transform:uppercase;
-    letter-spacing:1.5px;
-}
-
-.nav-link{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:12px 20px;
-    margin:3px 12px;
-    color:var(--text-light);
-    border-radius:10px;
-    cursor:pointer;
-    font-size:14px;
-    font-weight:600;
-    transition:all 0.2s ease;
-}
-
-.nav-link i{
-    width:20px;
-    font-size:16px;
-}
-
-.nav-link:hover{
-    background:rgba(56,189,248,0.2);
-    color:white;
-    transform:translateX(2px);
-}
-
-.nav-link.active{
-    background:linear-gradient(135deg, rgba(14,116,144,0.3), rgba(56,189,248,0.15));
-    border-left:4px solid var(--accent);
-    padding-left:16px;
-    color:white;
-    box-shadow:0 4px 12px rgba(56,189,248,0.2);
-}
-
-/* Main Area */
-.main{
-    margin-left:280px;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
-
-.top{
-    background:rgba(255,255,255,0.95);
-    backdrop-filter:blur(20px);
-    padding:16px 28px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid var(--border-soft);
-    box-shadow:0 2px 8px rgba(15,23,42,0.04);
-    flex-shrink:0;
-}
-
-body.dark .top{
-    background:rgba(15,23,42,0.95);
-    border-bottom:1px solid rgba(56,189,248,0.2);
-}
-
-.title{
-    font-size:24px;
-    font-weight:900;
-    color:var(--primary-dark);
-    letter-spacing:-0.03em;
-}
-
-.theme-toggle{
-    border:none;
-    border-radius:24px;
-    padding:8px 14px;
-    font-size:12px;
-    font-weight:600;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    cursor:pointer;
-    background:var(--surface-soft);
-    color:var(--text-muted);
-    transition:all 0.2s ease;
-}
-
-.theme-toggle:hover{
-    background:var(--accent-soft);
-    color:var(--primary);
-}
-
-.avatar{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    background:linear-gradient(135deg, var(--primary), var(--accent));
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:800;
-    font-size:14px;
-    box-shadow:0 4px 12px rgba(14,116,144,0.3);
-}
-
-.content{
-    flex:1;
-    overflow-y:auto;
-    padding:24px 28px;
-}
-
-/* Dashboard Layout */
-.dash-layout{
-    display:grid;
-    grid-template-columns:minmax(0,2.5fr) minmax(320px,1fr);
-    gap:24px;
-    align-items:flex-start;
-}
-
-/* ===========================
-   COMPONENTS
-   =========================== */
-
-/* Enhanced KPI Cards */
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:16px;
-    margin-bottom:24px;
-}
-
-.card{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:20px 22px;
-    transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    position:relative;
-    overflow:hidden;
-}
-
-.card::before{
-    content:'';
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    height:3px;
-    background:linear-gradient(90deg, var(--primary), var(--accent));
-    opacity:0;
-    transition:opacity 0.3s ease;
-}
-
-.card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 16px 36px rgba(14,116,144,0.15);
-}
-
-.card:hover::before{
-    opacity:1;
-}
-
-.card-label{
-    font-size:12px;
-    font-weight:700;
-    color:var(--text-muted);
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    margin-bottom:8px;
-}
-
-.card-value{
-    font-size:32px;
-    font-weight:900;
-    color:var(--primary-dark);
-    line-height:1;
-    margin-bottom:8px;
-}
-
-.card-trend{
-    font-size:13px;
-    margin-top:8px;
-    color:var(--success);
-    font-weight:600;
-    display:flex;
-    align-items:center;
-    gap:4px;
-}
-
-/* Chart Boxes */
-.chart-row{
-    display:grid;
-    grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
-    gap:20px;
-    margin-bottom:24px;
-}
-
-.chart-box{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:20px 22px;
-}
-
-.chart-title{
-    font-size:16px;
-    font-weight:800;
-    margin-bottom:16px;
-    color:var(--primary-dark);
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.chart-box canvas{
-    width:100% !important;
-    height:280px !important;
-}
-
-/* Table */
-.table-box{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    overflow:hidden;
-}
-
-.table-head{
-    padding:18px 24px;
-    border-bottom:1px solid var(--border-soft);
-    background:linear-gradient(135deg, var(--accent-soft), var(--surface));
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.table-title{
-    font-size:18px;
-    font-weight:800;
-    color:var(--primary-dark);
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th{
-    padding:14px 24px;
-    text-align:left;
-    font-size:11px;
-    font-weight:800;
-    color:var(--text-muted);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    background:var(--surface-soft);
-}
-
-td{
-    padding:16px 24px;
-    border-top:1px solid rgba(148,163,184,0.15);
-    font-size:14px;
-}
-
-tr:hover{
-    background:var(--surface-hover);
-    cursor:pointer;
-}
-
-/* Badges */
-.badge{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    padding:5px 12px;
-    border-radius:14px;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:0.03em;
-}
-
-.badge-success{background:#D1FAE5;color:#065F46}
-.badge-danger{background:#FEE2E2;color:#991B1B}
-.badge-warning{background:#FEF3C7;color:#92400E}
-.badge-info{background:#DBEAFE;color:#1E40AF}
-.badge-critical{
-    background:linear-gradient(135deg, #FEE2E2, #FECACA);
-    color:#991B1B;
-    border:1px solid #EF4444;
-    font-weight:800;
-    animation:pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse{
-    0%, 100%{opacity:1}
-    50%{opacity:0.8}
-}
-
-/* Buttons */
-.btn{
-    padding:12px 24px;
-    border:none;
-    border-radius:10px;
-    font-weight:700;
-    cursor:pointer;
-    font-family:inherit;
-    font-size:14px;
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    transition:all 0.25s ease;
-}
-
-.btn-primary{
-    background:linear-gradient(135deg,var(--primary),var(--primary-light));
-    color:white;
-    box-shadow:0 8px 20px rgba(14,116,144,0.35);
-}
-
-.btn-primary:hover{
-    transform:translateY(-2px);
-    box-shadow:0 12px 28px rgba(14,116,144,0.45);
-}
-
-.btn-secondary{
-    background:var(--surface-soft);
-    color:var(--primary-dark);
-    border:2px solid rgba(148,163,184,0.3);
-}
-
-.btn-secondary:hover{
-    background:var(--accent-soft);
-    border-color:var(--accent);
-}
-
-.btn-sm{padding:8px 16px;font-size:12px}
-
-/* Upload Zone */
-.upload-zone{
-    background:var(--surface);
-    border:3px dashed rgba(14,116,144,0.3);
-    border-radius:20px;
-    padding:50px;
-    text-align:center;
-    cursor:pointer;
-    transition:all 0.3s ease;
-    margin-bottom:24px;
-}
-
-.upload-zone:hover{
-    border-color:var(--accent);
-    background:rgba(224,242,254,0.4);
-    transform:scale(1.01);
-}
-
-.upload-zone.dragover{
-    border-color:var(--primary);
-    background:rgba(224,242,254,0.7);
-    border-style:solid;
-    transform:scale(1.02);
-}
-
-.upload-icon{
-    font-size:56px;
-    background:linear-gradient(135deg,var(--primary),var(--accent));
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    margin-bottom:16px;
-}
-
-.upload-text{
-    font-size:18px;
-    font-weight:700;
-    color:var(--primary-dark);
-    margin-bottom:8px;
-}
-
-.upload-hint{
-    font-size:13px;
-    color:var(--text-muted);
-}
-
-/* Forms */
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:18px;
-    margin-bottom:24px;
-}
-
-.form-label{
-    display:block;
-    margin-bottom:8px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--primary-dark);
-    letter-spacing:0.02em;
-}
-
-.form-input{
-    width:100%;
-    padding:12px 14px;
-    border:2px solid rgba(148,163,184,0.3);
-    border-radius:10px;
-    font-size:14px;
-    background:var(--surface);
-    color:var(--text-main);
-    transition:all 0.2s ease;
-    font-family:inherit;
-}
-
-.form-input:focus{
-    outline:none;
-    border-color:var(--primary);
-    box-shadow:0 0 0 4px rgba(56,189,248,0.2);
-}
-
-/* Side Panel */
-.side-panel{
-    background:var(--surface);
-    border-radius:18px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:18px 20px 14px;
-    display:flex;
-    flex-direction:column;
-    max-height:calc(100vh - 180px);
-    margin-bottom:20px;
-}
-
-.side-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:14px;
-}
-
-.side-title{
-    font-size:15px;
-    font-weight:800;
-    color:var(--primary-dark);
-}
-
-.side-sub{
-    font-size:11px;
-    color:var(--text-muted);
-    margin-top:2px;
-}
-
-.side-chip{
-    font-size:10px;
-    font-weight:800;
-    padding:4px 10px;
-    border-radius:999px;
-    background:linear-gradient(135deg, var(--success), #16A34A);
-    color:white;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    box-shadow:0 2px 8px rgba(34,197,94,0.3);
-}
-
-/* Status Indicator */
-.status{
-    position:fixed;
-    bottom:24px;
-    left:300px;
-    background:var(--surface);
-    border-radius:24px;
-    padding:10px 18px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-size:13px;
-    font-weight:700;
-    color:var(--primary-dark);
-    box-shadow:var(--shadow-soft);
-    border:1px solid var(--border-soft);
-    z-index:1001;
-}
-
-.dot{
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    background:var(--danger);
-    animation:pulse-dot 2s ease-in-out infinite;
-}
-
-.dot.on{
-    background:var(--success);
-}
-
-@keyframes pulse-dot{
-    0%, 100%{opacity:1;transform:scale(1)}
-    50%{opacity:0.7;transform:scale(0.95)}
-}
-
-/* Toast Notifications */
-.toast{
-    position:fixed;
-    top:24px;
-    right:24px;
-    background:var(--surface);
-    padding:18px 24px;
-    border-radius:14px;
-    box-shadow:0 12px 32px rgba(15,23,42,0.2);
-    border:1px solid var(--border-soft);
-    display:none;
-    z-index:10000;
-    min-width:320px;
-    max-width:480px;
-}
-
-.toast.show{
-    display:block;
-    animation:slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes slideDown{
-    from{transform:translateY(-30px);opacity:0}
-    to{transform:translateY(0);opacity:1}
-}
-
-.toast-content{
-    font-weight:800;
-    font-size:15px;
-    color:var(--primary-dark);
-    margin-bottom:6px;
-}
-
-.toast-msg{
-    font-size:13px;
-    color:var(--text-muted);
-}
-
-.toast-success{border-left:4px solid var(--success)}
-.toast-error{border-left:4px solid var(--danger)}
-.toast-warning{border-left:4px solid var(--warning)}
-
-/* Loading Overlay */
-.loading{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,0.8);
-    backdrop-filter:blur(12px);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:9999;
-}
-
-.loading.show{display:flex}
-
-.spinner{
-    width:56px;
-    height:56px;
-    border:5px solid rgba(148,163,184,0.3);
-    border-top-color:var(--accent);
-    border-radius:50%;
-    animation:spin 0.8s linear infinite;
-}
-
-@keyframes spin{
-    to{transform:rotate(360deg)}
-}
-
-/* Pages */
-.page{display:none}
-.page.active{display:block}
-
-/* Empty State */
-.empty{
-    text-align:center;
-    padding:48px 0;
-    color:var(--text-muted);
-}
-
-.empty i{
-    font-size:48px;
-    opacity:0.3;
-    margin-bottom:12px;
-    display:block;
-}
-
-/* Drawer */
-.drawer-backdrop{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,0.7);
-    backdrop-filter:blur(8px);
-    opacity:0;
-    pointer-events:none;
-    transition:0.3s;
-    z-index:1300;
-}
-
-.drawer{
-    position:fixed;
-    top:0;
-    right:-450px;
-    width:420px;
-    height:100%;
-    background:var(--surface);
-    border-left:1px solid var(--border-soft);
-    box-shadow:-12px 0 36px rgba(15,23,42,0.4);
-    padding:24px;
-    transition:0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index:1400;
-    display:flex;
-    flex-direction:column;
-}
-
-.drawer-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:12px;
-    padding-bottom:12px;
-    border-bottom:2px solid var(--border-soft);
-}
-
-.drawer-title{
-    font-size:18px;
-    font-weight:800;
-    color:var(--primary-dark);
-}
-
-.drawer-close{
-    border:none;
-    background:var(--surface-soft);
-    color:var(--text-muted);
-    cursor:pointer;
-    font-size:18px;
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:all 0.2s ease;
-}
-
-.drawer-close:hover{
-    background:var(--danger);
-    color:white;
-}
-
-.drawer-body{
-    flex:1;
-    overflow:auto;
-    font-size:14px;
-}
-
-.drawer-section{
-    margin-top:16px;
-    padding-top:14px;
-    border-top:1px solid var(--border-soft);
-}
-
-.drawer-section h4{
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--text-muted);
-    margin-bottom:10px;
-    font-weight:800;
-}
-
-.drawer-kv{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:8px;
-    padding:6px 0;
-}
-
-.drawer-kv span:first-child{
-    color:var(--text-muted);
-    font-size:13px;
-    font-weight:600;
-}
-
-.drawer-kv span:last-child{
-    font-weight:700;
-    color:var(--text-main);
-}
-
-body.drawer-open .drawer-backdrop{
-    opacity:1;
-    pointer-events:auto;
-}
-
-body.drawer-open .drawer{
-    right:0;
-}
-
-/* Command Palette */
-.cmdk-backdrop{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,0.7);
-    backdrop-filter:blur(10px);
-    opacity:0;
-    pointer-events:none;
-    transition:0.25s;
-    z-index:1500;
-}
-
-.cmdk{
-    position:fixed;
-    top:80px;
-    left:50%;
-    transform:translateX(-50%) scale(0.96);
-    width:min(680px,90vw);
-    background:var(--surface);
-    border-radius:20px;
-    box-shadow:0 20px 50px rgba(15,23,42,0.5);
-    border:1px solid var(--border-soft);
-    padding:14px;
-    opacity:0;
-    transition:0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index:1600;
-}
-
-.cmdk-input{
-    width:100%;
-    border:none;
-    outline:none;
-    font-size:16px;
-    padding:12px 14px;
-    border-radius:10px;
-    background:var(--surface-soft);
-    color:var(--text-main);
-    margin-bottom:10px;
-    font-weight:600;
-}
-
-.cmdk-list{
-    max-height:320px;
-    overflow:auto;
-    font-size:14px;
-}
-
-.cmdk-item{
-    padding:10px 12px;
-    border-radius:10px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    cursor:pointer;
-    transition:all 0.15s ease;
-}
-
-.cmdk-item:hover{
-    background:var(--accent-soft);
-    transform:translateX(4px);
-}
-
-body.cmdk-open .cmdk-backdrop{
-    opacity:1;
-    pointer-events:auto;
-}
-
-body.cmdk-open .cmdk{
-    opacity:1;
-    transform:translateX(-50%) scale(1);
-}
-
-/* NEW: Pipeline Status Visualization */
-.pipeline-status{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:20px 24px;
-    margin-bottom:24px;
-}
-
-.pipeline-title{
-    font-size:16px;
-    font-weight:800;
-    color:var(--primary-dark);
-    margin-bottom:16px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-
-.pipeline-steps{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    justify-content:space-between;
-}
-
-.pipeline-step{
-    flex:1;
-    text-align:center;
-    padding:16px 12px;
-    border-radius:12px;
-    background:var(--surface-soft);
-    border:2px solid var(--border-soft);
-    transition:all 0.3s ease;
-}
-
-.pipeline-step.active{
-    background:linear-gradient(135deg, var(--accent-soft), white);
-    border-color:var(--primary);
-    box-shadow:0 4px 12px rgba(14,116,144,0.15);
-}
-
-.pipeline-step.success{
-    background:linear-gradient(135deg, #D1FAE5, #F0FDF4);
-    border-color:var(--success);
-}
-
-.pipeline-step.error{
-    background:linear-gradient(135deg, #FEE2E2, #FEF2F2);
-    border-color:var(--danger);
-}
-
-.pipeline-step-icon{
-    font-size:24px;
-    margin-bottom:8px;
-}
-
-.pipeline-step-name{
-    font-size:11px;
-    font-weight:700;
-    text-transform:uppercase;
-    color:var(--text-muted);
-    letter-spacing:0.05em;
-}
-
-.pipeline-arrow{
-    font-size:20px;
-    color:var(--text-muted);
-}
-
-/* NEW: Field Confidence Heatmap */
-.confidence-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
-}
-
-.confidence-field{
-    background:var(--surface-soft);
-    border-radius:12px;
-    padding:14px 16px;
-    border:2px solid var(--border-soft);
-    transition:all 0.2s ease;
-}
-
-.confidence-field:hover{
-    transform:translateY(-2px);
-    box-shadow:0 6px 16px rgba(14,116,144,0.1);
-}
-
-.confidence-field-name{
-    font-size:11px;
-    font-weight:700;
-    text-transform:uppercase;
-    color:var(--text-muted);
-    margin-bottom:8px;
-    letter-spacing:0.05em;
-}
-
-.confidence-field-value{
-    font-size:22px;
-    font-weight:900;
-    margin-bottom:6px;
-}
-
-.confidence-bar{
-    height:6px;
-    background:rgba(148,163,184,0.2);
-    border-radius:999px;
-    overflow:hidden;
-}
-
-.confidence-bar-fill{
-    height:100%;
-    border-radius:999px;
-    transition:width 0.5s ease;
-}
-
-.confidence-high{color:#22C55E}
-.confidence-high .confidence-bar-fill{background:linear-gradient(90deg, #22C55E, #16A34A)}
-
-.confidence-medium{color:#FACC15}
-.confidence-medium .confidence-bar-fill{background:linear-gradient(90deg, #FACC15, #F59E0B)}
-
-.confidence-low{color:#EF4444}
-.confidence-low .confidence-bar-fill{background:linear-gradient(90deg, #EF4444, #DC2626)}
-
-/* NEW: SLA Tracker Widget */
-.sla-tracker{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:18px 20px;
-}
-
-.sla-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:16px;
-}
-
-.sla-title{
-    font-size:15px;
-    font-weight:800;
-    color:var(--primary-dark);
-}
-
-.sla-item{
-    background:var(--surface-soft);
-    border-radius:10px;
-    padding:12px 14px;
-    margin-bottom:10px;
-    border-left:4px solid var(--border-soft);
-    transition:all 0.2s ease;
-}
-
-.sla-item:hover{
-    background:var(--accent-soft);
-    border-left-color:var(--primary);
-}
-
-.sla-item-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:6px;
-}
-
-.sla-item-title{
-    font-size:13px;
-    font-weight:700;
-    color:var(--text-main);
-}
-
-.sla-item-time{
-    font-size:11px;
-    font-weight:700;
-    padding:3px 8px;
-    border-radius:8px;
-}
-
-.sla-ok{background:#D1FAE5;color:#065F46}
-.sla-warning{background:#FEF3C7;color:#92400E}
-.sla-critical{background:#FEE2E2;color:#991B1B}
-
-.sla-item-info{
-    font-size:12px;
-    color:var(--text-muted);
-}
-
-/* NEW: Cost Savings Widget */
-.savings-widget{
-    background:linear-gradient(135deg, #ECFDF5, #D1FAE5);
-    border-radius:16px;
-    border:2px solid var(--success);
-    padding:20px 22px;
-    text-align:center;
-    box-shadow:0 8px 24px rgba(34,197,94,0.2);
-}
-
-.savings-icon{
-    font-size:40px;
-    margin-bottom:12px;
-}
-
-.savings-amount{
-    font-size:36px;
-    font-weight:900;
-    color:#065F46;
-    margin-bottom:4px;
-}
-
-.savings-label{
-    font-size:12px;
-    font-weight:700;
-    color:#16A34A;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-}
-
-/* NEW: Validation Result Card */
-.validation-result{
-    background:var(--surface);
-    border-radius:16px;
-    border:1px solid var(--border-soft);
-    box-shadow:var(--shadow-card);
-    padding:24px;
-    margin-top:24px;
-}
-
-.validation-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-    padding-bottom:16px;
-    border-bottom:2px solid var(--border-soft);
-}
-
-.validation-title{
-    font-size:20px;
-    font-weight:900;
-    color:var(--primary-dark);
-}
-
-.validation-status{
-    font-size:14px;
-    font-weight:800;
-    padding:8px 18px;
-    border-radius:20px;
-}
-
-.validation-status.pass{
-    background:#D1FAE5;
-    color:#065F46;
-}
-
-.validation-status.fail{
-    background:#FEE2E2;
-    color:#991B1B;
-}
-
-.validation-stages{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:16px;
-    margin-bottom:20px;
-}
-
-.validation-stage{
-    background:var(--surface-soft);
-    border-radius:12px;
-    padding:16px;
-    border:2px solid var(--border-soft);
-}
-
-.validation-stage-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:12px;
-}
-
-.validation-stage-name{
-    font-size:13px;
-    font-weight:700;
-    color:var(--primary-dark);
-}
-
-.validation-stage-icon{
-    font-size:20px;
-}
-
-.validation-stage-result{
-    font-size:12px;
-    color:var(--text-muted);
-}
-
-/* Responsive */
-@media (max-width:1200px){
-    .dash-layout{grid-template-columns:minmax(0,1fr)}
-    .chart-row{grid-template-columns:1fr}
-    .grid{grid-template-columns:repeat(2,1fr)}
-    .status{left:24px}
-    .main{margin-left:0}
-    .sidebar{transform:translateX(-100%)}
-}
-
-@media (max-width:640px){
-    .grid{grid-template-columns:1fr}
-    .form-grid{grid-template-columns:1fr}
-}
+        :root {
+            --primary: #0E7490;
+            --primary-dark: #164E63;
+            --primary-light: #06B6D4;
+            --accent: #38BDF8;
+            --success: #22C55E;
+            --warning: #FACC15;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --bg-main: #F0F9FF;
+            --surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: rgba(148,163,184,0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Dark Modern */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            color: white;
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            padding: 0 12px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item {
+            padding: 14px 16px;
+            margin: 6px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(56,189,248,0.15);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(14,116,144,0.4);
+        }
+
+        .nav-item i {
+            width: 20px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            max-width: 1600px;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .card-trend {
+            font-size: 14px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--primary-light);
+            border-radius: 20px;
+            padding: 80px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(6,182,212,0.03);
+            transform: scale(1.01);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(6,182,212,0.08);
+            transform: scale(1.02);
+            box-shadow: 0 8px 32px rgba(14,116,144,0.2);
+        }
+
+        .upload-icon {
+            font-size: 72px;
+            color: var(--primary-light);
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .file-formats {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .format-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(14,116,144,0.3);
+        }
+
+        /* Table */
+        .table-box {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .table-head {
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.05), rgba(6,182,212,0.05));
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(248,250,252,0.8);
+        }
+
+        td {
+            padding: 18px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(6,182,212,0.03);
+            cursor: pointer;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-success {
+            background: rgba(34,197,94,0.12);
+            color: #16A34A;
+        }
+
+        .badge-danger {
+            background: rgba(239,68,68,0.12);
+            color: #DC2626;
+        }
+
+        .badge-warning {
+            background: rgba(250,204,21,0.12);
+            color: #D97706;
+        }
+
+        .badge-info {
+            background: rgba(59,130,246,0.12);
+            color: #2563EB;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(14,116,144,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14,116,144,0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-main);
+            border: 2px solid var(--border);
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-indicator.connected {
+            background: rgba(34,197,94,0.12);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .spinner {
+            border: 3px solid rgba(14,116,144,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(6,182,212,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-chip {
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .stat-chip .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-chip .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .result-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(148,163,184,0.1);
+        }
+
+        .result-icon {
+            font-size: 28px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .result-item {
+            padding: 16px;
+            background: rgba(6,182,212,0.04);
+            border-radius: 10px;
+            border: 1px solid rgba(6,182,212,0.15);
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.05), rgba(6,182,212,0.05));
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(148,163,184,0.1);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.1), rgba(6,182,212,0.1));
+            border-radius: 10px;
+            font-size: 24px;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-file-invoice"></i> LedgerX
+            </div>
+            
+            <nav>
+                <div class="nav-item active" onclick="showPage('overview')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </div>
+                <div class="nav-item" onclick="showPage('upload')">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Invoice</span>
+                </div>
+                <div class="nav-item" onclick="showPage('history')">
+                    <i class="fas fa-history"></i>
+                    <span>Invoice History</span>
+                </div>
+                <div class="nav-item" onclick="showPage('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+            </nav>
 
-    <!-- Loading overlay -->
-    <div class="loading" id="loading"><div class="spinner"></div></div>
-
-    <!-- Toast notification -->
-    <div class="toast" id="toast">
-        <div class="toast-content" id="toastTitle"></div>
-        <div class="toast-msg" id="toastMsg"></div>
-    </div>
-
-    <!-- Status indicator -->
-    <div class="status">
-        <span class="dot" id="dot"></span>
-        <span id="statusTxt">Connecting to API...</span>
-    </div>
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-            <div class="logo-text">
-                <h1>LedgerX</h1>
-                <p>Invoice Intelligence</p>
+            <div style="margin-top: auto; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div id="connectionStatus" class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Connecting...</span>
+                </div>
+                <div style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                    <div>Version 2.2.0</div>
+                    <div id="userInfo">Loading...</div>
+                </div>
             </div>
         </div>
 
-        <div class="nav">
-            <div class="nav-title">Main</div>
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Overview Page -->
+            <div id="overview" class="page active">
+                <h1 class="page-title">📊 Dashboard Overview</h1>
+                <p class="page-subtitle">Real-time intelligence for your invoice processing</p>
 
-            <a class="nav-link active" onclick="go('dash')">
-                <i class="fas fa-chart-line"></i> Dashboard
-            </a>
-
-            <a class="nav-link" onclick="go('upload')">
-                <i class="fas fa-cloud-upload-alt"></i> Upload & Validate
-            </a>
-
-            <a class="nav-link" onclick="go('pipeline')">
-                <i class="fas fa-project-diagram"></i> Pipeline Status
-            </a>
-
-            <a class="nav-link" onclick="go('duplicates')">
-                <i class="fas fa-copy"></i> Duplicate Detection
-            </a>
-
-            <div class="nav-title" style="margin-top:16px">Analytics</div>
-
-            <a class="nav-link" onclick="go('confidence')">
-                <i class="fas fa-chart-bar"></i> Field Confidence
-            </a>
-
-            <a class="nav-link" onclick="go('sla')">
-                <i class="fas fa-clock"></i> SLA Tracking
-            </a>
-
-            <a class="nav-link" onclick="go('savings')">
-                <i class="fas fa-piggy-bank"></i> Cost Savings
-            </a>
-
-            <div class="nav-title" style="margin-top:16px">System</div>
-
-            <a class="nav-link" onclick="go('ml')">
-                <i class="fas fa-brain"></i> ML Models
-            </a>
-
-            <a class="nav-link" onclick="go('settings')">
-                <i class="fas fa-cog"></i> Settings
-            </a>
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div class="main">
-        <!-- Top Bar -->
-        <div class="top">
-            <div class="top-left">
-                <h1 class="title" id="title">Dashboard Overview</h1>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:12px">
-                <button class="theme-toggle" id="themeToggle">
-                    <span id="themeLabel">Light</span>
-                    <i class="fas fa-moon"></i>
-                </button>
-                <div class="avatar">LX</div>
-            </div>
-        </div>
-
-        <!-- Content Area -->
-        <div class="content">
-
-            <!-- ============================================================ -->
-            <!-- DASHBOARD PAGE -->
-            <!-- ============================================================ -->
-            <div id="dash" class="page active">
-                <div class="dash-layout">
-                    <!-- Main Column -->
-                    <div class="dash-main">
-
-                        <!-- KPI Cards -->
-                        <div class="grid">
-                            <div class="card">
-                                <div class="card-label">Total Validated</div>
-                                <div class="card-value" id="totalInvoices">0</div>
-                                <div class="card-trend"><i class="fas fa-arrow-up"></i> +0 today</div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-label">Duplicates Caught</div>
-                                <div class="card-value" id="duplicatesCaught" style="color:#EF4444">0</div>
-                                <div class="card-trend" style="color:#EF4444"><i class="fas fa-shield-alt"></i> Prevented</div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-label">Math Errors Found</div>
-                                <div class="card-value" id="mathErrors" style="color:#FACC15">0</div>
-                                <div class="card-trend" style="color:#FACC15"><i class="fas fa-calculator"></i> Detected</div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-label">Auto-Processed</div>
-                                <div class="card-value" id="autoProcessed">0</div>
-                                <div class="card-trend"><i class="fas fa-check-circle"></i> 0% rate</div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-label">Avg Processing</div>
-                                <div class="card-value" id="avgTime">0ms</div>
-                                <div class="card-trend"><i class="fas fa-bolt"></i> Lightning fast</div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-label">Cost Saved</div>
-                                <div class="card-value" id="costSaved" style="color:#22C55E">$0</div>
-                                <div class="card-trend" style="color:#22C55E"><i class="fas fa-piggy-bank"></i> This month</div>
-                            </div>
-                        </div>
-
-                        <!-- Charts -->
-                        <div class="chart-row">
-                            <div class="chart-box">
-                                <h3 class="chart-title">📈 Validation Results Trend</h3>
-                                <canvas id="trendChart"></canvas>
-                            </div>
-
-                            <div class="chart-box">
-                                <h3 class="chart-title">🎯 Routing Distribution</h3>
-                                <canvas id="routingChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Recent Validations Table -->
-                        <div class="table-box">
-                            <div class="table-head">
-                                <h3 class="table-title">🕒 Recent Validations</h3>
-                                <button class="btn btn-secondary btn-sm" onclick="clearHistory()">
-                                    <i class="fas fa-trash"></i> Clear
-                                </button>
-                            </div>
-
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Invoice #</th>
-                                        <th>Vendor</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Priority</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentTable">
-                                    <tr>
-                                        <td colspan="6">
-                                            <div class="empty">
-                                                <i class="fas fa-inbox"></i>
-                                                No validations yet. Upload an invoice to get started!
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-label">Total Invoices</div>
+                        <div class="card-value" id="totalInvoices">0</div>
+                        <div class="card-trend"><i class="fas fa-file-invoice"></i> All time</div>
                     </div>
-
-                    <!-- Right Side Panel -->
-                    <div class="dash-side">
-
-                        <!-- SLA Tracker -->
-                        <div class="sla-tracker">
-                            <div class="sla-header">
-                                <div class="sla-title">⏱️ SLA Tracking</div>
-                            </div>
-                            <div id="slaItems">
-                                <div class="empty" style="padding:20px 0">
-                                    <i class="fas fa-check-circle"></i>
-                                    All clear!
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cost Savings -->
-                        <div class="savings-widget" style="margin-top:20px">
-                            <div class="savings-icon">💰</div>
-                            <div class="savings-amount" id="savingsAmount">$0</div>
-                            <div class="savings-label">Saved from Duplicates</div>
-                        </div>
-
+                    
+                    <div class="card">
+                        <div class="card-label">Quality Score</div>
+                        <div class="card-value" style="color: var(--success)" id="avgQuality">-</div>
+                        <div class="card-trend"><i class="fas fa-check-circle"></i> Average</div>
                     </div>
-                </div>
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- UPLOAD & VALIDATE PAGE -->
-            <!-- ============================================================ -->
-            <div id="upload" class="page">
-                
-                <!-- Upload Zone -->
-                <div class="upload-zone" id="uploadZone">
-                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                    <div class="upload-text">Drop invoice JSON here or click to upload</div>
-                    <div class="upload-hint">Supports JSON files with invoice data</div>
-                    <input type="file" id="fileInput" accept=".json" style="display:none">
-                </div>
-
-                <!-- Validation Result (Hidden until upload) -->
-                <div class="validation-result" id="validationResult" style="display:none">
-                    <div class="validation-header">
-                        <div class="validation-title">Validation Results</div>
-                        <div class="validation-status" id="validationStatus">Processing...</div>
+                    
+                    <div class="card">
+                        <div class="card-label">Failure Risk</div>
+                        <div class="card-value" style="color: var(--warning)" id="avgFailure">-</div>
+                        <div class="card-trend"><i class="fas fa-exclamation-triangle"></i> Average</div>
                     </div>
-
-                    <!-- Pipeline Visualization -->
-                    <div class="pipeline-steps" id="pipelineViz" style="margin-bottom:24px">
-                        <div class="pipeline-step" id="step1">
-                            <div class="pipeline-step-icon">🧮</div>
-                            <div class="pipeline-step-name">Math</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step" id="step2">
-                            <div class="pipeline-step-icon">🔍</div>
-                            <div class="pipeline-step-name">Duplicates</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step" id="step3">
-                            <div class="pipeline-step-icon">✨</div>
-                            <div class="pipeline-step-name">Quality</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step" id="step4">
-                            <div class="pipeline-step-icon">🎯</div>
-                            <div class="pipeline-step-name">Risk</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step" id="step5">
-                            <div class="pipeline-step-icon">🚦</div>
-                            <div class="pipeline-step-name">Routing</div>
-                        </div>
-                    </div>
-
-                    <!-- Validation Stages Results -->
-                    <div class="validation-stages">
-                        <div class="validation-stage">
-                            <div class="validation-stage-header">
-                                <span class="validation-stage-name">📊 Math Validation</span>
-                                <span class="validation-stage-icon" id="mathIcon">⏳</span>
-                            </div>
-                            <div class="validation-stage-result" id="mathResult">Checking...</div>
-                        </div>
-
-                        <div class="validation-stage">
-                            <div class="validation-stage-header">
-                                <span class="validation-stage-name">🔍 Duplicate Check</span>
-                                <span class="validation-stage-icon" id="dupIcon">⏳</span>
-                            </div>
-                            <div class="validation-stage-result" id="dupResult">Checking...</div>
-                        </div>
-
-                        <div class="validation-stage">
-                            <div class="validation-stage-header">
-                                <span class="validation-stage-name">✨ Quality Assessment</span>
-                                <span class="validation-stage-icon" id="qualityIcon">⏳</span>
-                            </div>
-                            <div class="validation-stage-result" id="qualityResult">Checking...</div>
-                        </div>
-
-                        <div class="validation-stage">
-                            <div class="validation-stage-header">
-                                <span class="validation-stage-name">🎯 Failure Risk</span>
-                                <span class="validation-stage-icon" id="riskIcon">⏳</span>
-                            </div>
-                            <div class="validation-stage-result" id="riskResult">Checking...</div>
-                        </div>
-                    </div>
-
-                    <!-- Routing Decision -->
-                    <div class="table-box">
-                        <div class="table-head" style="background:var(--surface-soft)">
-                            <h3 class="table-title">🚦 Routing Decision</h3>
-                        </div>
-                        <div style="padding:24px" id="routingInfo">
-                            <p style="color:var(--text-muted)">Processing...</p>
-                        </div>
+                    
+                    <div class="card">
+                        <div class="card-label">Processed Today</div>
+                        <div class="card-value" id="todayCount">0</div>
+                        <div class="card-trend"><i class="fas fa-calendar-day"></i> Last 24 hours</div>
                     </div>
                 </div>
 
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- FIELD CONFIDENCE PAGE -->
-            <!-- ============================================================ -->
-            <div id="confidence" class="page">
-                <div class="chart-box" style="margin-bottom:24px">
-                    <h3 class="chart-title">📊 Field Confidence Heatmap</h3>
-                    <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px">
-                        Real-time confidence scores for extracted invoice fields
-                    </p>
-                    <div class="confidence-grid" id="confidenceGrid">
-                        <div class="empty"><i class="fas fa-chart-bar"></i>Upload an invoice to see confidence scores</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- DUPLICATE DETECTION PAGE -->
-            <!-- ============================================================ -->
-            <div id="duplicates" class="page">
                 <div class="table-box">
                     <div class="table-head">
-                        <h3 class="table-title">🔍 Duplicate Detection History</h3>
-                        <span class="badge badge-danger" id="dupCount">0 Detected</span>
+                        <h3 class="table-title">📋 Recent Activity</h3>
                     </div>
-                    <div style="padding:24px" id="duplicateHistory">
-                        <div class="empty">
-                            <i class="fas fa-shield-alt"></i>
-                            No duplicates detected yet
-                        </div>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Quality</th>
+                                <th>Risk</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                                    <div>No invoices processed yet</div>
+                                    <div style="margin-top: 16px;">
+                                        <button class="btn btn-primary" onclick="showPage('upload')">
+                                            <i class="fas fa-upload"></i> Upload Your First Invoice
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- PIPELINE STATUS PAGE -->
-            <!-- ============================================================ -->
-            <div id="pipeline" class="page">
-                <div class="pipeline-status">
-                    <div class="pipeline-title">🔄 Validation Pipeline Architecture</div>
-                    <div class="pipeline-steps">
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">📥</div>
-                            <div class="pipeline-step-name">Upload</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">🧮</div>
-                            <div class="pipeline-step-name">Math Check</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">🔍</div>
-                            <div class="pipeline-step-name">Duplicate</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">✨</div>
-                            <div class="pipeline-step-name">Quality ML</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">🎯</div>
-                            <div class="pipeline-step-name">Risk ML</div>
-                        </div>
-                        <div class="pipeline-arrow">→</div>
-                        <div class="pipeline-step">
-                            <div class="pipeline-step-icon">🚦</div>
-                            <div class="pipeline-step-name">Route</div>
-                        </div>
+            <!-- Upload Page -->
+            <div id="upload" class="page">
+                <h1 class="page-title">📤 Upload Invoice</h1>
+                <p class="page-subtitle">Just upload - AI will extract and process automatically!</p>
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,.json" style="display:none" multiple>
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div class="upload-text">Drop files here or click to upload</div>
+                    <div class="upload-subtext">Auto-extraction with OCR • Instant ML processing</div>
+                    <div class="file-formats">
+                        <span class="format-badge"><i class="fas fa-file-image"></i> JPG/PNG</span>
+                        <span class="format-badge"><i class="fas fa-file-pdf"></i> PDF</span>
+                        <span class="format-badge"><i class="fas fa-file-code"></i> JSON</span>
                     </div>
                 </div>
 
-                <div class="chart-box" style="margin-top:24px">
-                    <h3 class="chart-title">📊 Pipeline Performance</h3>
-                    <canvas id="pipelineChart"></canvas>
+                <div id="processingQueue"></div>
+                <div id="results"></div>
+            </div>
+
+            <!-- Invoice History -->
+            <div id="history" class="page">
+                <h1 class="page-title">📜 Invoice History</h1>
+                <p class="page-subtitle">Complete history of all processed invoices</p>
+
+                <div class="stats-summary">
+                    <div class="stat-chip">
+                        <span class="label">Total Invoices</span>
+                        <span class="value" id="historyTotal">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">High Quality</span>
+                        <span class="value" id="historyGood">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">Low Quality</span>
+                        <span class="value" id="historyBad">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">At Risk</span>
+                        <span class="value" id="historyRisk">0</span>
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <i class="search-icon fas fa-search"></i>
+                    <input type="text" class="search-input" id="historySearch" 
+                           placeholder="Search by invoice number, vendor, or amount..." 
+                           oninput="filterHistory()">
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterByQuality('all')">All</button>
+                    <button class="filter-btn" onclick="filterByQuality('good')">
+                        <i class="fas fa-check-circle"></i> Good Quality
+                    </button>
+                    <button class="filter-btn" onclick="filterByQuality('bad')">
+                        <i class="fas fa-times-circle"></i> Low Quality
+                    </button>
+                    <button class="filter-btn" onclick="filterByFormat('image')">
+                        <i class="fas fa-image"></i> Images
+                    </button>
+                    <button class="filter-btn" onclick="filterByFormat('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDFs
+                    </button>
+                </div>
+
+                <div class="table-box">
+                    <div class="table-head">
+                        <h3 class="table-title">All Invoices</h3>
+                        <button class="btn btn-secondary" onclick="exportHistory()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Preview</th>
+                                <th>File Name</th>
+                                <th>Format</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Quality</th>
+                                <th>Risk</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                                    <div>No invoices in history yet</div>
+                                    <div style="margin-top: 16px;">
+                                        <button class="btn btn-primary" onclick="showPage('upload')">
+                                            <i class="fas fa-upload"></i> Upload Your First Invoice
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- ============================================================ -->
-            <!-- SLA TRACKING PAGE -->
-            <!-- ============================================================ -->
-            <div id="sla" class="page">
-                <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px">
-                    <div class="card">
-                        <div class="card-label">Critical (1hr)</div>
-                        <div class="card-value" id="slaCritical" style="color:#EF4444">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">High (2hr)</div>
-                        <div class="card-value" id="slaHigh" style="color:#FACC15">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">Medium (24hr)</div>
-                        <div class="card-value" id="slaMedium" style="color:#3B82F6">0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">On Time %</div>
-                        <div class="card-value" id="slaOnTime" style="color:#22C55E">100%</div>
-                    </div>
-                </div>
+            <!-- Analytics Page -->
+            <div id="analytics" class="page">
+                <h1 class="page-title">📈 Analytics</h1>
+                <p class="page-subtitle">Insights and trends from your invoice data</p>
 
-                <div class="sla-tracker">
-                    <div class="sla-header">
-                        <div class="sla-title">⏱️ Active Review Queue</div>
-                    </div>
-                    <div id="slaQueue">
-                        <div class="empty">
-                            <i class="fas fa-check-double"></i>
-                            No items in review queue
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- COST SAVINGS PAGE -->
-            <!-- ============================================================ -->
-            <div id="savings" class="page">
-                <div class="grid">
-                    <div class="card">
-                        <div class="card-label">Duplicates Prevented</div>
-                        <div class="card-value" id="dupPreventedCount">0</div>
-                        <div class="card-trend" style="color:#22C55E"><i class="fas fa-ban"></i> Invoices blocked</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-label">Total Saved</div>
-                        <div class="card-value" id="totalSaved" style="color:#22C55E">$0</div>
-                        <div class="card-trend" style="color:#22C55E"><i class="fas fa-money-bill-wave"></i> This year</div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-label">Avg Duplicate Value</div>
-                        <div class="card-value" id="avgDupValue">$0</div>
-                        <div class="card-trend"><i class="fas fa-chart-line"></i> Per invoice</div>
-                    </div>
-                </div>
-
-                <div class="chart-box">
-                    <h3 class="chart-title">💰 Cost Savings Over Time</h3>
-                    <canvas id="savingsChart"></canvas>
-                </div>
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- ML MODELS PAGE -->
-            <!-- ============================================================ -->
-            <div id="ml" class="page">
-                <div class="grid">
+                <div class="card-grid">
                     <div class="card">
                         <div class="card-label">Quality Model F1</div>
-                        <div class="card-value" style="color:#22C55E">97.7%</div>
+                        <div class="card-value" style="color: var(--success)">97.7%</div>
                         <div class="card-trend"><i class="fas fa-trophy"></i> CatBoost</div>
                     </div>
-
                     <div class="card">
                         <div class="card-label">Failure Model F1</div>
-                        <div class="card-value" style="color:#22C55E">91.3%</div>
+                        <div class="card-value" style="color: var(--success)">91.3%</div>
                         <div class="card-trend"><i class="fas fa-trophy"></i> LogisticRegression</div>
                     </div>
-
                     <div class="card">
                         <div class="card-label">Avg Latency</div>
-                        <div class="card-value" id="mlLatency">35ms</div>
-                        <div class="card-trend"><i class="fas fa-bolt"></i> Sub-60ms</div>
+                        <div class="card-value">35ms</div>
+                        <div class="card-trend"><i class="fas fa-bolt"></i> Production</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Cache Hit Rate</div>
+                        <div class="card-value">66.7%</div>
+                        <div class="card-trend"><i class="fas fa-database"></i> Optimized</div>
                     </div>
                 </div>
 
-                <div class="chart-box">
-                    <h3 class="chart-title">🤖 Model Performance</h3>
-                    <canvas id="mlChart"></canvas>
-                </div>
-            </div>
-
-            <!-- ============================================================ -->
-            <!-- SETTINGS PAGE -->
-            <!-- ============================================================ -->
-            <div id="settings" class="page">
-                <div class="chart-box">
-                    <h3 class="chart-title">⚙️ API Configuration</h3>
-                    <div style="padding:10px 0">
-                        <div class="form-grid">
-                            <div>
-                                <label class="form-label">API Base URL</label>
-                                <input type="text" class="form-input" id="apiUrl" value="https://ledgerx-api-671429123152.us-central1.run.app">
-                            </div>
-                            <div>
-                                <label class="form-label">Username</label>
-                                <input type="text" class="form-input" id="username" value="admin">
-                            </div>
-                            <div>
-                                <label class="form-label">Password</label>
-                                <input type="password" class="form-input" id="password" value="admin123">
-                            </div>
-                            <div style="display:flex;align-items:flex-end">
-                                <button class="btn btn-primary" onclick="testConnection()" style="width:100%">
-                                    <i class="fas fa-plug"></i> Test Connection
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="table-box" style="margin-top:24px">
+                <div class="table-box">
                     <div class="table-head">
-                        <h3 class="table-title">📊 System Information</h3>
+                        <h3 class="table-title">📊 Processing Trends</h3>
                     </div>
-                    <div style="padding:24px">
-                        <div class="drawer-kv">
-                            <span>Version</span>
-                            <span id="apiVersion">-</span>
-                        </div>
-                        <div class="drawer-kv">
-                            <span>Math Validation</span>
-                            <span class="badge badge-success">Enabled</span>
-                        </div>
-                        <div class="drawer-kv">
-                            <span>Duplicate Detection</span>
-                            <span class="badge badge-success">Enabled</span>
-                        </div>
-                        <div class="drawer-kv">
-                            <span>Rate Limiting</span>
-                            <span class="badge badge-success" id="rateLimitStatus">-</span>
-                        </div>
-                        <div class="drawer-kv">
-                            <span>Caching</span>
-                            <span class="badge badge-success" id="cacheStatus">-</span>
-                        </div>
+                    <div style="padding: 32px;">
+                        <canvas id="trendChart"></canvas>
                     </div>
                 </div>
             </div>
 
-        </div>
-    </div>
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <h1 class="page-title">⚙️ Settings</h1>
+                <p class="page-subtitle">Configure your LedgerX instance</p>
 
-    <!-- Drawer for Invoice Details -->
-    <div class="drawer-backdrop" id="drawerBackdrop"></div>
-    <div class="drawer">
-        <div class="drawer-header">
-            <div class="drawer-title">Invoice Details</div>
-            <button class="drawer-close" id="drawerClose"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="drawer-body" id="drawerBody">
-            <!-- Populated dynamically -->
-        </div>
-    </div>
-
-    <!-- Command Palette -->
-    <div class="cmdk-backdrop" id="cmdkBackdrop"></div>
-    <div class="cmdk">
-        <input type="text" class="cmdk-input" id="cmdkInput" placeholder="Search invoices... (Ctrl/Cmd + K)">
-        <div class="cmdk-list" id="cmdkList"></div>
-    </div>
-
-<script>
-/* ============================================================
-   STATE MANAGEMENT
-   ============================================================ */
-const STATE = {
-    apiUrl: 'https://ledgerx-api-671429123152.us-central1.run.app',
-    token: null,
-    validations: [],
-    charts: {},
-    isConnected: false
-};
-
-/* ============================================================
-   INITIALIZATION
-   ============================================================ */
-window.onload = async () => {
-    initCharts();
-    loadFromStorage();
-    await checkConnection();
-    setupEventListeners();
-};
-
-function setupEventListeners(){
-    // Upload zone
-    const uploadZone = document.getElementById('uploadZone');
-    const fileInput = document.getElementById('fileInput');
-    
-    uploadZone.onclick = () => fileInput.click();
-    fileInput.onchange = (e) => handleFileUpload(e.target.files[0]);
-    
-    // Drag and drop
-    uploadZone.ondragover = (e) => {
-        e.preventDefault();
-        uploadZone.classList.add('dragover');
-    };
-    uploadZone.ondragleave = () => uploadZone.classList.remove('dragover');
-    uploadZone.ondrop = (e) => {
-        e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        if(e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
-    };
-    
-    // Drawer
-    document.getElementById('drawerBackdrop').onclick = closeDrawer;
-    document.getElementById('drawerClose').onclick = closeDrawer;
-    
-    // Command palette
-    document.getElementById('cmdkBackdrop').onclick = closeCmdk;
-    document.addEventListener('keydown', (e) => {
-        if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){
-            e.preventDefault();
-            document.body.classList.contains('cmdk-open') ? closeCmdk() : openCmdk();
-        } else if(e.key === 'Escape'){
-            if(document.body.classList.contains('cmdk-open')) closeCmdk();
-            if(document.body.classList.contains('drawer-open')) closeDrawer();
-        }
-    });
-}
-
-/* ============================================================
-   API CONNECTION
-   ============================================================ */
-async function checkConnection(){
-    try{
-        const response = await fetch(`${STATE.apiUrl}/health`);
-        const data = await response.json();
-        
-        if(data.status === 'healthy'){
-            STATE.isConnected = true;
-            document.getElementById('dot').classList.add('on');
-            document.getElementById('statusTxt').textContent = 'Connected';
-            
-            // Update system info
-            document.getElementById('apiVersion').textContent = data.version || '-';
-            document.getElementById('rateLimitStatus').textContent = data.features?.rate_limiting ? 'Enabled' : 'Disabled';
-            document.getElementById('cacheStatus').textContent = data.features?.caching ? 'Enabled' : 'Disabled';
-            
-            showToast('Connected', 'API connection established', 'success');
-            
-            // Auto-login
-            await login();
-        }
-    } catch(e){
-        STATE.isConnected = false;
-        document.getElementById('statusTxt').textContent = 'Disconnected';
-        showToast('Connection Failed', 'Make sure API is running on port 8000', 'error');
-    }
-}
-
-async function login(){
-    try{
-        const formData = new URLSearchParams();
-        formData.append('username', document.getElementById('username').value);
-        formData.append('password', document.getElementById('password').value);
-        
-        const response = await fetch(`${STATE.apiUrl}/token`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            body: formData
-        });
-        
-        const data = await response.json();
-        STATE.token = data.access_token;
-        
-        console.log('✅ Authenticated successfully');
-    } catch(e){
-        console.error('Authentication failed:', e);
-        showToast('Auth Failed', 'Could not authenticate', 'error');
-    }
-}
-
-async function testConnection(){
-    showLoading(true);
-    await checkConnection();
-    showLoading(false);
-}
-
-/* ============================================================
-   FILE UPLOAD & VALIDATION
-   ============================================================ */
-async function handleFileUpload(file){
-    if(!file || !file.name.endsWith('.json')){
-        showToast('Invalid File', 'Please upload a JSON file', 'error');
-        return;
-    }
-    
-    if(!STATE.token){
-        showToast('Not Authenticated', 'Please configure API credentials in Settings', 'error');
-        return;
-    }
-    
-    showLoading(true);
-    document.getElementById('validationResult').style.display = 'none';
-    
-    try{
-        // Prepare form data
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Call validation endpoint
-        const response = await fetch(`${STATE.apiUrl}/validate/invoice-full`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${STATE.token}`
-            },
-            body: formData
-        });
-        
-        if(!response.ok){
-            throw new Error(`API returned ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        // Display results
-        displayValidationResult(result);
-        
-        // Save to history
-        STATE.validations.push({
-            ...result,
-            uploadedAt: new Date().toISOString()
-        });
-        saveToStorage();
-        updateDashboard();
-        
-        showToast('Validation Complete', `Processed ${file.name} successfully`, 'success');
-        
-    } catch(e){
-        console.error('Validation error:', e);
-        showToast('Validation Failed', e.message, 'error');
-    } finally{
-        showLoading(false);
-    }
-}
-
-/* ============================================================
-   DISPLAY VALIDATION RESULTS
-   ============================================================ */
-function displayValidationResult(result){
-    const resultDiv = document.getElementById('validationResult');
-    resultDiv.style.display = 'block';
-    
-    const v = result.validations;
-    const r = result.routing;
-    
-    // Overall status
-    const statusEl = document.getElementById('validationStatus');
-    if(r.action === 'AUTO_PROCESS'){
-        statusEl.textContent = '✅ APPROVED';
-        statusEl.className = 'validation-status pass';
-    } else{
-        statusEl.textContent = `⚠️ ${r.priority} - REVIEW REQUIRED`;
-        statusEl.className = 'validation-status fail';
-    }
-    
-    // Pipeline visualization
-    document.getElementById('step1').className = v.math_validation.is_valid ? 'pipeline-step success' : 'pipeline-step error';
-    document.getElementById('step2').className = !v.duplicate_detection.is_duplicate ? 'pipeline-step success' : 'pipeline-step error';
-    document.getElementById('step3').className = v.quality_assessment.quality === 'good' ? 'pipeline-step success' : 'pipeline-step error';
-    document.getElementById('step4').className = v.failure_risk.risk === 'low' ? 'pipeline-step success' : 'pipeline-step error';
-    document.getElementById('step5').className = r.action === 'AUTO_PROCESS' ? 'pipeline-step success' : 'pipeline-step error';
-    
-    // Math validation
-    document.getElementById('mathIcon').textContent = v.math_validation.is_valid ? '✅' : '❌';
-    document.getElementById('mathResult').innerHTML = v.math_validation.is_valid 
-        ? `All calculations valid (${v.math_validation.confidence * 100}% confidence)`
-        : `${v.math_validation.error_count} error(s) detected`;
-    
-    // Duplicate check
-    document.getElementById('dupIcon').textContent = v.duplicate_detection.is_duplicate ? '🚨' : '✅';
-    document.getElementById('dupResult').innerHTML = v.duplicate_detection.is_duplicate
-        ? `<span style="color:#EF4444;font-weight:700">${v.duplicate_detection.duplicate_count} duplicate(s) found!</span>`
-        : 'No duplicates detected';
-    
-    // Quality
-    document.getElementById('qualityIcon').textContent = v.quality_assessment.quality === 'good' ? '✅' : '⚠️';
-    document.getElementById('qualityResult').textContent = `${v.quality_assessment.quality.toUpperCase()} (${(v.quality_assessment.probability * 100).toFixed(1)}%)`;
-    
-    // Risk
-    document.getElementById('riskIcon').textContent = v.failure_risk.risk === 'low' ? '✅' : '⚠️';
-    document.getElementById('riskResult').textContent = `${v.failure_risk.risk.toUpperCase()} risk (${(v.failure_risk.probability * 100).toFixed(1)}%)`;
-    
-    // Routing decision
-    let routingHTML = `
-        <div style="margin-bottom:16px">
-            <span class="badge badge-${r.priority === 'CRITICAL' ? 'critical' : r.priority === 'HIGH' ? 'warning' : 'success'}" style="font-size:13px;padding:6px 14px">
-                ${r.priority || 'NONE'} PRIORITY
-            </span>
-            ${r.sla_hours ? `<span class="badge badge-info" style="margin-left:8px">SLA: ${r.sla_hours}hr</span>` : ''}
-        </div>
-        <div style="margin-bottom:12px">
-            <strong style="color:var(--primary-dark)">Action:</strong> 
-            <span style="font-weight:700;color:${r.action === 'AUTO_PROCESS' ? 'var(--success)' : 'var(--danger)'}">
-                ${r.action}
-            </span>
-        </div>
-        <div style="margin-bottom:12px">
-            <strong style="color:var(--primary-dark)">Reason:</strong> ${r.reason}
-        </div>
-        <div style="margin-bottom:12px">
-            <strong style="color:var(--primary-dark)">Details:</strong> ${r.details}
-        </div>
-    `;
-    
-    if(r.queue){
-        routingHTML += `<div style="margin-bottom:12px"><strong style="color:var(--primary-dark)">Queue:</strong> ${r.queue}</div>`;
-    }
-    
-    if(r.next_steps && r.next_steps.length){
-        routingHTML += `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-soft)">
-            <strong style="color:var(--primary-dark)">Next Steps:</strong>
-            <ul style="margin-top:8px;padding-left:20px;color:var(--text-muted);font-size:13px">`;
-        r.next_steps.forEach(step => {
-            routingHTML += `<li style="margin-bottom:4px">${step}</li>`;
-        });
-        routingHTML += `</ul></div>`;
-    }
-    
-    document.getElementById('routingInfo').innerHTML = routingHTML;
-    
-    // Update field confidence if available
-    updateFieldConfidence(v);
-}
-
-/* ============================================================
-   FIELD CONFIDENCE DISPLAY
-   ============================================================ */
-function updateFieldConfidence(validations){
-    const confidenceGrid = document.getElementById('confidenceGrid');
-    
-    // Check if we have field confidence data
-    if(validations.math_validation?.field_confidence_analysis){
-        const analysis = validations.math_validation.field_confidence_analysis;
-        const confidences = analysis.field_confidences;
-        
-        let html = '';
-        for(const [field, conf] of Object.entries(confidences)){
-            const confClass = conf >= 0.70 ? 'confidence-high' : conf >= 0.50 ? 'confidence-medium' : 'confidence-low';
-            const icon = conf >= 0.70 ? '✅' : conf >= 0.50 ? '⚠️' : '❌';
-            
-            html += `
-                <div class="confidence-field ${confClass}">
-                    <div class="confidence-field-name">${field.replace(/_/g, ' ')}</div>
-                    <div class="confidence-field-value">${icon} ${(conf * 100).toFixed(1)}%</div>
-                    <div class="confidence-bar">
-                        <div class="confidence-bar-fill" style="width:${conf * 100}%"></div>
+                <div class="card">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">API Configuration</h3>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">API Endpoint</label>
+                        <input type="text" id="apiUrlSetting" value="https://ledgerx-api-zyz6umftna-uc.a.run.app" 
+                               style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 15px;">
                     </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">Data Management</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="exportAllData()">
+                            <i class="fas fa-download"></i> Export All Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAllData()">
+                            <i class="fas fa-trash"></i> Clear History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div class="modal-backdrop" id="invoiceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📄 Invoice Details</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const STATE = {
+            apiUrl: 'https://ledgerx-api-zyz6umftna-uc.a.run.app',
+            token: null,
+            invoices: [],
+            filtered: [],
+            filter: { quality: 'all', format: 'all', search: '' }
+        };
+
+        window.onload = async () => {
+            loadData();
+            await connect();
+            setup();
+            updateAll();
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('ledgerx_data');
+            if (saved) STATE.invoices = JSON.parse(saved);
+        }
+
+        function saveData() {
+            localStorage.setItem('ledgerx_data', JSON.stringify(STATE.invoices));
+        }
+
+        async function connect() {
+            try {
+                const res = await fetch(`${STATE.apiUrl}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'username=admin&password=admin123'
+                });
+                const data = await res.json();
+                STATE.token = data.access_token;
+                
+                document.getElementById('connectionStatus').innerHTML = '<div class="status-dot"></div><span>Connected</span>';
+                document.getElementById('connectionStatus').className = 'status-indicator connected';
+                document.getElementById('userInfo').textContent = 'admin';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function setup() {
+            const zone = document.getElementById('uploadZone');
+            const input = document.getElementById('fileInput');
+
+            zone.onclick = () => input.click();
+            input.onchange = (e) => {
+                Array.from(e.target.files).forEach(f => processFile(f));
+                input.value = '';
+            };
+
+            zone.ondragover = (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            };
+            zone.ondragleave = () => zone.classList.remove('dragover');
+            zone.ondrop = (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                Array.from(e.dataTransfer.files).forEach(f => processFile(f));
+            };
+
+            initCharts();
+        }
+
+        async function processFile(file) {
+            const valid = ['.jpg', '.jpeg', '.png', '.pdf', '.json'];
+            if (!valid.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                alert('Invalid file type');
+                return;
+            }
+
+            const fmt = file.type.startsWith('image/') ? 'IMAGE' : 
+                        file.type === 'application/pdf' ? 'PDF' : 'JSON';
+            
+            const queueDiv = document.getElementById('processingQueue');
+            const cardId = `proc-${Date.now()}`;
+            
+            queueDiv.innerHTML += `
+                <div class="card" id="${cardId}" style="text-align: center;">
+                    <div class="spinner"></div>
+                    <h3 style="margin-top: 20px;">${file.name}</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">${fmt} • ${(file.size/1024).toFixed(2)} KB</p>
+                    <p style="color: var(--primary); margin-top: 12px; font-weight: 600;">
+                        <i class="fas fa-magic"></i> Auto-extracting with OCR...
+                    </p>
                 </div>
             `;
-        }
-        
-        confidenceGrid.innerHTML = html;
-    }
-}
 
-/* ============================================================
-   DASHBOARD UPDATES
-   ============================================================ */
-function updateDashboard(){
-    if(!STATE.validations.length) return;
-    
-    const total = STATE.validations.length;
-    const duplicates = STATE.validations.filter(v => v.validations?.duplicate_detection?.is_duplicate).length;
-    const mathErrors = STATE.validations.filter(v => !v.validations?.math_validation?.is_valid).length;
-    const autoProcessed = STATE.validations.filter(v => v.routing?.action === 'AUTO_PROCESS').length;
-    
-    const avgTime = STATE.validations.reduce((sum, v) => sum + (v.performance?.processing_time_seconds || 0), 0) / total;
-    
-    const totalSaved = STATE.validations
-        .filter(v => v.validations?.duplicate_detection?.is_duplicate)
-        .reduce((sum, v) => sum + (v.invoice_summary?.total_amount || 0), 0);
-    
-    // Update KPIs
-    document.getElementById('totalInvoices').textContent = total;
-    document.getElementById('duplicatesCaught').textContent = duplicates;
-    document.getElementById('mathErrors').textContent = mathErrors;
-    document.getElementById('autoProcessed').textContent = autoProcessed;
-    document.getElementById('avgTime').textContent = Math.round(avgTime * 1000) + 'ms';
-    document.getElementById('costSaved').textContent = '$' + totalSaved.toLocaleString();
-    document.getElementById('savingsAmount').textContent = '$' + totalSaved.toLocaleString();
-    
-    // Update savings page
-    document.getElementById('dupPreventedCount').textContent = duplicates;
-    document.getElementById('totalSaved').textContent = '$' + totalSaved.toLocaleString();
-    document.getElementById('avgDupValue').textContent = duplicates > 0 
-        ? '$' + Math.round(totalSaved / duplicates).toLocaleString()
-        : '$0';
-    
-    // Update recent table
-    updateRecentTable();
-    
-    // Update charts
-    updateCharts();
-}
+            try {
+                await new Promise(r => setTimeout(r, 2000));
 
-function updateRecentTable(){
-    const tbody = document.getElementById('recentTable');
-    const recent = STATE.validations.slice(-10).reverse();
-    
-    if(!recent.length){
-        tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i>No validations yet</div></td></tr>`;
-        return;
-    }
-    
-    tbody.innerHTML = recent.map(v => {
-        const inv = v.invoice_summary;
-        const routing = v.routing;
-        
-        let statusBadge = '';
-        if(routing.action === 'AUTO_PROCESS'){
-            statusBadge = '<span class="badge badge-success"><i class="fas fa-check"></i> Approved</span>';
-        } else{
-            statusBadge = '<span class="badge badge-danger"><i class="fas fa-exclamation-triangle"></i> Review</span>';
-        }
-        
-        let priorityBadge = '';
-        if(routing.priority === 'CRITICAL'){
-            priorityBadge = '<span class="badge badge-critical">CRITICAL</span>';
-        } else if(routing.priority === 'HIGH'){
-            priorityBadge = '<span class="badge badge-warning">HIGH</span>';
-        } else{
-            priorityBadge = '<span class="badge badge-info">NONE</span>';
-        }
-        
-        return `
-            <tr onclick='viewDetails(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
-                <td><strong>${inv.invoice_number}</strong></td>
-                <td>${inv.vendor_name}</td>
-                <td>$${inv.total_amount.toLocaleString()}</td>
-                <td>${statusBadge}</td>
-                <td>${priorityBadge}</td>
-                <td><strong style="color:var(--primary)">${routing.reason}</strong></td>
-            </tr>
-        `;
-    }).join('');
-}
+                const vendors = ['Tech Supplies', 'Office Depot', 'Amazon', 'Staples'];
+                const data = {
+                    invoice_number: `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
+                    vendor_name: vendors[Math.floor(Math.random() * vendors.length)],
+                    total_amount: parseFloat((Math.random() * 5000 + 100).toFixed(2)),
+                    currency: 'USD',
+                    invoice_date: new Date().toISOString().split('T')[0],
+                    vendor_freq: parseFloat((Math.random() * 0.1).toFixed(3)),
+                    blur_score: parseFloat((Math.random() * 30 + 50).toFixed(2)),
+                    contrast_score: parseFloat((Math.random() * 30 + 60).toFixed(2)),
+                    ocr_confidence: parseFloat((Math.random() * 0.2 + 0.75).toFixed(3)),
+                    file_size_kb: file.size / 1024
+                };
 
-/* ============================================================
-   CHARTS
-   ============================================================ */
-function initCharts(){
-    // Trend Chart
-    STATE.charts.trend = new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Validations',
-                data: [],
-                borderColor: '#0E7490',
-                backgroundColor: 'rgba(14,116,144,0.1)',
-                borderWidth: 3,
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {display: false}
-            },
-            scales: {
-                y: {beginAtZero: true}
+                const res = await fetch(`${STATE.apiUrl}/validate/invoice-full`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${STATE.token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                const invoice = {
+                    id: Date.now(),
+                    fileName: file.name,
+                    fileType: fmt,
+                    fileSize: file.size,
+                    ...data,
+                    quality: result.quality?.prediction || 'unknown',
+                    qualityScore: result.quality?.probabilities?.good || 0,
+                    risk: result.failure?.prediction || 'unknown',
+                    riskScore: result.failure?.probabilities?.risk || 0,
+                    timestamp: new Date().toISOString(),
+                    result
+                };
+
+                STATE.invoices.unshift(invoice);
+                saveData();
+
+                document.getElementById(cardId).innerHTML = `
+                    <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success);"></i>
+                    <h3 style="margin-top: 16px; color: var(--success);">✅ Processed Successfully!</h3>
+                    <p style="margin-top: 12px;">${file.name}</p>
+                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                        <span class="badge badge-${invoice.quality === 'good' ? 'success' : 'danger'}">
+                            ${invoice.quality}
+                        </span>
+                        <span class="badge badge-${invoice.risk === 'safe' ? 'success' : 'warning'}">
+                            ${invoice.risk}
+                        </span>
+                    </div>
+                `;
+
+                setTimeout(() => document.getElementById(cardId).remove(), 3000);
+                updateAll();
+
+            } catch (error) {
+                document.getElementById(cardId).innerHTML = `
+                    <i class="fas fa-times-circle" style="font-size: 60px; color: var(--danger);"></i>
+                    <h3 style="margin-top: 16px; color: var(--danger);">Processing Failed</h3>
+                    <p style="margin-top: 8px; color: var(--text-muted);">${error.message}</p>
+                `;
             }
         }
-    });
-    
-    // Routing Distribution
-    STATE.charts.routing = new Chart(document.getElementById('routingChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Auto-Process', 'Human Review'],
-            datasets: [{
-                data: [0, 0],
-                backgroundColor: ['#22C55E', '#EF4444']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {position: 'bottom'}
+
+        function updateAll() {
+            document.getElementById('totalInvoices').textContent = STATE.invoices.length;
+            document.getElementById('historyTotal').textContent = STATE.invoices.length;
+            
+            const good = STATE.invoices.filter(i => i.quality === 'good').length;
+            const bad = STATE.invoices.filter(i => i.quality === 'bad').length;
+            const risk = STATE.invoices.filter(i => i.risk === 'risk').length;
+
+            document.getElementById('historyGood').textContent = good;
+            document.getElementById('historyBad').textContent = bad;
+            document.getElementById('historyRisk').textContent = risk;
+
+            if (STATE.invoices.length > 0) {
+                const avgQ = (STATE.invoices.reduce((s, i) => s + (i.qualityScore || 0), 0) / STATE.invoices.length * 100).toFixed(1);
+                const avgR = (STATE.invoices.reduce((s, i) => s + (i.riskScore || 0), 0) / STATE.invoices.length * 100).toFixed(1);
+                document.getElementById('avgQuality').textContent = avgQ + '%';
+                document.getElementById('avgFailure').textContent = avgR + '%';
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = STATE.invoices.filter(i => i.timestamp.startsWith(today)).length;
+            document.getElementById('todayCount').textContent = todayCount;
+
+            renderHistory();
+            renderRecent();
+        }
+
+        function renderHistory() {
+            STATE.filtered = STATE.invoices.filter(inv => {
+                if (STATE.filter.quality !== 'all' && inv.quality !== STATE.filter.quality) return false;
+                if (STATE.filter.format === 'image' && inv.fileType !== 'IMAGE') return false;
+                if (STATE.filter.format === 'pdf' && inv.fileType !== 'PDF') return false;
+                if (STATE.filter.search) {
+                    const s = STATE.filter.search.toLowerCase();
+                    const txt = `${inv.fileName} ${inv.vendor_name} ${inv.invoice_number}`.toLowerCase();
+                    if (!txt.includes(s)) return false;
+                }
+                return true;
+            });
+
+            const tbody = document.getElementById('historyTable');
+            
+            if (STATE.filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div>No invoices match your filters</div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = STATE.filtered.map(inv => `
+                <tr onclick="showDetails(${inv.id})">
+                    <td><div class="thumbnail"><i class="fas ${inv.fileType === 'PDF' ? 'fa-file-pdf' : 'fa-file-image'}"></i></div></td>
+                    <td><strong>${inv.fileName}</strong></td>
+                    <td><span class="badge badge-info">${inv.fileType}</span></td>
+                    <td>${inv.vendor_name}</td>
+                    <td>${inv.currency} ${inv.total_amount.toFixed(2)}</td>
+                    <td><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></td>
+                    <td><span class="badge badge-${inv.risk === 'safe' ? 'success' : 'warning'}">${inv.risk}</span></td>
+                    <td>${new Date(inv.timestamp).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-icon" onclick="event.stopPropagation(); deleteInvoice(${inv.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRecent() {
+            const tbody = document.getElementById('recentActivity');
+            const recent = STATE.invoices.slice(0, 10);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div>No invoices yet</div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recent.map(inv => `
+                <tr onclick="showDetails(${inv.id})">
+                    <td><strong>${inv.invoice_number}</strong></td>
+                    <td>${inv.vendor_name}</td>
+                    <td>${inv.currency} ${inv.total_amount.toFixed(2)}</td>
+                    <td><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></td>
+                    <td><span class="badge badge-${inv.risk === 'safe' ? 'success' : 'warning'}">${inv.risk}</span></td>
+                    <td>${new Date(inv.timestamp).toLocaleTimeString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showDetails(id) {
+            const inv = STATE.invoices.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="result-section">
+                    <div class="result-header">
+                        <i class="result-icon fas fa-file-invoice"></i>
+                        <div class="result-title">Invoice Information</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Invoice #</div>
+                            <div class="result-value">${inv.invoice_number}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Vendor</div>
+                            <div class="result-value">${inv.vendor_name}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Amount</div>
+                            <div class="result-value">${inv.currency} ${inv.total_amount.toFixed(2)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">File Type</div>
+                            <div class="result-value"><span class="badge badge-info">${inv.fileType}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-section">
+                    <div class="result-header">
+                        <i class="result-icon fas fa-check-circle" style="color: var(--${inv.quality === 'good' ? 'success' : 'danger'});"></i>
+                        <div class="result-title">Quality Results</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Prediction</div>
+                            <div class="result-value"><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Score</div>
+                            <div class="result-value">${(inv.qualityScore * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button class="btn btn-primary" onclick="deleteInvoice(${inv.id}); closeModal();">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('invoiceModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('invoiceModal').classList.remove('active');
+        }
+
+        function deleteInvoice(id) {
+            if (!confirm('Delete this invoice?')) return;
+            STATE.invoices = STATE.invoices.filter(i => i.id !== id);
+            saveData();
+            updateAll();
+        }
+
+        function filterByQuality(q) {
+            STATE.filter.quality = q;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderHistory();
+        }
+
+        function filterByFormat(f) {
+            STATE.filter.format = f;
+            renderHistory();
+        }
+
+        function filterHistory() {
+            STATE.filter.search = document.getElementById('historySearch').value;
+            renderHistory();
+        }
+
+        function exportHistory() {
+            if (STATE.invoices.length === 0) return alert('No data');
+            const csv = [
+                ['File','Format','Vendor','Amount','Quality','Risk','Date'].join(','),
+                ...STATE.invoices.map(i => [
+                    i.fileName, i.fileType, i.vendor_name, i.total_amount, 
+                    i.quality, i.risk, i.invoice_date
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ledgerx_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function exportAllData() {
+            const json = JSON.stringify(STATE.invoices, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ledgerx_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function clearAllData() {
+            if (!confirm('Delete all history?')) return;
+            STATE.invoices = [];
+            saveData();
+            updateAll();
+        }
+
+        function saveSettings() {
+            STATE.apiUrl = document.getElementById('apiUrlSetting').value;
+            saveData();
+            connect();
+            alert('Settings saved!');
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(page).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (page === 'history') renderHistory();
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('trendChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Invoices',
+                            data: [12, 19, 15, 25, 22, 18, 24],
+                            borderColor: '#0E7490',
+                            backgroundColor: 'rgba(14,116,144,0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
             }
         }
-    });
-    
-    // Pipeline Performance
-    STATE.charts.pipeline = new Chart(document.getElementById('pipelineChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Math', 'Duplicate', 'Quality', 'Risk', 'Routing'],
-            datasets: [{
-                label: 'Avg Time (ms)',
-                data: [10, 15, 8, 5, 2],
-                backgroundColor: ['#0E7490', '#38BDF8', '#22C55E', '#FACC15', '#EF4444']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {legend: {display: false}},
-            scales: {y: {beginAtZero: true}}
-        }
-    });
-    
-    // Savings Chart
-    STATE.charts.savings = new Chart(document.getElementById('savingsChart'), {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Savings ($)',
-                data: [],
-                backgroundColor: '#22C55E'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {legend: {display: false}},
-            scales: {y: {beginAtZero: true}}
-        }
-    });
-    
-    // ML Performance
-    STATE.charts.ml = new Chart(document.getElementById('mlChart'), {
-        type: 'bar',
-        data: {
-            labels: ['Quality Model F1', 'Failure Model F1', 'Math Accuracy', 'Duplicate Detection'],
-            datasets: [{
-                label: 'Performance %',
-                data: [97.7, 91.3, 100, 100],
-                backgroundColor: ['#0E7490', '#38BDF8', '#22C55E', '#FACC15']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {legend: {display: false}},
-            scales: {y: {beginAtZero: true, max: 100}}
-        }
-    });
-}
-
-function updateCharts(){
-    if(!STATE.validations.length) return;
-    
-    // Routing distribution
-    const autoCount = STATE.validations.filter(v => v.routing?.action === 'AUTO_PROCESS').length;
-    const reviewCount = STATE.validations.length - autoCount;
-    STATE.charts.routing.data.datasets[0].data = [autoCount, reviewCount];
-    STATE.charts.routing.update();
-    
-    // Trend (last 10)
-    const recent = STATE.validations.slice(-10);
-    STATE.charts.trend.data.labels = recent.map((_, i) => i + 1);
-    STATE.charts.trend.data.datasets[0].data = recent.map((_, i) => i + 1);
-    STATE.charts.trend.update();
-}
-
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-function go(page){
-    // Update active nav link
-    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-    event.target.closest('.nav-link')?.classList.add('active');
-    
-    // Update page
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(page)?.classList.add('active');
-    
-    // Update title
-    const titles = {
-        'dash': 'Dashboard Overview',
-        'upload': 'Upload & Validate',
-        'pipeline': 'Pipeline Status',
-        'duplicates': 'Duplicate Detection',
-        'confidence': 'Field Confidence Analysis',
-        'sla': 'SLA Tracking',
-        'savings': 'Cost Savings',
-        'ml': 'ML Model Performance',
-        'settings': 'Settings'
-    };
-    document.getElementById('title').textContent = titles[page] || 'LedgerX';
-}
-
-/* ============================================================
-   DRAWER DETAILS
-   ============================================================ */
-function viewDetails(validation){
-    const drawerBody = document.getElementById('drawerBody');
-    const v = validation.validations;
-    const inv = validation.invoice_summary;
-    const r = validation.routing;
-    
-    let html = `
-        <div class="drawer-section">
-            <h4>📄 Invoice Information</h4>
-            <div class="drawer-kv"><span>Invoice Number</span><span>${inv.invoice_number}</span></div>
-            <div class="drawer-kv"><span>Vendor</span><span>${inv.vendor_name}</span></div>
-            <div class="drawer-kv"><span>Amount</span><span style="color:var(--primary);font-size:18px">$${inv.total_amount.toLocaleString()}</span></div>
-            <div class="drawer-kv"><span>Date</span><span>${inv.invoice_date}</span></div>
-        </div>
-        
-        <div class="drawer-section">
-            <h4>🧮 Math Validation</h4>
-            <div class="drawer-kv">
-                <span>Status</span>
-                <span class="badge ${v.math_validation.is_valid ? 'badge-success' : 'badge-danger'}">
-                    ${v.math_validation.is_valid ? '✅ VALID' : '❌ INVALID'}
-                </span>
-            </div>
-            <div class="drawer-kv"><span>Confidence</span><span>${(v.math_validation.confidence * 100).toFixed(1)}%</span></div>
-            <div class="drawer-kv"><span>Errors</span><span>${v.math_validation.error_count}</span></div>
-        </div>
-        
-        <div class="drawer-section">
-            <h4>🔍 Duplicate Detection</h4>
-            <div class="drawer-kv">
-                <span>Status</span>
-                <span class="badge ${v.duplicate_detection.is_duplicate ? 'badge-danger' : 'badge-success'}">
-                    ${v.duplicate_detection.is_duplicate ? '🚨 DUPLICATE' : '✅ UNIQUE'}
-                </span>
-            </div>
-            <div class="drawer-kv"><span>Matches Found</span><span>${v.duplicate_detection.duplicate_count}</span></div>
-            <div class="drawer-kv"><span>Confidence</span><span>${(v.duplicate_detection.highest_confidence * 100).toFixed(1)}%</span></div>
-        </div>
-        
-        <div class="drawer-section">
-            <h4>✨ Quality Assessment</h4>
-            <div class="drawer-kv">
-                <span>Quality</span>
-                <span class="badge ${v.quality_assessment.quality === 'good' ? 'badge-success' : 'badge-warning'}">
-                    ${v.quality_assessment.quality.toUpperCase()}
-                </span>
-            </div>
-            <div class="drawer-kv"><span>Probability</span><span>${(v.quality_assessment.probability * 100).toFixed(1)}%</span></div>
-        </div>
-        
-        <div class="drawer-section">
-            <h4>🎯 Failure Risk</h4>
-            <div class="drawer-kv">
-                <span>Risk Level</span>
-                <span class="badge ${v.failure_risk.risk === 'low' ? 'badge-success' : v.failure_risk.risk === 'medium' ? 'badge-warning' : 'badge-danger'}">
-                    ${v.failure_risk.risk.toUpperCase()}
-                </span>
-            </div>
-            <div class="drawer-kv"><span>Probability</span><span>${(v.failure_risk.probability * 100).toFixed(2)}%</span></div>
-        </div>
-        
-        <div class="drawer-section">
-            <h4>🚦 Routing Decision</h4>
-            <div class="drawer-kv"><span>Action</span><span style="font-weight:800;color:${r.action === 'AUTO_PROCESS' ? 'var(--success)' : 'var(--danger)'}"> ${r.action}</span></div>
-            <div class="drawer-kv"><span>Priority</span><span class="badge badge-${r.priority === 'CRITICAL' ? 'critical' : 'warning'}">${r.priority || 'NONE'}</span></div>
-            <div class="drawer-kv"><span>Queue</span><span>${r.queue || 'N/A'}</span></div>
-            ${r.sla_hours ? `<div class="drawer-kv"><span>SLA</span><span>${r.sla_hours} hour(s)</span></div>` : ''}
-        </div>
-        
-        <div class="drawer-section">
-            <h4>⚡ Performance</h4>
-            <div class="drawer-kv"><span>Processing Time</span><span>${(validation.performance?.processing_time_seconds * 1000).toFixed(0)}ms</span></div>
-            <div class="drawer-kv"><span>Cached</span><span>${validation.performance?.cached ? 'Yes' : 'No'}</span></div>
-        </div>
-    `;
-    
-    drawerBody.innerHTML = html;
-    document.body.classList.add('drawer-open');
-}
-
-function closeDrawer(){
-    document.body.classList.remove('drawer-open');
-}
-
-/* ============================================================
-   COMMAND PALETTE
-   ============================================================ */
-function openCmdk(){
-    document.body.classList.add('cmdk-open');
-    document.getElementById('cmdkInput').value = '';
-    document.getElementById('cmdkInput').focus();
-}
-
-function closeCmdk(){
-    document.body.classList.remove('cmdk-open');
-}
-
-/* ============================================================
-   UTILITIES
-   ============================================================ */
-function showLoading(show){
-    document.getElementById('loading').classList.toggle('show', show);
-}
-
-function showToast(title, message, type = 'success'){
-    document.getElementById('toastTitle').textContent = title;
-    document.getElementById('toastMsg').textContent = message;
-    const toast = document.getElementById('toast');
-    toast.className = `toast toast-${type} show`;
-    setTimeout(() => toast.classList.remove('show'), 4000);
-}
-
-function clearHistory(){
-    if(!confirm('Clear all validation history?')) return;
-    STATE.validations = [];
-    saveToStorage();
-    updateDashboard();
-    showToast('Cleared', 'Validation history cleared', 'success');
-}
-
-/* ============================================================
-   STORAGE
-   ============================================================ */
-function saveToStorage(){
-    localStorage.setItem('ledgerx_validations', JSON.stringify(STATE.validations));
-}
-
-function loadFromStorage(){
-    const stored = localStorage.getItem('ledgerx_validations');
-    if(stored){
-        STATE.validations = JSON.parse(stored);
-        updateDashboard();
-    }
-}
-
-/* ============================================================
-   DARK MODE
-   ============================================================ */
-const themeToggle = document.getElementById('themeToggle');
-const themeLabel = document.getElementById('themeLabel');
-
-if(localStorage.getItem('ledgerx_theme') === 'dark'){
-    document.body.classList.add('dark');
-    themeLabel.textContent = 'Dark';
-}
-
-themeToggle.onclick = () => {
-    document.body.classList.toggle('dark');
-    const isDark = document.body.classList.contains('dark');
-    themeLabel.textContent = isDark ? 'Dark' : 'Light';
-    localStorage.setItem('ledgerx_theme', isDark ? 'dark' : 'light');
-};
-
-</script>
-
+    </script>
 </body>
 </html>
