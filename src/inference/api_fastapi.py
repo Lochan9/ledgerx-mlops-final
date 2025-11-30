@@ -752,7 +752,7 @@ async def upload_and_process_image(
             "filename": file.filename,
             "file_type": "image",
             "ocr_extracted": True,
-            "ocr_text_length": len(ocr_text),
+            "ocr_method": "Document AI" if DOCUMENT_AI_ENABLED else "Fallback",
             "extracted_data": invoice_data,
             "quality": quality_assessment,
             "failure": failure_risk,
