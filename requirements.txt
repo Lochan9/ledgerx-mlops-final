@@ -64,3 +64,5 @@ rapidfuzz==3.5.2
 scipy==1.11.4
 google-cloud-secret-manager==2.16.4
 google-cloud-secret-manager==2.16.4
+pillow==10.1.0
+pytesseract==0.3.10
