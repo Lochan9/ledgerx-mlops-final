@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 # LEDGERX FASTAPI DOCKERFILE - Cloud Run Optimized
 # =============================================================================
 
@@ -16,9 +16,9 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements
-COPY requirements.txt .
+COPY requirements_docker.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements_docker.txt && \
     pip install --no-cache-dir uvicorn[standard]
 
 # Copy application

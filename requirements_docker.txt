@@ -1,0 +1,31 @@
+﻿# Core API dependencies only
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# ML inference
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+catboost==1.2.5
+joblib==1.4.2
+
+# Image processing
+pillow==10.3.0
+pytesseract==0.3.10
+
+# Authentication
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.9
+bcrypt==4.1.2
+
+# Monitoring
+prometheus-client==0.19.0
+prometheus-fastapi-instrumentator==6.1.0
+
+# Google Cloud
+google-cloud-secret-manager==2.16.4
+
+# Utilities
+loguru==0.7.2
