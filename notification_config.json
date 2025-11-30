@@ -1,0 +1,1 @@
+﻿{"enabled_channels":["console"],"email":{"smtp_server":"smtp.gmail.com","smtp_port":587,"sender_email":"","sender_password":"","recipient_emails":[]},"slack":{"webhook_url":""},"thresholds":{"min_quality_f1":0.90,"min_failure_f1":0.85,"max_performance_drop":0.05,"max_bias_disparity":0.05}}
