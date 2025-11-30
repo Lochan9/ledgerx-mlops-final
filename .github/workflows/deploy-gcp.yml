@@ -8,7 +8,9 @@ on:
       - 'models/**'
       - 'Dockerfile.cloudrun'
       - 'requirements.txt'
-      - 'requirements_docker.txt'
+      - 'requirements_docker.txt'   # ← REQUIRED
+      - '.github/workflows/deploy-gcp.yml'  # (recommended)
+
   workflow_dispatch:
 
 env:
