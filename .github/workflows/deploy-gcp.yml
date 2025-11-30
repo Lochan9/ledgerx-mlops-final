@@ -8,6 +8,7 @@ on:
       - 'models/**'
       - 'Dockerfile.cloudrun'
       - 'requirements.txt'
+      - 'requirements_docker.txt'
   workflow_dispatch:
 
 env:
