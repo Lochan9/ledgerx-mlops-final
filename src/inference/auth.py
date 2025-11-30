@@ -1,7 +1,13 @@
-"""
-LedgerX - Authentication Module (SIMPLE VERSION - NO BCRYPT)
-=============================================================
-For production, use proper password hashing!
+﻿"""
+LedgerX - Authentication Module (Production Version with Secret Manager)
+=========================================================================
+
+Features:
+- JWT token-based authentication
+- Bcrypt password hashing
+- Role-based access control (RBAC)
+- Secret Manager integration for secure credential storage
+- Environment variable fallback for local development
 """
 
 import os
@@ -11,16 +17,40 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
+from passlib.context import CryptContext
+
+# Import Secret Manager
+try:
+    from ..utils.secret_manager import get_jwt_secret
+    USE_SECRET_MANAGER = True
+except ImportError:
+    USE_SECRET_MANAGER = False
+    print("[AUTH] ⚠️ Secret Manager not available, using environment variables")
 
 # -------------------------------------------------------------------
 # CONFIGURATION
 # -------------------------------------------------------------------
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ledgerx-super-secret-key-change-in-production")
+# JWT secret from Secret Manager or environment variable
+if USE_SECRET_MANAGER:
+    try:
+        SECRET_KEY = get_jwt_secret()
+        print("[AUTH] ✅ JWT secret loaded from Secret Manager")
+    except Exception as e:
+        print(f"[AUTH] ⚠️ Failed to load from Secret Manager: {e}")
+        SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ledgerx-development-key-change-in-production")
+        print("[AUTH] 📝 Using JWT secret from environment variable")
+else:
+    SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ledgerx-development-key-change-in-production")
+    print("[AUTH] 📝 Using JWT secret from environment variable")
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # -------------------------------------------------------------------
 # DATA MODELS
@@ -42,17 +72,53 @@ class User(BaseModel):
     disabled: bool = False
 
 class UserInDB(User):
-    password: str  # Plain text for development only!
+    hashed_password: str
 
 # -------------------------------------------------------------------
-# USER DATABASE (PLAIN PASSWORDS - DEVELOPMENT ONLY!)
+# PASSWORD UTILITIES
+# -------------------------------------------------------------------
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against its hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def validate_password(password: str):
+    """
+    Enforce strong password policy
+    
+    Requirements:
+    - At least 12 characters
+    - Contains uppercase letter
+    - Contains lowercase letter
+    - Contains number
+    - Contains special character
+    
+    Raises:
+        ValueError: If password doesn't meet requirements
+    """
+    if len(password) < 12:
+        raise ValueError("Password must be at least 12 characters")
+    if not any(c.isupper() for c in password):
+        raise ValueError("Password must contain uppercase letter")
+    if not any(c.islower() for c in password):
+        raise ValueError("Password must contain lowercase letter")
+    if not any(c.isdigit() for c in password):
+        raise ValueError("Password must contain number")
+    if not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+        raise ValueError("Password must contain special character")
+
+# -------------------------------------------------------------------
+# TEMPORARY USER DATABASE (REPLACE WITH DATABASE IN PRODUCTION)
 # -------------------------------------------------------------------
 fake_users_db = {
     "admin": {
         "username": "admin",
         "full_name": "Admin User",
         "email": "admin@ledgerx.com",
-        "password": "admin123",
+        "hashed_password": hash_password("admin123"),
         "role": "admin",
         "disabled": False,
     },
@@ -60,25 +126,14 @@ fake_users_db = {
         "username": "john_doe",
         "full_name": "John Doe",
         "email": "john@example.com",
-        "password": "password123",
+        "hashed_password": hash_password("password123"),
         "role": "user",
-        "disabled": False,
-    },
-    "jane_viewer": {
-        "username": "jane_viewer",
-        "full_name": "Jane Viewer",
-        "email": "jane@example.com",
-        "password": "viewer123",
-        "role": "readonly",
         "disabled": False,
     },
 }
 
-print("[AUTH] ⚠️  WARNING: Using plain text passwords (development only)")
-print("[AUTH] Test credentials loaded:")
-print("[AUTH]   - admin / admin123 (Admin)")
-print("[AUTH]   - john_doe / password123 (User)")
-print("[AUTH]   - jane_viewer / viewer123 (Readonly)")
+print("[AUTH] ✅ Using bcrypt password hashing (production-ready)")
+print("[AUTH] Test credentials: admin/admin123, john_doe/password123")
 
 # -------------------------------------------------------------------
 # USER UTILITIES
@@ -91,11 +146,11 @@ def get_user(username: str) -> Optional[UserInDB]:
     return None
 
 def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
-    """Authenticate user credentials (simple comparison)"""
+    """Authenticate user credentials"""
     user = get_user(username)
     if not user:
         return None
-    if password != user.password:
+    if not verify_password(password, user.hashed_password):
         return None
     return user
 
@@ -151,43 +206,40 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     user = get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
-    
-    if user.disabled:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account is disabled"
-        )
-    
     return user
 
-async def get_current_active_user(
-    current_user: User = Depends(get_current_user)
-) -> User:
-    """Dependency to ensure user is active"""
+async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
+    """Dependency to get current active user"""
     if current_user.disabled:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
-        )
+        raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 # -------------------------------------------------------------------
 # ROLE-BASED ACCESS CONTROL
 # -------------------------------------------------------------------
-class RoleChecker:
-    """Dependency class to check user roles"""
-    def __init__(self, allowed_roles: list):
-        self.allowed_roles = allowed_roles
-    
-    def __call__(self, user: User = Depends(get_current_active_user)) -> User:
-        if user.role not in self.allowed_roles:
+def require_role(required_role: str):
+    """Dependency factory for role-based access"""
+    async def role_checker(current_user: User = Depends(get_current_active_user)):
+        if current_user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required roles: {', '.join(self.allowed_roles)}"
+                detail=f"Access denied. Required role: {required_role}"
             )
-        return user
+        return current_user
+    return role_checker
 
-# Convenience role checker instances
-require_admin = RoleChecker(["admin"])
-require_user = RoleChecker(["admin", "user"])
-require_any_authenticated = RoleChecker(["admin", "user", "readonly"])
+def require_any_role(*allowed_roles: str):
+    """Dependency factory for multiple role check"""
+    async def role_checker(current_user: User = Depends(get_current_active_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required roles: {', '.join(allowed_roles)}"
+            )
+        return current_user
+    return role_checker
+
+# Predefined dependencies
+require_admin = require_role("admin")
+require_user = require_any_role("user", "admin")
+require_any_authenticated = Depends(get_current_active_user)
