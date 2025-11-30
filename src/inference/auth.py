@@ -242,4 +242,5 @@ def require_any_role(*allowed_roles: str):
 # Predefined dependencies
 require_admin = require_role("admin")
 require_user = require_any_role("user", "admin")
-require_any_authenticated = Depends(get_current_active_user)
+require_any_authenticated = get_current_active_user
+
