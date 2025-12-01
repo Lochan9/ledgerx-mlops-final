@@ -4,12 +4,11 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'src/**'
-      - 'models/**'
-      - 'Dockerfile.cloudrun'
-      - 'requirements.txt'
-      - 'requirements_docker.txt'   # ← REQUIRED
-      - '.github/workflows/deploy-gcp.yml'  # (recommended)
+    - 'src/**'
+    - 'models/**'
+    - 'Dockerfile.cloudrun'
+    - 'requirements.txt'
+    - 'requirements_docker.txt'
 
   workflow_dispatch:
 
