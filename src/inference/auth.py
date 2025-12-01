@@ -266,3 +266,4 @@ def require_any_role(*allowed_roles: str):
 require_admin = require_role("admin")
 require_user = require_any_role("user", "admin")
 require_any_authenticated = get_current_active_user
+
