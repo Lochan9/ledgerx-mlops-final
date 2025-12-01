@@ -60,6 +60,18 @@ except ImportError:
     logger_init = logging.getLogger("ledgerx_fastapi")
     logger_init.warning("[INIT] ⚠️ Document AI not available, falling back to basic extraction")
 
+# Import Cloud SQL database helpers
+try:
+    from ..utils.database import (
+        get_user_by_username, save_invoice, get_user_invoices, 
+        delete_invoice, track_document_ai_usage, get_monthly_document_ai_usage
+    )
+    CLOUD_SQL_ENABLED = True
+    logger_init.info("[INIT] ✅ Cloud SQL database enabled")
+except ImportError:
+    CLOUD_SQL_ENABLED = False
+    logger_init.warning("[INIT] ⚠️ Cloud SQL not available")
+
 # -------------------------------------------------------------------
 # LOGGING
 # -------------------------------------------------------------------
@@ -682,6 +694,11 @@ async def upload_and_process_image(
             logger.info(f"  Amount: {invoice_data.get('currency')} {invoice_data.get('total_amount')}")
             logger.info(f"  Date: {invoice_data.get('invoice_date')}")
             logger.info(f"  Confidence: {invoice_data.get('ocr_confidence', 0):.2%}")
+            
+            # Track Document AI usage in database
+            if CLOUD_SQL_ENABLED:
+                track_document_ai_usage()
+                logger.info("[IMAGE-UPLOAD] 📊 Document AI usage tracked")
         else:
             # Fallback to basic extraction (not recommended for production)
             logger.warning("[IMAGE-UPLOAD] ⚠️ Using fallback extraction (low accuracy)")
@@ -781,6 +798,129 @@ async def upload_and_process_image(
         raise HTTPException(status_code=500, detail=f"Image processing failed: {str(e)}")
 
 
+
+
+# ====================================================================
+# USER INVOICE ENDPOINTS (Cloud SQL)
+# ====================================================================
+
+@app.get("/user/invoices", tags=["👤 User Data"])
+async def get_my_invoices(
+    current_user: User = Depends(get_current_active_user)
+):
+    """📋 Get All Invoices for Current User (Synced Across Devices)"""
+    
+    if not CLOUD_SQL_ENABLED:
+        raise HTTPException(
+            status_code=503, 
+            detail="Cloud SQL not configured. Data only available locally."
+        )
+    
+    try:
+        user_data = get_user_by_username(current_user.username)
+        if not user_data:
+            raise HTTPException(status_code=404, detail="User not found in database")
+        
+        invoices = get_user_invoices(user_data['id'], limit=1000)
+        
+        logger.info(f"[USER-DATA] 📋 Fetched {len(invoices)} invoices for {current_user.username}")
+        
+        return {
+            "status": "ok",
+            "user": current_user.username,
+            "invoices": invoices,
+            "count": len(invoices)
+        }
+        
+    except Exception as e:
+        logger.error(f"[USER-DATA] Error fetching invoices: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/user/invoices/save", tags=["👤 User Data"])
+async def save_user_invoice(
+    invoice: dict,
+    current_user: User = Depends(get_current_active_user)
+):
+    """💾 Save Invoice to Cloud SQL (Accessible from Any Device)"""
+    
+    if not CLOUD_SQL_ENABLED:
+        raise HTTPException(
+            status_code=503,
+            detail="Cloud SQL not configured. Cannot save data."
+        )
+    
+    try:
+        user_data = get_user_by_username(current_user.username)
+        if not user_data:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        invoice_id = save_invoice(user_data['id'], invoice)
+        
+        if invoice_id:
+            logger.info(f"[USER-DATA] 💾 Invoice saved: ID={invoice_id}, User={current_user.username}")
+            return {
+                "status": "saved",
+                "invoice_id": invoice_id,
+                "message": "Invoice saved to Cloud SQL"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save invoice")
+            
+    except Exception as e:
+        logger.error(f"[USER-DATA] Error saving invoice: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/user/invoices/{invoice_id}", tags=["👤 User Data"])
+async def delete_user_invoice(
+    invoice_id: int,
+    current_user: User = Depends(get_current_active_user)
+):
+    """🗑️ Delete Invoice"""
+    
+    if not CLOUD_SQL_ENABLED:
+        raise HTTPException(status_code=503, detail="Cloud SQL not configured")
+    
+    try:
+        user_data = get_user_by_username(current_user.username)
+        if not user_data:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        deleted = delete_invoice(invoice_id, user_data['id'])
+        
+        if deleted:
+            logger.info(f"[USER-DATA] 🗑️ Invoice deleted: ID={invoice_id}")
+            return {"status": "deleted", "invoice_id": invoice_id}
+        else:
+            raise HTTPException(status_code=404, detail="Invoice not found or unauthorized")
+            
+    except Exception as e:
+        logger.error(f"[USER-DATA] Error deleting invoice: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/document-ai-usage", tags=["👑 Admin"])
+async def get_doc_ai_usage(current_user: User = Depends(require_admin)):
+    """📊 Get Document AI Usage for Current Month"""
+    
+    if not CLOUD_SQL_ENABLED:
+        return {
+            "usage_this_month": 0,
+            "note": "Cloud SQL not configured - cannot track usage"
+        }
+    
+    try:
+        usage = get_monthly_document_ai_usage()
+        
+        return {
+            "usage_this_month": usage,
+            "free_tier_limit": 1000,
+            "remaining_free": max(0, 1000 - usage),
+            "cost_this_month": max(0, (usage - 1000) * 0.01),
+            "cost_per_page": 0.01
+        }
+        
+    except Exception as e:
+        logger.error(f"[ADMIN] Error getting Document AI usage: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/predict/batch", tags=["🤖 ML Predictions"])
 async def predict_batch(

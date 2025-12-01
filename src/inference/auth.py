@@ -111,26 +111,35 @@ def validate_password(password: str):
         raise ValueError("Password must contain special character")
 
 # -------------------------------------------------------------------
-# TEMPORARY USER DATABASE (REPLACE WITH DATABASE IN PRODUCTION)
+# CLOUD SQL DATABASE INTEGRATION
 # -------------------------------------------------------------------
-fake_users_db = {
-    "admin": {
-        "username": "admin",
-        "full_name": "Admin User",
-        "email": "admin@ledgerx.com",
-        "hashed_password": hash_password("admin123"),
-        "role": "admin",
-        "disabled": False,
-    },
-    "john_doe": {
-        "username": "john_doe",
-        "full_name": "John Doe",
-        "email": "john@example.com",
-        "hashed_password": hash_password("password123"),
-        "role": "user",
-        "disabled": False,
-    },
-}
+try:
+    from ..utils.database import get_user_by_username as db_get_user, verify_password as db_verify_password
+    USE_CLOUD_SQL = True
+    print("[AUTH] ✅ Cloud SQL enabled for user authentication")
+except ImportError:
+    USE_CLOUD_SQL = False
+    print("[AUTH] ⚠️ Cloud SQL not available, using fallback users")
+    
+    # Fallback fake users (if Cloud SQL unavailable)
+    fake_users_db = {
+        "admin": {
+            "username": "admin",
+            "full_name": "Admin User",
+            "email": "admin@ledgerx.com",
+            "hashed_password": hash_password("admin123"),
+            "role": "admin",
+            "disabled": False,
+        },
+        "john_doe": {
+            "username": "john_doe",
+            "full_name": "John Doe",
+            "email": "john@example.com",
+            "hashed_password": hash_password("password123"),
+            "role": "user",
+            "disabled": False,
+        },
+    }
 
 print("[AUTH] ✅ Using bcrypt password hashing (production-ready)")
 print("[AUTH] Test credentials: admin/admin123, john_doe/password123")
@@ -139,19 +148,33 @@ print("[AUTH] Test credentials: admin/admin123, john_doe/password123")
 # USER UTILITIES
 # -------------------------------------------------------------------
 def get_user(username: str) -> Optional[UserInDB]:
-    """Retrieve user from database"""
-    if username in fake_users_db:
-        user_dict = fake_users_db[username]
-        return UserInDB(**user_dict)
-    return None
+    """Retrieve user from Cloud SQL or fallback"""
+    if USE_CLOUD_SQL:
+        user_dict = db_get_user(username)
+        if user_dict:
+            return UserInDB(**user_dict)
+        return None
+    else:
+        # Fallback to fake users
+        if username in fake_users_db:
+            user_dict = fake_users_db[username]
+            return UserInDB(**user_dict)
+        return None
 
 def authenticate_user(username: str, password: str) -> Optional[UserInDB]:
     """Authenticate user credentials"""
     user = get_user(username)
     if not user:
         return None
-    if not verify_password(password, user.hashed_password):
-        return None
+    
+    # Verify password
+    if USE_CLOUD_SQL:
+        if not db_verify_password(password, user.hashed_password):
+            return None
+    else:
+        if not verify_password(password, user.hashed_password):
+            return None
+    
     return user
 
 # -------------------------------------------------------------------
@@ -243,4 +266,3 @@ def require_any_role(*allowed_roles: str):
 require_admin = require_role("admin")
 require_user = require_any_role("user", "admin")
 require_any_authenticated = get_current_active_user
-
