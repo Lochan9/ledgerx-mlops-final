@@ -1,4 +1,4 @@
-﻿"""
+"""
 LedgerX - Authentication Module (Production Version with Secret Manager)
 =========================================================================
 
@@ -25,7 +25,7 @@ try:
     USE_SECRET_MANAGER = True
 except ImportError:
     USE_SECRET_MANAGER = False
-    print("[AUTH] ⚠️ Secret Manager not available, using environment variables")
+    print("[AUTH] ?? Secret Manager not available, using environment variables")
 
 # -------------------------------------------------------------------
 # CONFIGURATION
@@ -34,14 +34,14 @@ except ImportError:
 if USE_SECRET_MANAGER:
     try:
         SECRET_KEY = get_jwt_secret()
-        print("[AUTH] ✅ JWT secret loaded from Secret Manager")
+        print("[AUTH] ? JWT secret loaded from Secret Manager")
     except Exception as e:
-        print(f"[AUTH] ⚠️ Failed to load from Secret Manager: {e}")
+        print(f"[AUTH] ?? Failed to load from Secret Manager: {e}")
         SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ledgerx-development-key-change-in-production")
-        print("[AUTH] 📝 Using JWT secret from environment variable")
+        print("[AUTH] ?? Using JWT secret from environment variable")
 else:
     SECRET_KEY = os.getenv("JWT_SECRET_KEY", "ledgerx-development-key-change-in-production")
-    print("[AUTH] 📝 Using JWT secret from environment variable")
+    print("[AUTH] ?? Using JWT secret from environment variable")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
@@ -116,10 +116,10 @@ def validate_password(password: str):
 try:
     from ..utils.database import get_user_by_username as db_get_user, verify_password as db_verify_password
     USE_CLOUD_SQL = True
-    print("[AUTH] ✅ Cloud SQL enabled for user authentication")
+    print("[AUTH] ? Cloud SQL enabled for user authentication")
 except ImportError:
     USE_CLOUD_SQL = False
-    print("[AUTH] ⚠️ Cloud SQL not available, using fallback users")
+    print("[AUTH] ?? Cloud SQL not available, using fallback users")
     
     # Fallback fake users (if Cloud SQL unavailable)
     fake_users_db = {
@@ -141,7 +141,7 @@ except ImportError:
         },
     }
 
-print("[AUTH] ✅ Using bcrypt password hashing (production-ready)")
+print("[AUTH] ? Using bcrypt password hashing (production-ready)")
 print("[AUTH] Test credentials: admin/admin123, john_doe/password123")
 
 # -------------------------------------------------------------------

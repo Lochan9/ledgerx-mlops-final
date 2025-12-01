@@ -707,7 +707,7 @@ async def upload_and_process_image(
             
             # Track Document AI usage in database
             if CLOUD_SQL_ENABLED:
-                # track_document_ai_usage(current_user.id)  # TODO: Fix user ID tracking
+                track_document_ai_usage(current_user.id)
                 logger.info("[IMAGE-UPLOAD] 📊 Document AI usage tracked")
         else:
             # Fallback to basic extraction (not recommended for production)
@@ -1125,4 +1125,5 @@ async def startup_event():
     logger.info("=" * 70)
     logger.info("📖 API Documentation: http://localhost:8000/docs")
     logger.info("=" * 70)
+
 
