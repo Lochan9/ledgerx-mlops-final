@@ -546,7 +546,7 @@ def determine_routing(math_result: Dict,
                 'action': 'HUMAN_REVIEW',
                 'priority': 'HIGH',
                 'reason': 'LOW_QUALITY_INVOICE',
-                'details': f"Quality confidence: {quality_result['confidence']:.2%}",
+                'details': f"Quality probability: {quality_result['probability']:.2%}",
                 'queue': 'QUALITY_REVIEW',
                 'sla_hours': 24,
                 'next_steps': [
