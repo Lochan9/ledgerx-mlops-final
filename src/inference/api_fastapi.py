@@ -174,6 +174,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # -------------------------------------------------------------------
+# HEALTH CHECK ENDPOINTS
+# -------------------------------------------------------------------
+@app.get("/", tags=["System"])
+async def root():
+    return {"message": "LedgerX API", "status": "running", "version": "2.2.0"}
+
+@app.get("/health", tags=["System"])
+async def health_check():
+    return {"status": "healthy", "service": "LedgerX API", "version": "2.2.0"}
+# -------------------------------------------------------------------
 # INPUT SCHEMAS WITH VALIDATION
 # -------------------------------------------------------------------
 class InvoiceFeatures(BaseModel):
