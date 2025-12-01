@@ -1,4 +1,4 @@
-"""
+﻿"""
 LedgerX - Authentication Module (Production Version with Secret Manager)
 =========================================================================
 
@@ -72,6 +72,7 @@ class User(BaseModel):
     disabled: bool = False
 
 class UserInDB(User):
+    id: Optional[int] = None
     hashed_password: str
 
 # -------------------------------------------------------------------
