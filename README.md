@@ -1,5 +1,5 @@
 # 🏦 LedgerX - Enterprise Invoice Intelligence Platform
-https://storage.googleapis.com/ledgerx-frontend/index.html
+https://storage.googleapis.com/ledgerx-mlops-website/index.html
 
 <div align="center">
 
