@@ -27,12 +27,11 @@ prometheus-fastapi-instrumentator==6.1.0
 # Google Cloud
 google-cloud-secret-manager==2.16.4
 google-cloud-documentai==2.31.0
-# Google Cloud
-google-cloud-secret-manager==2.16.4
-google-cloud-documentai==2.31.0
 openai==1.3.0
+
+# Database
+psycopg2-binary==2.9.9
 
 # Utilities
 loguru==0.7.2
 rapidfuzz==3.5.2
-psycopg2-binary==2.9.9
