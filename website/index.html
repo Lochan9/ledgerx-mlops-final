@@ -912,6 +912,51 @@
                         </button>
                         <button class="btn btn-secondary" onclick="clearAllData()">
                             <i class="fas fa-trash"></i> Clear History
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">
+                        <i class="fas fa-chart-bar"></i> Document AI Usage This Month
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Pages Used</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--warning);" id="settingsDocAiUsed">0</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Free Tier Limit</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--primary);">1,000</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Remaining</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--success);" id="settingsDocAiRemaining">1,000</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600;">Quota Usage</span>
+                            <span id="settingsDocAiPercent" style="font-weight: 600; color: var(--success);">0%</span>
+                        </div>
+                        <div style="height: 12px; background: #E5E7EB; border-radius: 6px; overflow: hidden;">
+                            <div id="settingsDocAiBar" style="height: 100%; background: var(--success); width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="refreshDocAIUsageInSettings()" style="width: 100%;">
+                        <i class="fas fa-sync-alt"></i> Refresh Usage
+                    </button>
+                    
+                    <div style="margin-top: 16px; padding: 14px; background: #F0F9FF; border-radius: 8px; font-size: 13px; color: var(--text-muted);">
+                        <strong>Cost:</strong> $0.01 per page • First 1,000 pages/month FREE • Resets monthly
+                    </div>
+                </div>
+            </div>
 
             <!-- BILLING DASHBOARD PAGE -->
             <div id="billing" class="page">
@@ -1388,6 +1433,9 @@
                 errorDiv.style.display = 'none';
 
                 console.log('✅ Login successful');
+                
+                // 📥 Load user's invoices from Cloud SQL
+                await loadInvoicesFromDatabase();
 
             } catch (error) {
                 errorDiv.textContent = error.message;
@@ -1558,6 +1606,42 @@
 
                 STATE.invoices.unshift(invoice);
                 saveData();
+                
+                // 💾 Save to Cloud SQL (sync across devices)
+                try {
+                    const saveRes = await fetch(`${STATE.apiUrl}/user/invoices/save`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${STATE.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            invoice_number: invoice.invoice_number,
+                            vendor_name: invoice.vendor_name,
+                            total_amount: invoice.total_amount,
+                            currency: invoice.currency,
+                            invoice_date: invoice.invoice_date,
+                            quality_prediction: invoice.quality,
+                            quality_score: invoice.qualityScore,
+                            risk_prediction: invoice.risk,
+                            risk_score: invoice.riskScore,
+                            file_name: invoice.fileName,
+                            file_type: invoice.fileType,
+                            file_size_kb: invoice.file_size_kb,
+                            ocr_method: result.ocr_method || 'document_ai',
+                            ocr_confidence: invoice.ocr_confidence,
+                            subtotal: data.subtotal || 0,
+                            tax_amount: data.tax_amount || 0,
+                            discount_amount: data.discount_amount || 0
+                        })
+                    });
+                    
+                    if (saveRes.ok) {
+                        console.log('✅ Invoice saved to Cloud SQL');
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Could not save to Cloud SQL:', err);
+                }
 
                 document.getElementById(cardId).innerHTML = `
                     <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success);"></i>
@@ -1869,7 +1953,52 @@
             }
         };
 
-        function updateBillingDashboard() {
+        // ========================================================================
+        // CLOUD SQL SYNC FUNCTIONS
+        // ========================================================================
+        
+        async function loadInvoicesFromDatabase() {
+            try {
+                if (!STATE.token) return;
+                
+                const res = await fetch(`${STATE.apiUrl}/user/invoices`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    STATE.invoices = data.invoices || [];
+                    updateAll();
+                    console.log(`✅ Loaded ${STATE.invoices.length} invoices from Cloud SQL`);
+                }
+            } catch (error) {
+                console.warn('Cloud SQL load failed:', error);
+            }
+        }
+        
+        async function fetchDocumentAIUsage() {
+            try {
+                if (!STATE.token) return STATE.invoices.length;
+                
+                const res = await fetch(`${STATE.apiUrl}/admin/document-ai-usage`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.usage_this_month || 0;
+                }
+                return STATE.invoices.length;
+            } catch (error) {
+                return STATE.invoices.length;
+            }
+        }
+
+        async function updateBillingDashboard() {
+            // Fetch real Document AI usage
+            const docAiUsedReal = await fetchDocumentAIUsage();
+            BILLING.documentAI.used = docAiUsedReal;
+            
             // GCP Credits
             const creditsUsed = BILLING.gcpCredits.used;
             const creditsRemaining = BILLING.gcpCredits.remaining;
@@ -1962,6 +2091,10 @@
                     return;
                 }
                 
+                // Fetch real Document AI usage
+                const docAiUsage = await fetchDocumentAIUsage();
+                BILLING.documentAI.used = docAiUsage;
+                
                 // Fetch cache stats
                 const cacheRes = await fetch(`${STATE.apiUrl}/admin/cache`, {
                     headers: { 'Authorization': `Bearer ${STATE.token}` }
@@ -1987,6 +2120,9 @@
                     }
                 }
                 
+                // Update dashboard
+                await updateBillingDashboard();
+                
                 alert('✅ Stats refreshed!');
                 
             } catch (error) {
@@ -1994,13 +2130,46 @@
                 alert('⚠️ Could not fetch live stats (requires admin role)');
             }
         }
+        
+        async function refreshDocAIUsageInSettings() {
+            try {
+                const usage = await fetchDocumentAIUsage();
+                const remaining = 1000 - usage;
+                const percent = (usage / 1000 * 100).toFixed(1);
+                
+                document.getElementById('settingsDocAiUsed').textContent = usage;
+                document.getElementById('settingsDocAiRemaining').textContent = remaining;
+                document.getElementById('settingsDocAiPercent').textContent = `${percent}%`;
+                document.getElementById('settingsDocAiBar').style.width = `${percent}%`;
+                
+                // Update color based on usage
+                const bar = document.getElementById('settingsDocAiBar');
+                if (usage > 900) {
+                    bar.style.background = 'var(--danger)';
+                } else if (usage > 700) {
+                    bar.style.background = 'var(--warning)';
+                } else {
+                    bar.style.background = 'var(--success)';
+                }
+                
+                alert(`✅ Document AI: ${usage} / 1,000 pages used this month`);
+                
+            } catch (error) {
+                console.error('Failed to refresh Document AI usage:', error);
+                alert('⚠️ Could not fetch usage data');
+            }
+        }
+
 
         // Auto-update billing when switching to billing page
         const originalShowPage = showPage;
-        showPage = function(pageId) {
+        showPage = async function(pageId) {
             originalShowPage(pageId);
             if (pageId === 'billing') {
-                updateBillingDashboard();
+                await updateBillingDashboard();
+            }
+            if (pageId === 'settings') {
+                await refreshDocAIUsageInSettings();
             }
         };
     </script>
