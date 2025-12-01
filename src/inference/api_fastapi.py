@@ -707,7 +707,7 @@ async def upload_and_process_image(
             
             # Track Document AI usage in database
             if CLOUD_SQL_ENABLED:
-                track_document_ai_usage()
+                track_document_ai_usage(current_user.id)
                 logger.info("[IMAGE-UPLOAD] 📊 Document AI usage tracked")
         else:
             # Fallback to basic extraction (not recommended for production)
