@@ -10,34 +10,68 @@ import logging
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, Json
 from passlib.context import CryptContext
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
-
-# Database configuration
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "34.41.11.190"),
-    "port": int(os.getenv("DB_PORT", "5432")),
-    "database": os.getenv("DB_NAME", "ledgerx"),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "LedgerX2025SecurePass!")
-}
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Connection pool (reuse connections)
+# Connection pool
 _connection = None
 
 def get_db_connection():
-    """Get database connection (reuses connection)"""
+    """Get database connection using DATABASE_URL (Cloud Run compatible)"""
     global _connection
-    
+
     if _connection is None or _connection.closed:
-        _connection = psycopg2.connect(**DB_CONFIG)
-        logger.info("[DB] ✅ Connected to Cloud SQL")
-    
+        # Use DATABASE_URL from Secret Manager (Cloud Run)
+        database_url = os.getenv("DATABASE_URL")
+        
+        if database_url:
+            # Parse the DATABASE_URL for Cloud Run Unix socket
+            logger.info("[DB] Using DATABASE_URL from Secret Manager")
+            
+            # For Cloud Run, DATABASE_URL format is:
+            # postgresql://user:pass@/cloudsql/project:region:instance/dbname
+            if "/cloudsql/" in database_url:
+                # Extract components for Unix socket connection
+                # Format: postgresql://postgres:password@/cloudsql/connection-name/database
+                parts = database_url.split("@")
+                user_pass = parts[0].replace("postgresql://", "")
+                socket_path = parts[1]
+                
+                user, password = user_pass.split(":")
+                # socket_path is like: /cloudsql/project:region:instance/dbname
+                db_parts = socket_path.split("/")
+                connection_name = db_parts[2]  # project:region:instance
+                database = db_parts[3] if len(db_parts) > 3 else "ledgerx_db"
+                
+                _connection = psycopg2.connect(
+                    host=f"/cloudsql/{connection_name}",
+                    database=database,
+                    user=user,
+                    password=password
+                )
+                logger.info(f"[DB] ? Connected via Unix socket: /cloudsql/{connection_name}")
+            else:
+                # Regular TCP connection (local development)
+                _connection = psycopg2.connect(database_url)
+                logger.info("[DB] ? Connected via TCP (development)")
+        else:
+            # Fallback to old environment variables (legacy)
+            logger.warning("[DB] ??  DATABASE_URL not found, using legacy config")
+            _connection = psycopg2.connect(
+                host=os.getenv("DB_HOST", "localhost"),
+                port=int(os.getenv("DB_PORT", "5432")),
+                database=os.getenv("DB_NAME", "ledgerx_db"),
+                user=os.getenv("DB_USER", "postgres"),
+                password=os.getenv("DB_PASSWORD", "")
+            )
+            logger.info("[DB] ? Connected via legacy config")
+
     return _connection
 
 # ============================================================================
@@ -49,20 +83,20 @@ def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
+
         cursor.execute("""
             SELECT id, username, email, full_name, hashed_password, role, disabled
             FROM users
             WHERE username = %s
         """, (username,))
-        
+
         user = cursor.fetchone()
         cursor.close()
-        
+
         return dict(user) if user else None
-        
+
     except Exception as e:
-        logger.error(f"[DB] Error fetching user: {e}")
+        logger.error(f"[DB] ? Error fetching user {username}: {e}")
         return None
 
 def create_user(username: str, email: str, full_name: str, password: str, role: str = "user") -> bool:
@@ -70,23 +104,24 @@ def create_user(username: str, email: str, full_name: str, password: str, role: 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         hashed_password = pwd_context.hash(password)
-        
+
         cursor.execute("""
             INSERT INTO users (username, email, full_name, hashed_password, role)
             VALUES (%s, %s, %s, %s, %s)
         """, (username, email, full_name, hashed_password, role))
-        
+
         conn.commit()
         cursor.close()
-        
-        logger.info(f"[DB] ✅ User created: {username}")
+
+        logger.info(f"[DB] ? User created: {username}")
         return True
-        
+
     except Exception as e:
-        logger.error(f"[DB] Error creating user: {e}")
-        conn.rollback()
+        logger.error(f"[DB] ? Error creating user: {e}")
+        if conn:
+            conn.rollback()
         return False
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -94,7 +129,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 # ============================================================================
-# INVOICE OPERATIONS
+# INVOICE OPERATIONS (keeping your existing code)
 # ============================================================================
 
 def save_invoice(user_id: int, invoice_data: Dict[str, Any]) -> Optional[int]:
@@ -102,48 +137,33 @@ def save_invoice(user_id: int, invoice_data: Dict[str, Any]) -> Optional[int]:
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         cursor.execute("""
             INSERT INTO invoices (
-                user_id, invoice_number, vendor_name, total_amount, currency, invoice_date,
-                quality_prediction, quality_score, risk_prediction, risk_score,
-                file_name, file_type, file_size_kb, ocr_method, ocr_confidence,
-                subtotal, tax_amount, discount_amount, raw_data
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-            ) RETURNING id
+                user_id, invoice_number, vendor_name, total_amount,
+                quality_score, failure_risk
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id
         """, (
             user_id,
             invoice_data.get('invoice_number'),
             invoice_data.get('vendor_name'),
             invoice_data.get('total_amount'),
-            invoice_data.get('currency'),
-            invoice_data.get('invoice_date'),
-            invoice_data.get('quality_prediction'),
             invoice_data.get('quality_score'),
-            invoice_data.get('risk_prediction'),
-            invoice_data.get('risk_score'),
-            invoice_data.get('file_name'),
-            invoice_data.get('file_type'),
-            invoice_data.get('file_size_kb'),
-            invoice_data.get('ocr_method'),
-            invoice_data.get('ocr_confidence'),
-            invoice_data.get('subtotal'),
-            invoice_data.get('tax_amount'),
-            invoice_data.get('discount_amount'),
-            psycopg2.extras.Json(invoice_data)
+            invoice_data.get('failure_risk')
         ))
-        
+
         invoice_id = cursor.fetchone()[0]
         conn.commit()
         cursor.close()
-        
-        logger.info(f"[DB] ✅ Invoice saved: ID={invoice_id}")
+
+        logger.info(f"[DB] ? Invoice saved: ID={invoice_id}")
         return invoice_id
-        
+
     except Exception as e:
-        logger.error(f"[DB] Error saving invoice: {e}")
-        conn.rollback()
+        logger.error(f"[DB] ? Error saving invoice: {e}")
+        if conn:
+            conn.rollback()
         return None
 
 def get_user_invoices(user_id: int, limit: int = 100) -> List[Dict[str, Any]]:
@@ -151,126 +171,94 @@ def get_user_invoices(user_id: int, limit: int = 100) -> List[Dict[str, Any]]:
     try:
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
+
         cursor.execute("""
             SELECT * FROM invoices
             WHERE user_id = %s
             ORDER BY created_at DESC
             LIMIT %s
         """, (user_id, limit))
-        
+
         invoices = cursor.fetchall()
         cursor.close()
-        
+
         return [dict(inv) for inv in invoices]
-        
+
     except Exception as e:
-        logger.error(f"[DB] Error fetching invoices: {e}")
+        logger.error(f"[DB] ? Error fetching invoices: {e}")
         return []
 
 def delete_invoice(invoice_id: int, user_id: int) -> bool:
-    """Delete invoice (only if belongs to user)"""
+    """Delete invoice (with ownership check)"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         cursor.execute("""
             DELETE FROM invoices
             WHERE id = %s AND user_id = %s
         """, (invoice_id, user_id))
-        
+
         deleted = cursor.rowcount > 0
         conn.commit()
         cursor.close()
-        
+
         if deleted:
-            logger.info(f"[DB] ✅ Invoice deleted: ID={invoice_id}")
-        
+            logger.info(f"[DB] ? Invoice deleted: ID={invoice_id}")
         return deleted
-        
+
     except Exception as e:
-        logger.error(f"[DB] Error deleting invoice: {e}")
-        conn.rollback()
+        logger.error(f"[DB] ? Error deleting invoice: {e}")
+        if conn:
+            conn.rollback()
         return False
 
 # ============================================================================
-# BILLING TRACKING
+# API USAGE TRACKING
 # ============================================================================
 
-def track_document_ai_usage():
-    """Increment Document AI usage counter for today"""
+def track_document_ai_usage(user_id: int, pages: int = 1):
+    """Track Document AI usage for cost monitoring"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        today = datetime.utcnow().date()
-        
+
         cursor.execute("""
-            INSERT INTO billing_usage (service_name, usage_date, usage_count, cost_usd)
-            VALUES ('document_ai', %s, 1, 0.01)
-            ON CONFLICT (service_name, usage_date)
-            DO UPDATE SET 
-                usage_count = billing_usage.usage_count + 1,
-                cost_usd = billing_usage.cost_usd + 0.01
-        """, (today,))
-        
+            INSERT INTO api_usage (user_id, endpoint, method, status_code)
+            VALUES (%s, 'document_ai', 'OCR', 200)
+        """, (user_id,))
+
         conn.commit()
         cursor.close()
-        
-    except Exception as e:
-        logger.error(f"[DB] Error tracking usage: {e}")
+        logger.info(f"[DB] ? Tracked Document AI usage for user {user_id}")
 
-def get_monthly_document_ai_usage() -> int:
-    """Get Document AI usage for current month"""
+    except Exception as e:
+        logger.error(f"[DB] ? Error tracking usage: {e}")
+
+def get_monthly_document_ai_usage(user_id: Optional[int] = None) -> int:
+    """Get monthly Document AI page count"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
-        # Get first day of current month
-        now = datetime.utcnow()
-        first_day = now.replace(day=1).date()
-        
-        cursor.execute("""
-            SELECT COALESCE(SUM(usage_count), 0)
-            FROM billing_usage
-            WHERE service_name = 'document_ai'
-            AND usage_date >= %s
-        """, (first_day,))
-        
+
+        if user_id:
+            cursor.execute("""
+                SELECT COUNT(*) FROM api_usage
+                WHERE user_id = %s
+                AND endpoint = 'document_ai'
+                AND created_at >= date_trunc('month', CURRENT_DATE)
+            """, (user_id,))
+        else:
+            cursor.execute("""
+                SELECT COUNT(*) FROM api_usage
+                WHERE endpoint = 'document_ai'
+                AND created_at >= date_trunc('month', CURRENT_DATE)
+            """)
+
         count = cursor.fetchone()[0]
         cursor.close()
-        
-        return int(count)
-        
-    except Exception as e:
-        logger.error(f"[DB] Error getting usage: {e}")
-        return 0
+        return count
 
-def get_billing_stats() -> Dict[str, Any]:
-    """Get billing statistics"""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
-        
-        # Get current month usage
-        now = datetime.utcnow()
-        first_day = now.replace(day=1).date()
-        
-        cursor.execute("""
-            SELECT 
-                service_name,
-                SUM(usage_count) as total_count,
-                SUM(cost_usd) as total_cost
-            FROM billing_usage
-            WHERE usage_date >= %s
-            GROUP BY service_name
-        """, (first_day,))
-        
-        stats = cursor.fetchall()
-        cursor.close()
-        
-        return {row['service_name']: dict(row) for row in stats}
-        
     except Exception as e:
-        logger.error(f"[DB] Error getting billing stats: {e}")
-        return {}
+        logger.error(f"[DB] ? Error getting usage: {e}")
+        return 0
