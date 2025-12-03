@@ -1,42 +1,38 @@
-# Lightweight Dockerfile for Cloud Run - API Only
-# No Airflow, just FastAPI inference service
-# Optimized for fast startup and low memory
+# Lightweight Dockerfile for Cloud Run - Complete API
+# All endpoints, fast startup, production-ready
 
 FROM python:3.12-slim
 
-# Set working directory
 WORKDIR /app
 
-# Install system dependencies (minimal)
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements (create minimal version)
+# Copy requirements
 COPY requirements_api.txt /app/requirements.txt
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy only necessary files for inference
-COPY ./src /app/src
+# Copy application files
 COPY ./models /app/models
-COPY ./data/processed/fatura_cleaned.csv /app/data/processed/fatura_cleaned.csv
 
 # Create necessary directories
 RUN mkdir -p /app/data/uploads /app/data/production /app/reports
 
-# Set environment variables
+# Copy the complete API
+COPY ./src/api/main.py /app/src/api/main.py
+RUN mkdir -p /app/src/api && touch /app/src/__init__.py /app/src/api/__init__.py
+
+# Set environment
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8080
 
-# Expose port
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8080/health', timeout=2)"
-
-# Run API server
-CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run API
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
