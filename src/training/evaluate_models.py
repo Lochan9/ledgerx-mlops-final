@@ -152,9 +152,13 @@ def compute_perm_importance(
 
 
 # -------------------------------------------------------------------
-# SHAP (quality model only)
+# SHAP (quality model only) - PRODUCTION VERSION
 # -------------------------------------------------------------------
 def run_shap(quality_pipeline, X_train, X_test, feature_names):
+    """
+    Production-grade SHAP with model-agnostic explainer selection
+    Handles LogisticRegression, RandomForest, CatBoost, and other models
+    """
     if not HAS_SHAP:
         logger.warning("[SHAP] SHAP is not installed. Skipping.")
         return
@@ -172,23 +176,96 @@ def run_shap(quality_pipeline, X_train, X_test, feature_names):
     logger.info("[SHAP] Transforming sample features...")
     X_trans = pre.transform(X_sample)
 
-    logger.info("[SHAP] Creating TreeExplainer...")
-    explainer = shap.TreeExplainer(clf)
+    # ================================================================
+    # PRODUCTION FIX: Model-Agnostic SHAP Explainer Selection
+    # ================================================================
+    
+    model_type = str(type(clf))
+    logger.info(f"[SHAP] Detected model type: {model_type}")
+    
+    try:
+        # Select appropriate explainer based on model type
+        if 'LogisticRegression' in model_type or 'LinearSVC' in model_type or 'Ridge' in model_type:
+            logger.info("[SHAP] Using LinearExplainer for linear model...")
+            explainer = shap.LinearExplainer(clf, X_trans)
+            
+        elif 'RandomForest' in model_type or 'ExtraTrees' in model_type:
+            logger.info("[SHAP] Using TreeExplainer for RandomForest...")
+            explainer = shap.TreeExplainer(clf)
+            
+        elif 'CatBoost' in model_type or 'catboost' in model_type.lower():
+            logger.info("[SHAP] Using TreeExplainer for CatBoost...")
+            explainer = shap.TreeExplainer(clf)
+            
+        elif 'XGB' in model_type or 'LGBMClassifier' in model_type or 'GradientBoosting' in model_type:
+            logger.info("[SHAP] Using TreeExplainer for gradient boosting...")
+            explainer = shap.TreeExplainer(clf)
+            
+        else:
+            # Fallback: KernelExplainer (model-agnostic but slow)
+            logger.info("[SHAP] Using KernelExplainer (model-agnostic fallback)...")
+            X_background = shap.sample(X_trans, min(100, len(X_trans)))
+            explainer = shap.KernelExplainer(clf.predict_proba, X_background)
 
-    logger.info("[SHAP] Computing SHAP values...")
-    shap_vals = explainer.shap_values(X_trans)
+        logger.info("[SHAP] Computing SHAP values...")
+        shap_vals = explainer.shap_values(X_trans)
 
-    # CatBoost returns list for multi-class, we need index 1
-    if isinstance(shap_vals, list):
-        shap_vals = shap_vals[1]
+        # Handle multi-class output (CatBoost returns list)
+        if isinstance(shap_vals, list):
+            shap_vals = shap_vals[1]  # Use positive class
 
-    out_path = REPORTS_DIR / "quality_shap_summary.png"
-    shap.summary_plot(shap_vals, X_trans, feature_names=feature_names, show=False)
-    plt.tight_layout()
-    plt.savefig(out_path, bbox_inches="tight")
-    plt.close()
+        # Generate and save plot
+        out_path = REPORTS_DIR / "quality_shap_summary.png"
+        shap.summary_plot(shap_vals, X_trans, feature_names=feature_names, show=False)
+        plt.tight_layout()
+        plt.savefig(out_path, bbox_inches="tight", dpi=150)
+        plt.close()
 
-    logger.info(f"[SHAP] Saved SHAP summary → {out_path}")
+        logger.info(f"[SHAP] ✅ Saved SHAP summary → {out_path}")
+        
+    except Exception as e:
+        logger.error(f"[SHAP] Failed: {e}")
+        logger.info("[SHAP] Falling back to standard feature importance...")
+        
+        # Fallback: Use model's native feature importance
+        try:
+            if hasattr(clf, 'feature_importances_'):
+                importances = clf.feature_importances_
+                method = "feature_importances"
+            elif hasattr(clf, 'coef_'):
+                importances = np.abs(clf.coef_[0])
+                method = "coefficients"
+            else:
+                logger.warning("[SHAP] No feature importance available")
+                return
+            
+            # Save as CSV
+            import pandas as pd
+            importance_df = pd.DataFrame({
+                'feature': feature_names,
+                'importance': importances
+            }).sort_values('importance', ascending=False)
+            
+            csv_path = REPORTS_DIR / "feature_importance.csv"
+            importance_df.to_csv(csv_path, index=False)
+            logger.info(f"✅ Saved feature importance CSV (fallback): {csv_path}")
+            
+            # Create simple bar plot
+            plt.figure(figsize=(10, 6))
+            top_features = importance_df.head(10)
+            plt.barh(top_features['feature'], top_features['importance'])
+            plt.xlabel('Importance')
+            plt.title(f'Top 10 Features ({method})')
+            plt.tight_layout()
+            
+            plot_path = REPORTS_DIR / "feature_importance.png"
+            plt.savefig(plot_path, bbox_inches="tight", dpi=150)
+            plt.close()
+            logger.info(f"✅ Saved feature importance plot: {plot_path}")
+            
+        except Exception as e2:
+            logger.error(f"[SHAP] Fallback also failed: {e2}")
+            logger.warning("[SHAP] Skipping explainability")
 
 
 # -------------------------------------------------------------------

@@ -1,11 +1,24 @@
 Permutation Importance — QUALITY
 ======================================================================
 
-ocr_confidence                      | mean=0.001910 | std=0.001235
-blur_score                          | mean=0.001495 | std=0.000814
-file_size_kb                        | mean=0.000913 | std=0.000993
-contrast_score                      | mean=0.000913 | std=0.001034
-vendor_freq                         | mean=0.000623 | std=0.000791
-num_pages                           | mean=0.000000 | std=0.000000
-has_critical_missing                | mean=-0.000000 | std=0.000538
-num_missing_fields                  | mean=-0.000125 | std=0.000503
+contrast_score                      | mean=0.034417 | std=0.002556
+ocr_confidence                      | mean=0.031333 | std=0.004205
+ocr_squared                         | mean=0.026208 | std=0.003178
+contrast_squared                    | mean=0.026042 | std=0.002742
+overall_image_quality               | mean=0.025458 | std=0.003363
+num_pages_fake                      | mean=0.016917 | std=0.001742
+is_high_risk_ocr                    | mean=0.016083 | std=0.002589
+blur_score                          | mean=0.014792 | std=0.002428
+is_multipage_low_quality            | mean=0.011500 | std=0.001099
+blur_squared                        | mean=0.010167 | std=0.001875
+is_low_contrast                     | mean=0.008042 | std=0.001127
+blur_contrast_ratio                 | mean=0.003500 | std=0.000866
+is_low_blur                         | mean=0.003042 | std=0.000720
+is_critical_low_blur                | mean=0.002208 | std=0.000749
+blur_ocr_interaction                | mean=0.001708 | std=0.001464
+ocr_blur_product                    | mean=0.000958 | std=0.000923
+is_excellent_blur                   | mean=0.000333 | std=0.000425
+is_high_ocr                         | mean=0.000292 | std=0.000431
+is_low_ocr                          | mean=0.000083 | std=0.000186
+is_multipage                        | mean=-0.000042 | std=0.000431
+is_medium_ocr                       | mean=-0.000125 | std=0.000217

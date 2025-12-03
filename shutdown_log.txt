@@ -1,0 +1,30 @@
+========================================
+LedgerX Shutdown Log
+========================================
+Date: 2025-12-01 01:11:47
+Cloud SQL Status: STOPPED
+Estimated Savings: $0.50/day
+
+Services:
+- Cloud SQL: STOPPED
+- Cloud Run: Auto-scaled (running but idle)
+- Cloud Storage: Running
+- Secret Manager: Running
+
+To restart: Run .\startup.ps1
+========================================
+========================================
+LedgerX Shutdown Log
+========================================
+Date: 2025-12-01 12:10:48
+Cloud SQL Status: STOPPED
+Estimated Savings: $0.50/day
+
+Services:
+- Cloud SQL: STOPPED
+- Cloud Run: Auto-scaled (running but idle)
+- Cloud Storage: Running
+- Secret Manager: Running
+
+To restart: Run .\startup.ps1
+========================================

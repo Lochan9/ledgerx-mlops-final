@@ -1,0 +1,25 @@
+LedgerX Error Analysis Summary
+=================================
+
+=== QUALITY MODEL ===
+Confusion Matrix [rows=true, cols=pred]:
+TN=1311  FP=62
+FN=195  TP=432
+
+False Positives: 62
+False Negatives: 195
+
+
+=== FAILURE MODEL ===
+Confusion Matrix [rows=true, cols=pred]:
+TN=1394  FP=77
+FN=196  TP=333
+
+False Positives: 77
+False Negatives: 196
+
+
+Slice analysis files (per-task):
+  - *_slice_blur.csv (blur_score buckets)
+  - *_slice_ocr.csv (ocr_confidence buckets)
+  - *_slice_vendor.csv (vendor frequency buckets)

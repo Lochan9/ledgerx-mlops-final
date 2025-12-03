@@ -1,0 +1,9 @@
+LedgerX Production Configuration
+================================
+Project ID: ledgerx-mlops
+Instance: ledgerx-postgres
+Region: us-central1
+Database: ledgerx_db
+Connection Name: ledgerx-mlops:us-central1:ledgerx-postgres
+Root Password: LedgerX_Secure_Pass_8813
+Generated: 11/30/2025 22:50:48

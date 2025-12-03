@@ -1,18 +1,12 @@
-# LedgerX Complete DVC Pipeline
+# LedgerX Complete DVC Pipeline (Fixed - No FATURA Conflict)
 stages:
   
-  acquire_data:
-    cmd: python src/stages/data_acquisition_fatura.py
-    deps:
-      - src/stages/data_acquisition_fatura.py
-    outs:
-      - data/raw/cord_receipts.csv
+  # REMOVED acquire_data stage (FATURA already tracked by FATURA.dvc)
   
   preprocess_enterprise:
     cmd: python src/stages/preprocess_fatura_enterprise.py
     deps:
       - data/raw/FATURA
-      - data/raw/cord_receipts.csv
       - src/stages/preprocess_fatura_enterprise.py
     outs:
       - data/processed/fatura_enterprise_preprocessed.csv

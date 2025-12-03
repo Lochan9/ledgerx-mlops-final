@@ -1,0 +1,66 @@
+[
+  {
+    "timestamp": "2025-12-01T16:50:13.635066",
+    "quality_f1": 0.9732059069877007,
+    "failure_f1": 0.9063384849732775,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-01T16:54:46.768494",
+    "quality_f1": 0.9643409545922135,
+    "failure_f1": 0.8958243266941207,
+    "quality_degraded": false,
+    "failure_degraded": true
+  },
+  {
+    "timestamp": "2025-12-01T16:58:19.791421",
+    "quality_f1": 0.9652995601028319,
+    "failure_f1": 0.9085326350583959,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-01T17:00:08.440983",
+    "quality_f1": 0.9513710709233617,
+    "failure_f1": 0.9030502710788774,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-01T17:10:51.083091",
+    "quality_f1": 0.9748841604708487,
+    "failure_f1": 0.9025790640203571,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-01T17:31:19.420791",
+    "quality_f1": 0.9624568680420619,
+    "failure_f1": 0.8957862509665712,
+    "quality_degraded": false,
+    "failure_degraded": true
+  },
+  {
+    "timestamp": "2025-12-02T01:12:16.901437",
+    "quality_f1": 0.9592437405126095,
+    "failure_f1": 0.9093484063011136,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-02T09:55:29.340458",
+    "quality_f1": 0.9538459782741063,
+    "failure_f1": 0.9076495073996061,
+    "quality_degraded": false,
+    "failure_degraded": false
+  },
+  {
+    "timestamp": "2025-12-02T10:31:30.626878",
+    "quality_f1": 0.771,
+    "failure_f1": 0.709,
+    "quality_degraded": false,
+    "failure_degraded": false,
+    "source": "validation"
+  }
+]

@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LedgerX - Enterprise Invoice Intelligence Platform</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0E7490;
+            --primary-dark: #164E63;
+            --primary-light: #06B6D4;
+            --accent: #38BDF8;
+            --success: #22C55E;
+            --warning: #FACC15;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            --bg-main: #F0F9FF;
+            --surface: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: rgba(148,163,184,0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Dark Modern */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            color: white;
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.12);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 40px;
+            padding: 0 12px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item {
+            padding: 14px 16px;
+            margin: 6px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(56,189,248,0.15);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(14,116,144,0.4);
+        }
+
+        .nav-item i {
+            width: 20px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 40px;
+            max-width: 1600px;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-value {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .card-trend {
+            font-size: 14px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--primary-light);
+            border-radius: 20px;
+            padding: 80px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(6,182,212,0.03);
+            transform: scale(1.01);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(6,182,212,0.08);
+            transform: scale(1.02);
+            box-shadow: 0 8px 32px rgba(14,116,144,0.2);
+        }
+
+        .upload-icon {
+            font-size: 72px;
+            color: var(--primary-light);
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .file-formats {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .format-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 2px 8px rgba(14,116,144,0.3);
+        }
+
+        /* Table */
+        .table-box {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .table-head {
+            padding: 24px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.05), rgba(6,182,212,0.05));
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 16px 24px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(248,250,252,0.8);
+        }
+
+        td {
+            padding: 18px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(6,182,212,0.03);
+            cursor: pointer;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-success {
+            background: rgba(34,197,94,0.12);
+            color: #16A34A;
+        }
+
+        .badge-danger {
+            background: rgba(239,68,68,0.12);
+            color: #DC2626;
+        }
+
+        .badge-warning {
+            background: rgba(250,204,21,0.12);
+            color: #D97706;
+        }
+
+        .badge-info {
+            background: rgba(59,130,246,0.12);
+            color: #2563EB;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 12px rgba(14,116,144,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14,116,144,0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-main);
+            border: 2px solid var(--border);
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-indicator.connected {
+            background: rgba(34,197,94,0.12);
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .spinner {
+            border: 3px solid rgba(14,116,144,0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(6,182,212,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-chip {
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .stat-chip .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-chip .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .result-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(148,163,184,0.1);
+        }
+
+        .result-icon {
+            font-size: 28px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .result-item {
+            padding: 16px;
+            background: rgba(6,182,212,0.04);
+            border-radius: 10px;
+            border: 1px solid rgba(6,182,212,0.15);
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.05), rgba(6,182,212,0.05));
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 28px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(148,163,184,0.1);
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(14,116,144,0.1), rgba(6,182,212,0.1));
+            border-radius: 10px;
+            font-size: 24px;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-file-invoice"></i> LedgerX
+            </div>
+            
+            <nav>
+                <div class="nav-item active" onclick="showPage('overview')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </div>
+                <div class="nav-item" onclick="showPage('upload')">
+                    <i class="fas fa-upload"></i>
+                    <span>Upload Invoice</span>
+                </div>
+                <div class="nav-item" onclick="showPage('history')">
+                    <i class="fas fa-history"></i>
+                    <span>Invoice History</span>
+                </div>
+                <div class="nav-item" onclick="showPage('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item" onclick="showPage('billing')">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Billing & Usage</span>
+                </div>
+            </nav>
+
+            <div style="margin-top: auto; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <div id="connectionStatus" class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Connecting...</span>
+                </div>
+                <div style="margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.5);">
+                    <div>Version 2.2.0</div>
+                    <div id="userInfo">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <!-- Overview Page -->
+            <div id="overview" class="page active">
+                <h1 class="page-title">📊 Dashboard Overview</h1>
+                <p class="page-subtitle">Real-time intelligence for your invoice processing</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-label">Total Invoices</div>
+                        <div class="card-value" id="totalInvoices">0</div>
+                        <div class="card-trend"><i class="fas fa-file-invoice"></i> All time</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-label">Quality Score</div>
+                        <div class="card-value" style="color: var(--success)" id="avgQuality">-</div>
+                        <div class="card-trend"><i class="fas fa-check-circle"></i> Average</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-label">Failure Risk</div>
+                        <div class="card-value" style="color: var(--warning)" id="avgFailure">-</div>
+                        <div class="card-trend"><i class="fas fa-exclamation-triangle"></i> Average</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-label">Processed Today</div>
+                        <div class="card-value" id="todayCount">0</div>
+                        <div class="card-trend"><i class="fas fa-calendar-day"></i> Last 24 hours</div>
+                    </div>
+                </div>
+
+                <div class="table-box">
+                    <div class="table-head">
+                        <h3 class="table-title">📋 Recent Activity</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invoice</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Quality</th>
+                                <th>Risk</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                                    <div>No invoices processed yet</div>
+                                    <div style="margin-top: 16px;">
+                                        <button class="btn btn-primary" onclick="showPage('upload')">
+                                            <i class="fas fa-upload"></i> Upload Your First Invoice
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Upload Page -->
+            <div id="upload" class="page">
+                <h1 class="page-title">📤 Upload Invoice</h1>
+                <p class="page-subtitle">Just upload - AI will extract and process automatically!</p>
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf,.json" style="display:none" multiple>
+                    <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <div class="upload-text">Drop files here or click to upload</div>
+                    <div class="upload-subtext">Auto-extraction with OCR • Instant ML processing</div>
+                    <div class="file-formats">
+                        <span class="format-badge"><i class="fas fa-file-image"></i> JPG/PNG</span>
+                        <span class="format-badge"><i class="fas fa-file-pdf"></i> PDF</span>
+                        <span class="format-badge"><i class="fas fa-file-code"></i> JSON</span>
+                    </div>
+                </div>
+
+                <div id="processingQueue"></div>
+                <div id="results"></div>
+            </div>
+
+            <!-- Invoice History -->
+            <div id="history" class="page">
+                <h1 class="page-title">📜 Invoice History</h1>
+                <p class="page-subtitle">Complete history of all processed invoices</p>
+
+                <div class="stats-summary">
+                    <div class="stat-chip">
+                        <span class="label">Total Invoices</span>
+                        <span class="value" id="historyTotal">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">High Quality</span>
+                        <span class="value" id="historyGood">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">Low Quality</span>
+                        <span class="value" id="historyBad">0</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="label">At Risk</span>
+                        <span class="value" id="historyRisk">0</span>
+                    </div>
+                </div>
+
+                <div class="search-bar">
+                    <i class="search-icon fas fa-search"></i>
+                    <input type="text" class="search-input" id="historySearch" 
+                           placeholder="Search by invoice number, vendor, or amount..." 
+                           oninput="filterHistory()">
+                </div>
+
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterByQuality('all')">All</button>
+                    <button class="filter-btn" onclick="filterByQuality('good')">
+                        <i class="fas fa-check-circle"></i> Good Quality
+                    </button>
+                    <button class="filter-btn" onclick="filterByQuality('bad')">
+                        <i class="fas fa-times-circle"></i> Low Quality
+                    </button>
+                    <button class="filter-btn" onclick="filterByFormat('image')">
+                        <i class="fas fa-image"></i> Images
+                    </button>
+                    <button class="filter-btn" onclick="filterByFormat('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDFs
+                    </button>
+                </div>
+
+                <div class="table-box">
+                    <div class="table-head">
+                        <h3 class="table-title">All Invoices</h3>
+                        <button class="btn btn-secondary" onclick="exportHistory()">
+                            <i class="fas fa-download"></i> Export CSV
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Preview</th>
+                                <th>File Name</th>
+                                <th>Format</th>
+                                <th>Vendor</th>
+                                <th>Amount</th>
+                                <th>Quality</th>
+                                <th>Risk</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="9" class="empty-state">
+                                    <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+                                    <div>No invoices in history yet</div>
+                                    <div style="margin-top: 16px;">
+                                        <button class="btn btn-primary" onclick="showPage('upload')">
+                                            <i class="fas fa-upload"></i> Upload Your First Invoice
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analytics" class="page">
+                <h1 class="page-title">📈 Analytics</h1>
+                <p class="page-subtitle">Insights and trends from your invoice data</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-label">Quality Model F1</div>
+                        <div class="card-value" style="color: var(--success)">97.7%</div>
+                        <div class="card-trend"><i class="fas fa-trophy"></i> CatBoost</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Failure Model F1</div>
+                        <div class="card-value" style="color: var(--success)">91.3%</div>
+                        <div class="card-trend"><i class="fas fa-trophy"></i> LogisticRegression</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Avg Latency</div>
+                        <div class="card-value">35ms</div>
+                        <div class="card-trend"><i class="fas fa-bolt"></i> Production</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Cache Hit Rate</div>
+                        <div class="card-value">66.7%</div>
+                        <div class="card-trend"><i class="fas fa-database"></i> Optimized</div>
+                    </div>
+                </div>
+
+                <div class="table-box">
+                    <div class="table-head">
+                        <h3 class="table-title">📊 Processing Trends</h3>
+                    </div>
+                    <div style="padding: 32px;">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <h1 class="page-title">⚙️ Settings</h1>
+                <p class="page-subtitle">Configure your LedgerX instance</p>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">API Configuration</h3>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">API Endpoint</label>
+                        <input type="text" id="apiUrlSetting" value="https://ledgerx-api-zyz6umftna-uc.a.run.app" 
+                               style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 15px;">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">Data Management</h3>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary" onclick="exportAllData()">
+                            <i class="fas fa-download"></i> Export All Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAllData()">
+                            <i class="fas fa-trash"></i> Clear History
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 24px; font-size: 18px; font-weight: 700;">
+                        <i class="fas fa-chart-bar"></i> Document AI Usage This Month
+                    </h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Pages Used</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--warning);" id="settingsDocAiUsed">0</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Free Tier Limit</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--primary);">1,000</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px; background: var(--bg-main); border-radius: 10px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Remaining</div>
+                            <div style="font-size: 32px; font-weight: 800; color: var(--success);" id="settingsDocAiRemaining">1,000</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600;">Quota Usage</span>
+                            <span id="settingsDocAiPercent" style="font-weight: 600; color: var(--success);">0%</span>
+                        </div>
+                        <div style="height: 12px; background: #E5E7EB; border-radius: 6px; overflow: hidden;">
+                            <div id="settingsDocAiBar" style="height: 100%; background: var(--success); width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="refreshDocAIUsageInSettings()" style="width: 100%;">
+                        <i class="fas fa-sync-alt"></i> Refresh Usage
+                    </button>
+                    
+                    <div style="margin-top: 16px; padding: 14px; background: #F0F9FF; border-radius: 8px; font-size: 13px; color: var(--text-muted);">
+                        <strong>Cost:</strong> $0.01 per page • First 1,000 pages/month FREE • Resets monthly
+                    </div>
+                </div>
+            </div>
+
+            <!-- BILLING DASHBOARD PAGE -->
+            <div id="billing" class="page">
+                <h1 class="page-title">💰 Billing & Usage Dashboard</h1>
+                <p class="page-subtitle">Real-time monitoring of costs, quotas, and free tier usage</p>
+
+                <!-- GCP Credits Overview -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-google" style="color: #4285F4; font-size: 24px;"></i> 
+                        GCP Free Credits Status
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102,126,234,0.3);">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">Total Credits</div>
+                            <div style="font-size: 36px; font-weight: 900; margin-bottom: 4px;">$300</div>
+                            <div style="font-size: 12px; opacity: 0.8;">90-day trial</div>
+                        </div>
+                        
+                        <div style="padding: 24px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(245,87,108,0.3);">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">Used</div>
+                            <div style="font-size: 36px; font-weight: 900; margin-bottom: 4px;" id="creditsUsed">$10.00</div>
+                            <div style="font-size: 12px; opacity: 0.8;">3.3% consumed</div>
+                        </div>
+                        
+                        <div style="padding: 24px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(79,172,254,0.3);">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">Remaining</div>
+                            <div style="font-size: 36px; font-weight: 900; margin-bottom: 4px;" id="creditsRemaining">$290</div>
+                            <div style="font-size: 12px; opacity: 0.8;">96.7% available</div>
+                        </div>
+                        
+                        <div style="padding: 24px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(67,233,123,0.3);">
+                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 8px; font-weight: 500;">Days Left</div>
+                            <div style="font-size: 36px; font-weight: 900; margin-bottom: 4px;" id="daysRemaining">88</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Until Feb 26, 2026</div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600; font-size: 15px;">Credit Usage Progress</span>
+                            <span id="creditPercent" style="font-weight: 700; color: var(--success); font-size: 15px;">3.3%</span>
+                        </div>
+                        <div style="height: 16px; background: #E5E7EB; border-radius: 8px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                            <div id="creditProgressBar" style="height: 100%; background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%); width: 3.3%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document AI Quota -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-file-invoice" style="color: #FF6B6B; font-size: 24px;"></i>
+                        Document AI - Invoice Parser
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                        <div style="padding: 24px; border: 3px solid #DBEAFE; border-radius: 12px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="font-weight: 600; color: var(--text-main);">Free Tier Limit</span>
+                                <i class="fas fa-gift" style="color: var(--success); font-size: 20px;"></i>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 900; color: var(--primary); margin-bottom: 4px;">1,000</div>
+                            <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">pages/month • Forever</div>
+                        </div>
+                        
+                        <div style="padding: 24px; border: 3px solid #FEF3C7; border-radius: 12px; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="font-weight: 600; color: var(--text-main);">Used This Month</span>
+                                <i class="fas fa-chart-line" style="color: var(--warning); font-size: 20px;"></i>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 900; color: var(--warning); margin-bottom: 4px;" id="docAiUsed">0</div>
+                            <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">pages processed</div>
+                        </div>
+                        
+                        <div style="padding: 24px; border: 3px solid #D1FAE5; border-radius: 12px; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="font-weight: 600; color: var(--text-main);">Remaining Free</span>
+                                <i class="fas fa-check-circle" style="color: var(--success); font-size: 20px;"></i>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 900; color: var(--success); margin-bottom: 4px;" id="docAiRemaining">1,000</div>
+                            <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">pages left</div>
+                        </div>
+                    </div>
+
+                    <!-- Document AI Progress Bar -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-weight: 600; font-size: 15px;">Monthly Quota Usage</span>
+                            <span id="docAiPercent" style="font-weight: 700; color: var(--success); font-size: 15px;">0%</span>
+                        </div>
+                        <div style="height: 14px; background: #E5E7EB; border-radius: 7px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                            <div id="docAiProgressBar" style="height: 100%; background: var(--success); width: 0%; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px; background: #F0F9FF; border-radius: 10px; border-left: 4px solid var(--primary);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">After Free Tier</div>
+                                <div style="font-weight: 700; font-size: 16px; color: var(--primary);">$1.50 per 1,000 pages</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Resets Monthly</div>
+                                <div style="font-weight: 700; font-size: 16px; color: var(--primary);" id="docAiReset">Dec 1, 2025</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Costs Breakdown -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-chart-pie" style="color: #8B5CF6; font-size: 24px;"></i>
+                        Service Costs Breakdown
+                    </h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--bg-main); border-bottom: 2px solid var(--border);">
+                                <th style="padding: 14px; text-align: left; font-weight: 700; font-size: 14px;">Service</th>
+                                <th style="padding: 14px; text-align: center; font-weight: 700; font-size: 14px;">Status</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700; font-size: 14px;">Usage</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700; font-size: 14px;">Cost/Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;">
+                                    <i class="fas fa-server" style="color: var(--primary); margin-right: 10px;"></i>
+                                    <strong>Cloud Run</strong> (API Hosting)
+                                </td>
+                                <td style="padding: 14px; text-align: center;">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                                <td style="padding: 14px; text-align: right; color: var(--text-muted);">~5K requests</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700; color: var(--success);">$0.04</td>
+                            </tr>
+                            
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;">
+                                    <i class="fas fa-database" style="color: #3B82F6; margin-right: 10px;"></i>
+                                    <strong>Cloud Storage</strong> (5 buckets)
+                                </td>
+                                <td style="padding: 14px; text-align: center;">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                                <td style="padding: 14px; text-align: right; color: var(--text-muted);">~10 GB</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700;">$2.00</td>
+                            </tr>
+                            
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;">
+                                    <i class="fas fa-box" style="color: #8B5CF6; margin-right: 10px;"></i>
+                                    <strong>Artifact Registry</strong> (Docker)
+                                </td>
+                                <td style="padding: 14px; text-align: center;">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                                <td style="padding: 14px; text-align: right; color: var(--text-muted);">~2 GB</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700;">$1.00</td>
+                            </tr>
+                            
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;">
+                                    <i class="fas fa-file-invoice" style="color: #FF6B6B; margin-right: 10px;"></i>
+                                    <strong>Document AI</strong> (OCR)
+                                </td>
+                                <td style="padding: 14px; text-align: center;">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                                <td style="padding: 14px; text-align: right; color: var(--text-muted);" id="docAiTableUsage">0 / 1,000 free</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700; color: var(--success);">$0.00</td>
+                            </tr>
+                            
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;">
+                                    <i class="fas fa-key" style="color: #F59E0B; margin-right: 10px;"></i>
+                                    <strong>Secret Manager</strong>
+                                </td>
+                                <td style="padding: 14px; text-align: center;">
+                                    <span class="badge badge-success">Active</span>
+                                </td>
+                                <td style="padding: 14px; text-align: right; color: var(--text-muted);">2 secrets</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700;">$0.12</td>
+                            </tr>
+                            
+                            <tr style="background: var(--bg-main); border-top: 3px solid var(--primary);">
+                                <td style="padding: 16px;" colspan="3">
+                                    <strong style="font-size: 16px;">Total Monthly Cost</strong>
+                                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Paid from GCP free credits</div>
+                                </td>
+                                <td style="padding: 16px; text-align: right; font-size: 24px; font-weight: 900; color: var(--primary);" id="totalMonthlyCost">
+                                    $3.16
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Cost Projections -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-calculator" style="color: #EC4899; font-size: 24px;"></i>
+                        Cost Projections
+                    </h2>
+                    
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--bg-main); border-bottom: 2px solid var(--border);">
+                                <th style="padding: 14px; text-align: left; font-weight: 700;">Scale</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700;">Invoices/Month</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700;">Document AI</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700;">Other Services</th>
+                                <th style="padding: 14px; text-align: right; font-weight: 700;">Total/Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border); background: #ECFDF5;">
+                                <td style="padding: 14px;"><strong>Current</strong> (Academic)</td>
+                                <td style="padding: 14px; text-align: right;">< 1,000</td>
+                                <td style="padding: 14px; text-align: right; color: var(--success); font-weight: 600;">$0.00</td>
+                                <td style="padding: 14px; text-align: right;">$3.16</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700; color: var(--success);">$3.16</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;"><strong>Small</strong> Startup</td>
+                                <td style="padding: 14px; text-align: right;">2,000</td>
+                                <td style="padding: 14px; text-align: right;">$1.50</td>
+                                <td style="padding: 14px; text-align: right;">$3.16</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700;">$4.66</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;"><strong>Medium</strong> Business</td>
+                                <td style="padding: 14px; text-align: right;">10,000</td>
+                                <td style="padding: 14px; text-align: right;">$13.50</td>
+                                <td style="padding: 14px; text-align: right;">$8.16</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700;">$21.66</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 14px;"><strong>Production</strong> Scale</td>
+                                <td style="padding: 14px; text-align: right;">50,000</td>
+                                <td style="padding: 14px; text-align: right;">$73.50</td>
+                                <td style="padding: 14px; text-align: right;">$15.16</td>
+                                <td style="padding: 14px; text-align: right; font-weight: 700; color: var(--warning);">$88.66</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Real-time Stats -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-sync-alt" style="color: var(--primary); font-size: 24px;"></i>
+                        Live System Metrics
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div style="text-align: center; padding: 24px; background: var(--bg-main); border-radius: 12px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">API Health</div>
+                            <div id="apiStatus" style="font-size: 22px; font-weight: 800; color: var(--success);">
+                                <i class="fas fa-heartbeat"></i> Healthy
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 24px; background: var(--bg-main); border-radius: 12px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">Response Time</div>
+                            <div id="avgResponseTime" style="font-size: 22px; font-weight: 800;">~2.5s</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 24px; background: var(--bg-main); border-radius: 12px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">Cache Hit Rate</div>
+                            <div id="cacheHitRateLive" style="font-size: 22px; font-weight: 800; color: var(--warning);">66.7%</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 24px; background: var(--bg-main); border-radius: 12px;">
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">Today's Cost</div>
+                            <div id="todayCost" style="font-size: 22px; font-weight: 800; color: var(--success);">$0.04</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="refreshBillingStats()" style="width: 100%;">
+                        <i class="fas fa-sync-alt"></i> Refresh Live Stats
+                    </button>
+                </div>
+
+                <!-- Cost Optimization -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-lightbulb" style="color: #FBBF24; font-size: 24px;"></i>
+                        Active Cost Optimizations
+                    </h2>
+                    
+                    <div style="display: grid; gap: 14px;">
+                        <div style="padding: 18px; background: #ECFDF5; border-left: 4px solid var(--success); border-radius: 10px;">
+                            <div style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px;">
+                                <i class="fas fa-check-circle"></i> Prediction Caching
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                66.7% cache hit rate • Saves ~40% on ML inference costs
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 18px; background: #ECFDF5; border-left: 4px solid var(--success); border-radius: 10px;">
+                            <div style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px;">
+                                <i class="fas fa-check-circle"></i> Auto-Scaling to Zero
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                Cloud Run scales to 0 when idle • No charges for idle time • Saves ~$20/month
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 18px; background: #ECFDF5; border-left: 4px solid var(--success); border-radius: 10px;">
+                            <div style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px;">
+                                <i class="fas fa-check-circle"></i> Rate Limiting
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                50 requests/hour, 200/day per IP • Daily budget cap: $1.67 • Prevents abuse
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 18px; background: #ECFDF5; border-left: 4px solid var(--success); border-radius: 10px;">
+                            <div style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px;">
+                                <i class="fas fa-check-circle"></i> Local Development
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                PostgreSQL, MinIO, Airflow run locally • Saves ~$30/month vs cloud deployment
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 18px; background: #FEF3C7; border-left: 4px solid var(--warning); border-radius: 10px;">
+                            <div style="font-weight: 700; color: #B45309; margin-bottom: 6px; font-size: 15px;">
+                                <i class="fas fa-lightbulb"></i> Tip: Monitor Document AI Usage
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                Stay under 1,000 pages/month to keep Document AI completely free
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Alerts -->
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                        <i class="fas fa-bell" style="color: var(--danger); font-size: 24px;"></i>
+                        Budget Alerts & Thresholds
+                    </h2>
+                    
+                    <div style="display: grid; gap: 14px;">
+                        <div style="padding: 18px; background: var(--bg-main); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--border);">
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 6px; font-size: 15px;">Daily Budget Limit</div>
+                                <div style="font-size: 13px; color: var(--text-muted);">Maximum allowed spend per day</div>
+                            </div>
+                            <div style="font-size: 28px; font-weight: 900; color: var(--primary);">$1.67</div>
+                        </div>
+                        
+                        <div style="padding: 18px; background: var(--bg-main); border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--border);">
+                            <div>
+                                <div style="font-weight: 700; margin-bottom: 6px; font-size: 15px;">API Rate Limit</div>
+                                <div style="font-size: 13px; color: var(--text-muted);">Maximum requests per IP address</div>
+                            </div>
+                            <div style="font-size: 28px; font-weight: 900; color: var(--primary);">200/day</div>
+                        </div>
+                        
+                        <div id="budgetAlertZone" style="min-height: 20px;"></div>
+                    </div>
+                </div>
+            </div>
+
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    <div class="modal-backdrop" id="invoiceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📄 Invoice Details</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h2 style="margin-bottom: 8px; color: var(--primary);">
+                <i class="fas fa-lock"></i> Login Required
+            </h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">Sign in to access LedgerX</p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Username</label>
+                <input type="text" id="loginUsername" placeholder="admin" 
+                    style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;"
+                    onkeypress="if(event.key === 'Enter') document.getElementById('loginPassword').focus()">
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Password</label>
+                <input type="password" id="loginPassword" placeholder="admin123" 
+                    style="width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; font-size: 16px;"
+                    onkeypress="if(event.key === 'Enter') attemptLogin()">
+            </div>
+            
+            <div id="loginError" style="display: none; padding: 12px; background: #FEE; border-radius: 8px; color: var(--danger); margin-bottom: 16px; font-size: 14px;">
+            </div>
+            
+            <button onclick="attemptLogin()" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px; margin-bottom: 16px;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            
+            <div style="padding: 16px; background: var(--bg-main); border-radius: 8px; font-size: 13px; color: var(--text-muted);">
+                <strong style="display: block; margin-bottom: 8px;">Test Credentials:</strong>
+                • Username: <code style="background: white; padding: 2px 6px; border-radius: 4px;">admin</code> Password: <code style="background: white; padding: 2px 6px; border-radius: 4px;">admin123</code><br>
+                • Username: <code style="background: white; padding: 2px 6px; border-radius: 4px;">john_doe</code> Password: <code style="background: white; padding: 2px 6px; border-radius: 4px;">password123</code>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STATE = {
+            apiUrl: 'https://ledgerx-api-671429123152.us-central1.run.app',  // ← UPDATE TO THIS
+            token: null,
+            username: null,
+            invoices: [],
+            filtered: [],
+            filter: { quality: 'all', format: 'all', search: '' }
+        };
+
+        // Login Functions
+        async function attemptLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorDiv.textContent = 'Please enter username and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const res = await fetch(`${STATE.apiUrl}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    throw new Error('Invalid credentials');
+                }
+
+                const data = await res.json();
+                STATE.token = data.access_token;
+                STATE.username = username;
+
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                errorDiv.style.display = 'none';
+
+                console.log('✅ Login successful');
+                
+                // 📥 Load user's invoices from Cloud SQL
+                await loadInvoicesFromDatabase();
+
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+                console.error('Login failed:', error);
+            }
+        }
+
+        function logout() {
+            STATE.token = null;
+            STATE.username = null;
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function checkAuth() {
+            if (!STATE.token) {
+                document.getElementById('loginModal').style.display = 'flex';
+                return false;
+            }
+            return true;
+        }
+
+        window.onload = async () => {
+            loadData();
+            
+            // Check if logged in
+            if (!STATE.token) {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+            
+            await connect();
+            setup();
+            updateAll();
+        };
+
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('ledgerx_data');
+                if (saved) STATE.invoices = JSON.parse(saved);
+            } catch (e) {
+                console.warn('localStorage blocked, using session only');
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('ledgerx_data', JSON.stringify(STATE.invoices));
+            } catch (e) {
+                console.warn('localStorage blocked, data will not persist');
+            }
+        }
+
+        async function connect() {
+            try {
+                const res = await fetch(`${STATE.apiUrl}/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'username=admin&password=admin123'
+                });
+                const data = await res.json();
+                STATE.token = data.access_token;
+                
+                document.getElementById('connectionStatus').innerHTML = '<div class="status-dot"></div><span>Connected</span>';
+                document.getElementById('connectionStatus').className = 'status-indicator connected';
+                document.getElementById('userInfo').textContent = 'admin';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function setup() {
+            const zone = document.getElementById('uploadZone');
+            const input = document.getElementById('fileInput');
+
+            zone.onclick = () => input.click();
+            input.onchange = (e) => {
+                Array.from(e.target.files).forEach(f => processFile(f));
+                input.value = '';
+            };
+
+            zone.ondragover = (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            };
+            zone.ondragleave = () => zone.classList.remove('dragover');
+            zone.ondrop = (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                Array.from(e.dataTransfer.files).forEach(f => processFile(f));
+            };
+
+            initCharts();
+        }
+
+        async function processFile(file) {
+            // Check authentication first
+            if (!checkAuth()) {
+                alert('Please login first');
+                return;
+            }
+
+            const valid = ['.jpg', '.jpeg', '.png', '.pdf'];
+            if (!valid.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                alert('Invalid file type. Please upload JPG, PNG, or PDF.');
+                return;
+            }
+
+            const fmt = file.type.startsWith('image/') ? 'IMAGE' : 'PDF';
+            
+            const queueDiv = document.getElementById('processingQueue');
+            const cardId = `proc-${Date.now()}`;
+            
+            queueDiv.innerHTML += `
+                <div class="card" id="${cardId}" style="text-align: center;">
+                    <div class="spinner"></div>
+                    <h3 style="margin-top: 20px;">${file.name}</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">${fmt} • ${(file.size/1024).toFixed(2)} KB</p>
+                    <p style="color: var(--primary); margin-top: 12px; font-weight: 600;">
+                        <i class="fas fa-magic"></i> Auto-extracting with OCR...
+                    </p>
+                </div>
+            `;
+
+            try {
+                // 🔥 REAL API CALL - Upload image to backend WITH AUTH
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const res = await fetch('https://ledgerx-api-671429123152.us-central1.run.app/upload/image', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${STATE.token}`
+                    },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                }
+
+                const result = await res.json();
+
+                // Extract data from API response
+                const data = result.extracted_data || {};
+                
+                const invoice = {
+                    id: Date.now(),
+                    fileName: file.name,
+                    fileType: fmt,
+                    fileSize: file.size,
+                    invoice_number: data.invoice_number || 'N/A',
+                    vendor_name: data.vendor_name || 'Unknown',
+                    total_amount: data.total_amount || 0,
+                    currency: data.currency || 'USD',
+                    invoice_date: data.invoice_date || new Date().toISOString().split('T')[0],
+                    vendor_freq: data.vendor_freq || 0,
+                    blur_score: data.blur_score || 0,
+                    contrast_score: data.contrast_score || 0,
+                    ocr_confidence: data.ocr_confidence || 0,
+                    file_size_kb: file.size / 1024,
+                    quality: result.quality?.prediction || result.quality?.quality || 'unknown',
+                    qualityScore: result.quality?.probabilities?.good || result.quality?.probability || 0,
+                    risk: result.failure?.prediction || result.failure?.risk || 'unknown',
+                    riskScore: result.failure?.probabilities?.risk || result.failure?.probability || 0,
+                    timestamp: new Date().toISOString(),
+                    result
+                };
+
+                STATE.invoices.unshift(invoice);
+                saveData();
+                
+                // 💾 Save to Cloud SQL (sync across devices)
+                try {
+                    const saveRes = await fetch(`${STATE.apiUrl}/user/invoices/save`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${STATE.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            invoice_number: invoice.invoice_number,
+                            vendor_name: invoice.vendor_name,
+                            total_amount: invoice.total_amount,
+                            currency: invoice.currency,
+                            invoice_date: invoice.invoice_date,
+                            quality_prediction: invoice.quality,
+                            quality_score: invoice.qualityScore,
+                            risk_prediction: invoice.risk,
+                            risk_score: invoice.riskScore,
+                            file_name: invoice.fileName,
+                            file_type: invoice.fileType,
+                            file_size_kb: invoice.file_size_kb,
+                            ocr_method: result.ocr_method || 'document_ai',
+                            ocr_confidence: invoice.ocr_confidence,
+                            subtotal: data.subtotal || 0,
+                            tax_amount: data.tax_amount || 0,
+                            discount_amount: data.discount_amount || 0
+                        })
+                    });
+                    
+                    if (saveRes.ok) {
+                        console.log('✅ Invoice saved to Cloud SQL');
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Could not save to Cloud SQL:', err);
+                }
+
+                document.getElementById(cardId).innerHTML = `
+                    <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success);"></i>
+                    <h3 style="margin-top: 16px; color: var(--success);">✅ Processed Successfully!</h3>
+                    <p style="margin-top: 12px;">${file.name}</p>
+                    <p style="margin-top: 8px; font-size: 14px; color: var(--text-muted);">
+                        ${invoice.vendor_name} • ${invoice.currency} ${invoice.total_amount}
+                    </p>
+                    <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center;">
+                        <span class="badge badge-${invoice.quality === 'good' ? 'success' : 'danger'}">
+                            ${invoice.quality}
+                        </span>
+                        <span class="badge badge-${invoice.risk === 'safe' || invoice.risk === 'low' ? 'success' : 'warning'}">
+                            ${invoice.risk}
+                        </span>
+                    </div>
+                `;
+
+                setTimeout(() => document.getElementById(cardId).remove(), 3000);
+                updateAll();
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                
+                const errorMsg = error.message || error.toString() || 'Unknown error';
+                
+                document.getElementById(cardId).innerHTML = `
+                    <i class="fas fa-times-circle" style="font-size: 60px; color: var(--danger);"></i>
+                    <h3 style="margin-top: 16px; color: var(--danger);">Processing Failed</h3>
+                    <p style="margin-top: 8px; color: var(--text-muted);">${errorMsg}</p>
+                    <p style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+                        ${error.message && error.message.includes('401') ? '🔒 Please login first' : 'Check console for details'}
+                    </p>
+                `;
+            }
+        }
+
+        function updateAll() {
+            document.getElementById('totalInvoices').textContent = STATE.invoices.length;
+            document.getElementById('historyTotal').textContent = STATE.invoices.length;
+            
+            const good = STATE.invoices.filter(i => i.quality === 'good').length;
+            const bad = STATE.invoices.filter(i => i.quality === 'bad').length;
+            const risk = STATE.invoices.filter(i => i.risk === 'risk').length;
+
+            document.getElementById('historyGood').textContent = good;
+            document.getElementById('historyBad').textContent = bad;
+            document.getElementById('historyRisk').textContent = risk;
+
+            if (STATE.invoices.length > 0) {
+                const avgQ = (STATE.invoices.reduce((s, i) => s + (i.qualityScore || 0), 0) / STATE.invoices.length * 100).toFixed(1);
+                const avgR = (STATE.invoices.reduce((s, i) => s + (i.riskScore || 0), 0) / STATE.invoices.length * 100).toFixed(1);
+                document.getElementById('avgQuality').textContent = avgQ + '%';
+                document.getElementById('avgFailure').textContent = avgR + '%';
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = STATE.invoices.filter(i => i.timestamp?.startsWith(today) || i.created_at?.startsWith(today)).length;
+            document.getElementById('todayCount').textContent = todayCount;
+
+            renderHistory();
+            renderRecent();
+        }
+
+        function renderHistory() {
+            STATE.filtered = STATE.invoices.filter(inv => {
+                if (STATE.filter.quality !== 'all' && inv.quality !== STATE.filter.quality) return false;
+                if (STATE.filter.format === 'image' && inv.fileType !== 'IMAGE') return false;
+                if (STATE.filter.format === 'pdf' && inv.fileType !== 'PDF') return false;
+                if (STATE.filter.search) {
+                    const s = STATE.filter.search.toLowerCase();
+                    const txt = `${inv.fileName} ${inv.vendor_name} ${inv.invoice_number}`.toLowerCase();
+                    if (!txt.includes(s)) return false;
+                }
+                return true;
+            });
+
+            const tbody = document.getElementById('historyTable');
+            
+            if (STATE.filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="empty-state"><div class="empty-icon"><i class="fas fa-search"></i></div><div>No invoices match your filters</div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = STATE.filtered.map(inv => `
+                <tr onclick="showDetails(${inv.id})">
+                    <td><div class="thumbnail"><i class="fas ${inv.fileType === 'PDF' ? 'fa-file-pdf' : 'fa-file-image'}"></i></div></td>
+                    <td><strong>${inv.fileName}</strong></td>
+                    <td><span class="badge badge-info">${inv.fileType}</span></td>
+                    <td>${inv.vendor_name}</td>
+                    <td>${inv.currency} ${inv.total_amount.toFixed(2)}</td>
+                    <td><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></td>
+                    <td><span class="badge badge-${inv.risk === 'safe' ? 'success' : 'warning'}">${inv.risk}</span></td>
+                    <td>${new Date(inv.timestamp).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-icon" onclick="event.stopPropagation(); deleteInvoice(${inv.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderRecent() {
+            const tbody = document.getElementById('recentActivity');
+            const recent = STATE.invoices.slice(0, 10);
+
+            if (recent.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-icon"><i class="fas fa-inbox"></i></div><div>No invoices yet</div></td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = recent.map(inv => `
+                <tr onclick="showDetails(${inv.id})">
+                    <td><strong>${inv.invoice_number}</strong></td>
+                    <td>${inv.vendor_name}</td>
+                    <td>${inv.currency} ${inv.total_amount.toFixed(2)}</td>
+                    <td><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></td>
+                    <td><span class="badge badge-${inv.risk === 'safe' ? 'success' : 'warning'}">${inv.risk}</span></td>
+                    <td>${new Date(inv.timestamp).toLocaleTimeString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showDetails(id) {
+            const inv = STATE.invoices.find(i => i.id === id);
+            if (!inv) return;
+
+            document.getElementById('modalBody').innerHTML = `
+                <div class="result-section">
+                    <div class="result-header">
+                        <i class="result-icon fas fa-file-invoice"></i>
+                        <div class="result-title">Invoice Information</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Invoice #</div>
+                            <div class="result-value">${inv.invoice_number}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Vendor</div>
+                            <div class="result-value">${inv.vendor_name}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Amount</div>
+                            <div class="result-value">${inv.currency} ${inv.total_amount.toFixed(2)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">File Type</div>
+                            <div class="result-value"><span class="badge badge-info">${inv.fileType}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-section">
+                    <div class="result-header">
+                        <i class="result-icon fas fa-check-circle" style="color: var(--${inv.quality === 'good' ? 'success' : 'danger'});"></i>
+                        <div class="result-title">Quality Results</div>
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">Prediction</div>
+                            <div class="result-value"><span class="badge badge-${inv.quality === 'good' ? 'success' : 'danger'}">${inv.quality}</span></div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Score</div>
+                            <div class="result-value">${(inv.qualityScore * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                    <button class="btn btn-primary" onclick="deleteInvoice(${inv.id}); closeModal();">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('invoiceModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('invoiceModal').classList.remove('active');
+        }
+
+        function deleteInvoice(id) {
+            if (!confirm('Delete this invoice?')) return;
+            STATE.invoices = STATE.invoices.filter(i => i.id !== id);
+            saveData();
+            updateAll();
+        }
+
+        function filterByQuality(q) {
+            STATE.filter.quality = q;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderHistory();
+        }
+
+        function filterByFormat(f) {
+            STATE.filter.format = f;
+            renderHistory();
+        }
+
+        function filterHistory() {
+            STATE.filter.search = document.getElementById('historySearch').value;
+            renderHistory();
+        }
+
+        function exportHistory() {
+            if (STATE.invoices.length === 0) return alert('No data');
+            const csv = [
+                ['File','Format','Vendor','Amount','Quality','Risk','Date'].join(','),
+                ...STATE.invoices.map(i => [
+                    i.fileName, i.fileType, i.vendor_name, i.total_amount, 
+                    i.quality, i.risk, i.invoice_date
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ledgerx_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function exportAllData() {
+            const json = JSON.stringify(STATE.invoices, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ledgerx_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function clearAllData() {
+            if (!confirm('Delete all history?')) return;
+            STATE.invoices = [];
+            saveData();
+            updateAll();
+        }
+
+        function saveSettings() {
+            STATE.apiUrl = document.getElementById('apiUrlSetting').value;
+            saveData();
+            connect();
+            alert('Settings saved!');
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(page).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+
+            if (page === 'history') renderHistory();
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('trendChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Invoices',
+                            data: [12, 19, 15, 25, 22, 18, 24],
+                            borderColor: '#0E7490',
+                            backgroundColor: 'rgba(14,116,144,0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        // ========================================================================
+        // BILLING DASHBOARD FUNCTIONS
+        // ========================================================================
+        
+        const BILLING = {
+            gcpCredits: {
+                total: 300,
+                used: 10,
+                remaining: 290,
+                daysLeft: 88
+            },
+            documentAI: {
+                freeLimit: 1000,
+                used: 0,
+                resetDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
+            },
+            costs: {
+                cloudRun: 0.04,
+                storage: 2.00,
+                artifactRegistry: 1.00,
+                documentAI: 0.00,
+                secretManager: 0.12
+            }
+        };
+
+        // ========================================================================
+        // CLOUD SQL SYNC FUNCTIONS
+        // ========================================================================
+        
+        async function loadInvoicesFromDatabase() {
+            try {
+                if (!STATE.token) return;
+                
+                const res = await fetch(`${STATE.apiUrl}/user/invoices`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                
+                if (res.ok) {
+STATE.invoices = (data.invoices || []).map(inv => ({
+    ...inv,
+    timestamp: inv.created_at || inv.timestamp,  // Map created_at to timestamp
+    qualityScore: inv.quality_score,
+    riskScore: inv.failure_risk
+}));
+                }
+            } catch (error) {
+                console.warn('Cloud SQL load failed:', error);
+            }
+        }
+        
+        async function fetchDocumentAIUsage() {
+            try {
+                if (!STATE.token) return STATE.invoices.length;
+                
+                const res = await fetch(`${STATE.apiUrl}/admin/document-ai-usage`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.usage_this_month || 0;
+                }
+                return STATE.invoices.length;
+            } catch (error) {
+                return STATE.invoices.length;
+            }
+        }
+
+        async function updateBillingDashboard() {
+            // Fetch real Document AI usage
+            const docAiUsedReal = await fetchDocumentAIUsage();
+            BILLING.documentAI.used = docAiUsedReal;
+            
+            // GCP Credits
+            const creditsUsed = BILLING.gcpCredits.used;
+            const creditsRemaining = BILLING.gcpCredits.remaining;
+            const creditPercent = (creditsUsed / BILLING.gcpCredits.total * 100).toFixed(1);
+            
+            if (document.getElementById('creditsUsed')) {
+                document.getElementById('creditsUsed').textContent = `$${creditsUsed.toFixed(2)}`;
+                document.getElementById('creditsRemaining').textContent = `$${creditsRemaining.toFixed(2)}`;
+                document.getElementById('daysRemaining').textContent = BILLING.gcpCredits.daysLeft;
+                document.getElementById('creditPercent').textContent = `${creditPercent}%`;
+                document.getElementById('creditProgressBar').style.width = `${creditPercent}%`;
+            }
+            
+            // Document AI
+            const docAiUsed = BILLING.documentAI.used;
+            const docAiRemaining = BILLING.documentAI.freeLimit - docAiUsed;
+            const docAiPercent = (docAiUsed / BILLING.documentAI.freeLimit * 100).toFixed(1);
+            
+            if (document.getElementById('docAiUsed')) {
+                document.getElementById('docAiUsed').textContent = docAiUsed;
+                document.getElementById('docAiRemaining').textContent = docAiRemaining;
+                document.getElementById('docAiPercent').textContent = `${docAiPercent}%`;
+                document.getElementById('docAiProgressBar').style.width = `${docAiPercent}%`;
+                document.getElementById('docAiTableUsage').textContent = `${docAiUsed} / 1,000 free`;
+            }
+            
+            // Reset date
+            const resetDate = BILLING.documentAI.resetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (document.getElementById('docAiReset')) {
+                document.getElementById('docAiReset').textContent = resetDate;
+            }
+            
+            // Total cost
+            const totalCost = Object.values(BILLING.costs).reduce((a, b) => a + b, 0);
+            if (document.getElementById('totalMonthlyCost')) {
+                document.getElementById('totalMonthlyCost').textContent = `$${totalCost.toFixed(2)}`;
+            }
+            
+            // Update invoice count from STATE
+            if (STATE && STATE.invoices) {
+                const processedCount = STATE.invoices.length;
+                BILLING.documentAI.used = processedCount;
+                
+                const docAiUsedUpdated = BILLING.documentAI.used;
+                const docAiPercentUpdated = (docAiUsedUpdated / BILLING.documentAI.freeLimit * 100).toFixed(1);
+                
+                if (document.getElementById('docAiUsed')) {
+                    document.getElementById('docAiUsed').textContent = docAiUsedUpdated;
+                    document.getElementById('docAiRemaining').textContent = BILLING.documentAI.freeLimit - docAiUsedUpdated;
+                    document.getElementById('docAiPercent').textContent = `${docAiPercentUpdated}%`;
+                    document.getElementById('docAiProgressBar').style.width = `${docAiPercentUpdated}%`;
+                    document.getElementById('docAiTableUsage').textContent = `${docAiUsedUpdated} / 1,000 free`;
+                }
+            }
+            
+            // Budget alerts
+            const alertZone = document.getElementById('budgetAlertZone');
+            if (alertZone) {
+                if (docAiUsed > 900) {
+                    alertZone.innerHTML = `
+                        <div style="padding: 16px; background: #FEE2E2; border-left: 4px solid var(--danger); border-radius: 8px;">
+                            <div style="font-weight: 600; color: var(--danger); margin-bottom: 4px;">
+                                <i class="fas fa-exclamation-circle"></i> Approaching Free Tier Limit
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                You've used ${docAiUsed} of 1,000 free Document AI pages this month. 
+                                Additional pages will cost $1.50 per 1,000.
+                            </div>
+                        </div>
+                    `;
+                } else if (creditsRemaining < 50) {
+                    alertZone.innerHTML = `
+                        <div style="padding: 16px; background: #FEF3C7; border-left: 4px solid var(--warning); border-radius: 8px;">
+                            <div style="font-weight: 600; color: #B45309; margin-bottom: 4px;">
+                                <i class="fas fa-exclamation-triangle"></i> Low GCP Credits
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-muted);">
+                                Only $${creditsRemaining} remaining. Credits expire in ${BILLING.gcpCredits.daysLeft} days.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function refreshBillingStats() {
+            try {
+                if (!STATE.token) {
+                    alert('Please login to view live stats');
+                    return;
+                }
+                
+                // Fetch real Document AI usage
+                const docAiUsage = await fetchDocumentAIUsage();
+                BILLING.documentAI.used = docAiUsage;
+                
+                // Fetch cache stats
+                const cacheRes = await fetch(`${STATE.apiUrl}/admin/cache`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                if (cacheRes.ok) {
+                    const cacheData = await cacheRes.json();
+                    if (document.getElementById('cacheHitRate')) {
+                        document.getElementById('cacheHitRate').textContent = cacheData.performance?.hit_rate || '0%';
+                    }
+                    if (document.getElementById('cacheHitRateLive')) {
+                        document.getElementById('cacheHitRateLive').textContent = cacheData.performance?.hit_rate || '0%';
+                    }
+                }
+                
+                // Fetch cost stats
+                const costRes = await fetch(`${STATE.apiUrl}/admin/costs`, {
+                    headers: { 'Authorization': `Bearer ${STATE.token}` }
+                });
+                if (costRes.ok) {
+                    const costData = await costRes.json();
+                    if (document.getElementById('todayCost')) {
+                        document.getElementById('todayCost').textContent = costData.estimated_cost_today || '$0.00';
+                    }
+                }
+                
+                // Update dashboard
+                await updateBillingDashboard();
+                
+                alert('✅ Stats refreshed!');
+                
+            } catch (error) {
+                console.error('Failed to refresh stats:', error);
+                alert('⚠️ Could not fetch live stats (requires admin role)');
+            }
+        }
+        
+        async function refreshDocAIUsageInSettings() {
+            try {
+                const usage = await fetchDocumentAIUsage();
+                const remaining = 1000 - usage;
+                const percent = (usage / 1000 * 100).toFixed(1);
+                
+                document.getElementById('settingsDocAiUsed').textContent = usage;
+                document.getElementById('settingsDocAiRemaining').textContent = remaining;
+                document.getElementById('settingsDocAiPercent').textContent = `${percent}%`;
+                document.getElementById('settingsDocAiBar').style.width = `${percent}%`;
+                
+                // Update color based on usage
+                const bar = document.getElementById('settingsDocAiBar');
+                if (usage > 900) {
+                    bar.style.background = 'var(--danger)';
+                } else if (usage > 700) {
+                    bar.style.background = 'var(--warning)';
+                } else {
+                    bar.style.background = 'var(--success)';
+                }
+                
+                alert(`✅ Document AI: ${usage} / 1,000 pages used this month`);
+                
+            } catch (error) {
+                console.error('Failed to refresh Document AI usage:', error);
+                alert('⚠️ Could not fetch usage data');
+            }
+        }
+
+
+        // Auto-update billing when switching to billing page
+        const originalShowPage = showPage;
+        showPage = async function(pageId) {
+            originalShowPage(pageId);
+            if (pageId === 'billing') {
+                await updateBillingDashboard();
+            }
+            if (pageId === 'settings') {
+                await refreshDocAIUsageInSettings();
+            }
+        };
+    </script>
+</body>
+</html>
+

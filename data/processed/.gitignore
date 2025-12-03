@@ -1,1 +1,4 @@
 /fatura_ocr.csv
+/fatura_enterprise_preprocessed.csv
+/quality_training.csv
+/failure_training.csv

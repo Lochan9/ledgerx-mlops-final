@@ -1,0 +1,4 @@
+blur_slice,count,accuracy
+low_blur,212,0.8537735849056604
+medium_blur,1000,0.874
+high_blur,788,0.8730964467005076

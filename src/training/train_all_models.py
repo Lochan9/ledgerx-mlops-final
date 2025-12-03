@@ -34,6 +34,7 @@ import mlflow
 import mlflow.sklearn
 import numpy as np
 import pandas as pd
+import pickle
 from catboost import CatBoostClassifier
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
@@ -326,158 +327,82 @@ def train_quality():
 # -------------------------------------------------------------------
 # FAILURE MODEL TRAINING (label_failure)
 # -------------------------------------------------------------------
+# -------------------------------------------------------------------
+# FAILURE MODEL TRAINING (PRODUCTION - ALL FEATURES)
+# -------------------------------------------------------------------
 def train_failure():
     logger.info("===================================================")
     logger.info("   TRAINING FAILURE MODEL  (label_failure)")
     logger.info("===================================================")
 
     df = pd.read_csv(FAILURE_DATA_PATH)
-
     y = df["label_failure"].astype(int)
-    X = df.drop(columns=["label_failure", "file_name"])
+    X = df.drop(columns=["label_failure", "file_name"], errors="ignore")
 
-    all_cols = list(X.columns)
+    logger.info(f"[FAILURE] Total features: {len(X.columns)}")
+    logger.info(f"[FAILURE] Target Distribution: {y.value_counts().to_dict()}")
 
-    numeric_quality = [
-        c
-        for c in [
-            "blur_score",
-            "contrast_score",
-            "ocr_confidence",
-            "num_missing_fields",
-            "has_critical_missing",
-            "num_pages",
-            "file_size_kb",
-            "vendor_freq",
-        ]
-        if c in all_cols
-    ]
+    # Use ALL numeric features (no filtering)
+    numeric_features = X.select_dtypes(include=["int64", "float64", "int32", "float32"]).columns.tolist()
+    categorical_features = X.select_dtypes(include=["object", "category"]).columns.tolist()
 
-    numeric_financial = [
-        c
-        for c in [
-            "total_amount",
-            "invoice_number_present",
-            "vendor_name_length",
-        ]
-        if c in all_cols
-    ]
+    logger.info(f"[FAILURE] Using {len(numeric_features)} numeric features")
+    logger.info(f"[FAILURE] Using {len(categorical_features)} categorical features")
 
-    categorical = [c for c in ["amount_bucket"] if c in all_cols]
+    # Build preprocessor
+    transformers = []
+    if numeric_features:
+        transformers.append(("num", Pipeline(steps=[("imputer", SimpleImputer(strategy="median")), ("scaler", StandardScaler())]), numeric_features))
+    if categorical_features:
+        transformers.append(("cat", Pipeline(steps=[("imputer", SimpleImputer(strategy="constant", fill_value="missing")), ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False))]), categorical_features))
 
-    logger.info("[FAILURE] Feature Groups:")
-    logger.info(f"   Numeric Quality   : {numeric_quality}")
-    logger.info(f"   Numeric Financial : {numeric_financial}")
-    logger.info(f"   Categorical       : {categorical}")
-    logger.info(f"   Target Dist       : {y.value_counts().to_dict()}")
+    preprocessor = ColumnTransformer(transformers=transformers)
 
-    preprocessor = ColumnTransformer(
-        transformers=[
-            (
-                "num_quality",
-                Pipeline(
-                    steps=[
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler()),
-                    ]
-                ),
-                numeric_quality,
-            ),
-            (
-                "num_financial",
-                Pipeline(
-                    steps=[
-                        (
-                            "imputer",
-                            SimpleImputer(
-                                strategy="constant",
-                                fill_value=0.0,
-                            ),
-                        ),
-                        ("scaler", StandardScaler()),
-                    ]
-                ),
-                numeric_financial,
-            ),
-            (
-                "cat",
-                Pipeline(
-                    steps=[
-                        (
-                            "imputer",
-                            SimpleImputer(
-                                strategy="constant",
-                                fill_value="unknown",
-                            ),
-                        ),
-                        ("onehot", OneHotEncoder(handle_unknown="ignore")),
-                    ]
-                ),
-                categorical,
-            ),
-        ]
-    )
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, stratify=y, random_state=42)
+    logger.info(f"[FAILURE] Train: {len(X_train)}, Test: {len(X_test)}")
 
+    # Models with class balancing
     models = {
-        "logreg": LogisticRegression(
-            max_iter=1000,
-            class_weight="balanced",
-            n_jobs=-1,
-            solver="lbfgs",
-        ),
-        "random_forest": RandomForestClassifier(
-            n_estimators=400,
-            random_state=42,
-            class_weight="balanced",
-            n_jobs=-1,
-        ),
-        "catboost": CatBoostClassifier(
-            depth=7,
-            learning_rate=0.06,
-            iterations=400,
-            loss_function="Logloss",
-            eval_metric="F1",
-            verbose=False,
-            random_seed=42,
-        ),
+        "logreg": LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42),
+        "random_forest": RandomForestClassifier(n_estimators=300, max_depth=20, class_weight="balanced", random_state=42, n_jobs=-1),
+        "catboost": CatBoostClassifier(iterations=500, depth=8, learning_rate=0.05, auto_class_weights="Balanced", random_seed=42, verbose=0),
     }
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, stratify=y, random_state=42
-    )
-
     results = []
-    for name, model in models.items():
-        pipeline = Pipeline(steps=[("pre", preprocessor), ("clf", model)])
+    best_f1 = 0.0
+    best_name = None
+    best_pipeline = None
+
+    for name, estimator in models.items():
+        logger.info("--------------------------------------------------")
+        logger.info(f"[FAILURE] TRAINING MODEL: {name}")
+        logger.info("--------------------------------------------------")
+        pipeline = Pipeline(steps=[("pre", preprocessor), ("clf", estimator)])
         r = train_one_model(X_train, X_test, y_train, y_test, name, pipeline, "failure")
         results.append(r)
+        if r["f1"] > best_f1:
+            best_f1 = r["f1"]
+            best_name = name
+            best_pipeline = pipeline
 
-    best = max(results, key=lambda r: r["f1"])
-    best_pipeline = best["pipeline"]
-    best_name = best["model_name"]
-    best_path = MODELS_DIR / "failure_model.pkl"
+    # Save best model
+    model_path = MODELS_DIR / "failure_model.pkl"
+    with open(model_path, "wb") as f:
+        pickle.dump(best_pipeline, f)
+    logger.info(f"[FAILURE] Best Model: {best_name} saved to {model_path}")
 
-    joblib.dump(best_pipeline, best_path)
-    logger.info(
-        f"[FAILURE] Best Model: {best_name} saved to {best_path}"
-    )
-
-    logger.info("[MLFLOW] Registering FAILURE model...")
-    with mlflow.start_run(run_name="register_failure_best_model"):
-        mlflow.log_artifact(str(best_path), artifact_path="artifacts")
-        mlflow.sklearn.log_model(
-            sk_model=best_pipeline,
-            artifact_path="model",
-            registered_model_name="ledgerx_failure_model",
-        )
+    # MLflow
+    with mlflow.start_run(run_name=f"failure_{best_name}"):
+        mlflow.log_param("model_type", best_name)
+        mlflow.log_param("n_features", len(numeric_features))
+        mlflow.log_metric("f1_score", best_f1)
+        mlflow.sklearn.log_model(best_pipeline, "model")
+        model_uri = f"runs:/{mlflow.active_run().info.run_id}/model"
+        mlflow.register_model(model_uri, "ledgerx_failure_model")
     logger.info("[MLFLOW] FAILURE model registered.")
 
-    return results, best
-
-
-# -------------------------------------------------------------------
-# MAIN
-# -------------------------------------------------------------------
+    return results, {"model_name": best_name, "f1": best_f1}
 def main():
     logger.info("===================================================")
     logger.info("   LEDGERX MULTI-MODEL TRAINING - START")

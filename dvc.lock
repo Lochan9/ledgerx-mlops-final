@@ -17,3 +17,164 @@ stages:
       hash: md5
       md5: fc39caaf6c352eebc951a82ff95437e7
       size: 6400008
+  preprocess_enterprise:
+    cmd: python src/stages/preprocess_fatura_enterprise.py
+    deps:
+    - path: data/raw/FATURA
+      hash: md5
+      md5: 5c0c7bb55dea612654b412ebd40a6f4e.dir
+      size: 473677069
+      nfiles: 40005
+    - path: src/stages/preprocess_fatura_enterprise.py
+      hash: md5
+      md5: 2ac5e261a198bacf5478a081b315839b
+      size: 23496
+    outs:
+    - path: data/processed/fatura_enterprise_preprocessed.csv
+      hash: md5
+      md5: b8cb1fd8f73c8311074f861170c9c576
+      size: 5086182
+  prepare_training:
+    cmd: python src/training/prepare_training_data.py
+    deps:
+    - path: data/processed/fatura_enterprise_preprocessed.csv
+      hash: md5
+      md5: b8cb1fd8f73c8311074f861170c9c576
+      size: 5086182
+    - path: src/training/prepare_training_data.py
+      hash: md5
+      md5: c0d18ff4e208a646aa6da27fc73389e8
+      size: 8027
+    outs:
+    - path: data/processed/failure_training.csv
+      hash: md5
+      md5: 2c558003f732cb3165629765cd45ac26
+      size: 3115886
+    - path: data/processed/quality_training.csv
+      hash: md5
+      md5: 6e9d1b5b5f2605dd15c4fa66818807a6
+      size: 2211629
+  train_models:
+    cmd: python src/training/train_all_models.py
+    deps:
+    - path: data/processed/failure_training.csv
+      hash: md5
+      md5: 2c558003f732cb3165629765cd45ac26
+      size: 3115886
+    - path: data/processed/quality_training.csv
+      hash: md5
+      md5: 6e9d1b5b5f2605dd15c4fa66818807a6
+      size: 2211629
+    - path: src/training/train_all_models.py
+      hash: md5
+      md5: 85d5a65a4c0c29220491779835b44cb7
+      size: 17575
+    outs:
+    - path: models/failure_model.pkl
+      hash: md5
+      md5: a5e6b417c34051d8d3d7782ecddd6295
+      size: 2115328
+    - path: models/quality_model.pkl
+      hash: md5
+      md5: c7236e1227d4c2f6c48353f8d017eef4
+      size: 356094
+    - path: reports/model_leaderboard.json
+      hash: md5
+      md5: 23f28ba48aae32f93cc600f3f6005170
+      size: 1403
+  evaluate_models:
+    cmd: python src/training/evaluate_models.py
+    deps:
+    - path: data/processed/failure_training.csv
+      hash: md5
+      md5: 2c558003f732cb3165629765cd45ac26
+      size: 3115886
+    - path: data/processed/quality_training.csv
+      hash: md5
+      md5: 6e9d1b5b5f2605dd15c4fa66818807a6
+      size: 2211629
+    - path: models/failure_model.pkl
+      hash: md5
+      md5: a5e6b417c34051d8d3d7782ecddd6295
+      size: 2115328
+    - path: models/quality_model.pkl
+      hash: md5
+      md5: c7236e1227d4c2f6c48353f8d017eef4
+      size: 356094
+    - path: src/training/evaluate_models.py
+      hash: md5
+      md5: adac08dc445e2191eafc641415043772
+      size: 14356
+    outs:
+    - path: reports/failure_best_roc.png
+      hash: md5
+      md5: cd0dbace60db43f59dd83f5286093cba
+      size: 32217
+    - path: reports/failure_perm_importance.png
+      hash: md5
+      md5: 3e0d95ab7aa0703fc89bbb70e1ec6ee9
+      size: 37848
+    - path: reports/quality_best_roc.png
+      hash: md5
+      md5: 88bf7093608869a53cd61e83fe50c4a2
+      size: 32303
+    - path: reports/quality_perm_importance.png
+      hash: md5
+      md5: fb40fd6a2e812c451ffe7b769fa7572f
+      size: 41077
+  error_analysis:
+    cmd: python src/training/error_analysis.py
+    deps:
+    - path: data/processed/failure_training.csv
+      hash: md5
+      md5: 2c558003f732cb3165629765cd45ac26
+      size: 3115886
+    - path: data/processed/quality_training.csv
+      hash: md5
+      md5: 6e9d1b5b5f2605dd15c4fa66818807a6
+      size: 2211629
+    - path: models/failure_model.pkl
+      hash: md5
+      md5: a5e6b417c34051d8d3d7782ecddd6295
+      size: 2115328
+    - path: models/quality_model.pkl
+      hash: md5
+      md5: c7236e1227d4c2f6c48353f8d017eef4
+      size: 356094
+    - path: src/training/error_analysis.py
+      hash: md5
+      md5: 1ff5fe8df13bc852e246b43e24c33655
+      size: 11072
+    outs:
+    - path: reports/error_analysis/failure_false_negatives.csv
+      hash: md5
+      md5: ccc0b8a91d0e0755fcc35862474cb957
+      size: 61999
+    - path: reports/error_analysis/failure_false_positives.csv
+      hash: md5
+      md5: b0e48f2bffab64f743d7ee6f11341078
+      size: 21873
+    - path: reports/error_analysis/quality_false_negatives.csv
+      hash: md5
+      md5: d9d7706f21b87d86bb7d1ee510229bb6
+      size: 42001
+    - path: reports/error_analysis/quality_false_positives.csv
+      hash: md5
+      md5: bd8e15058d9c82b4812018f851050d63
+      size: 13625
+  generate_summary:
+    cmd: python src/reporting/generate_summary_report.py
+    deps:
+    - path: reports/model_leaderboard.json
+      hash: md5
+      md5: 23f28ba48aae32f93cc600f3f6005170
+      size: 1403
+    - path: src/reporting/generate_summary_report.py
+      hash: md5
+      md5: ada6b9e4a6803c5d2ba2236bd5251016
+      size: 2191
+    outs:
+    - path: reports/summary_report.txt
+      hash: md5
+      md5: 7bdcc956e2a85b23a19446dbfbea2451
+      size: 322
