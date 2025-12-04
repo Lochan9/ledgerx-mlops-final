@@ -10,6 +10,6 @@ QUALITY MODEL RESULTS:
 FAILURE MODEL RESULTS:
   -       logreg | Acc=0.6870 | Prec=0.4433 | Rec=0.7164 | F1=0.5477 | AUC=0.7690818971444139
   - random_forest | Acc=0.8630 | Prec=0.8592 | Rec=0.5766 | F1=0.6900 | AUC=0.7933809157254493
-  -     catboost | Acc=0.8635 | Prec=0.8122 | Rec=0.6295 | F1=0.7093 | AUC=0.7901354350460511
-  BEST_MODEL: catboost (F1=0.7093)
+  -     catboost | Acc=0.8670 | Prec=0.8279 | Rec=0.6276 | F1=0.7140 | AUC=0.7909386128027819
+  BEST_MODEL: catboost (F1=0.7140)
 

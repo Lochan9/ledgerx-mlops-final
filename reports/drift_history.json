@@ -198,5 +198,24 @@
         "method": "ks_test"
       }
     }
+  },
+  {
+    "drift_score": 0.018518518518518517,
+    "drift_detected": true,
+    "drifted_features": [
+      "day_of_week"
+    ],
+    "num_drifted_features": 1,
+    "total_features": 54,
+    "timestamp": "2025-12-04T12:00:29.897308",
+    "should_retrain": false,
+    "drift_details": {
+      "day_of_week": {
+        "drifted": true,
+        "p_value": 0.03483774963719633,
+        "statistic": 0.0648945891783567,
+        "method": "ks_test"
+      }
+    }
   }
 ]
