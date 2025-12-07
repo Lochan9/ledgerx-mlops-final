@@ -1,0 +1,53 @@
+# k8s/configmap.yaml
+# ConfigMap for LedgerX Non-Sensitive Configuration
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledgerx-config
+  namespace: ledgerx
+  labels:
+    app: ledgerx-api
+data:
+  # Application Configuration
+  APP_NAME: "LedgerX Invoice Intelligence"
+  APP_VERSION: "2.2.0"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  
+  # API Configuration
+  API_PORT: "8000"
+  API_HOST: "0.0.0.0"
+  CORS_ORIGINS: "*"
+  
+  # Database Configuration (non-sensitive)
+  DB_NAME: "ledgerx"
+  DB_PORT: "5432"
+  CLOUD_SQL_CONNECTION_NAME: "ledgerx-mlops:us-central1:ledgerx-db"
+  
+  # Model Configuration
+  QUALITY_MODEL_PATH: "/app/models/compressed/quality_model.pkl"
+  FAILURE_MODEL_PATH: "/app/models/compressed/failure_model.pkl"
+  
+  # Rate Limiting
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_PER_MINUTE: "60"
+  DAILY_BUDGET_USD: "5.00"
+  
+  # Caching
+  CACHE_ENABLED: "true"
+  CACHE_TTL_SECONDS: "300"
+  CACHE_MAX_SIZE: "1000"
+  
+  # Feature Flags
+  DOCUMENT_AI_ENABLED: "false"
+  CLOUD_LOGGING_ENABLED: "true"
+  MONITORING_ENABLED: "true"
+  
+  # Performance
+  MAX_WORKERS: "4"
+  TIMEOUT_SECONDS: "30"
+  
+  # Health Check
+  HEALTH_CHECK_PATH: "/health"
+  METRICS_PATH: "/metrics"

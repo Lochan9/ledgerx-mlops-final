@@ -404,7 +404,7 @@ def train_failure():
     # Save best model
     model_path = MODELS_DIR / "failure_model.pkl"
     with open(model_path, "wb") as f:
-        pickle.dump(best_pipeline, f)
+        joblib.dump(best_pipeline, model_path)
     logger.info(f"[FAILURE] Best Model: {best_name} saved to {model_path}")
 
     # MLflow
@@ -417,7 +417,7 @@ def train_failure():
         mlflow.register_model(model_uri, "ledgerx_failure_model")
     logger.info("[MLFLOW] FAILURE model registered.")
 
-    return results, {"model_name": best_name, "f1": best_f1}
+    return results, {"model_name": best_name, "f1": best_f1, "pipeline": best_pipeline}
 def main():
     logger.info("===================================================")
     logger.info("   LEDGERX MULTI-MODEL TRAINING - START")

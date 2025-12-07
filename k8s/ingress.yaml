@@ -1,0 +1,154 @@
+# k8s/ingress.yaml
+# GKE Ingress (Load Balancer) Configuration for LedgerX
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ledgerx-ingress
+  namespace: ledgerx
+  labels:
+    app: ledgerx-api
+  annotations:
+    # Use GCE Ingress Controller
+    kubernetes.io/ingress.class: "gce"
+    
+    # Global static IP (create first: gcloud compute addresses create ledgerx-ip --global)
+    kubernetes.io/ingress.global-static-ip-name: "ledgerx-ip"
+    
+    # Google-managed SSL certificate
+    networking.gke.io/managed-certificates: "ledgerx-cert"
+    
+    # HTTP to HTTPS redirect
+    kubernetes.io/ingress.allow-http: "true"
+    
+    # Backend configuration
+    cloud.google.com/backend-config: '{"default": "ledgerx-backendconfig"}'
+    
+    # Ingress timeout
+    kubernetes.io/ingress.global-timeout: "30s"
+    
+    # Optional: Cloud Armor security policy
+    # cloud.google.com/armor-config: '{"ledgerx-svc": "ledgerx-security-policy"}'
+
+spec:
+  # Default backend (main service)
+  defaultBackend:
+    service:
+      name: ledgerx-svc
+      port:
+        number: 80
+  
+  # Routing rules
+  rules:
+  - host: api.ledgerx.example.com  # Replace with your domain
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: ledgerx-svc
+            port:
+              number: 80
+  
+  # TLS/SSL Configuration
+  tls:
+  - hosts:
+    - api.ledgerx.example.com
+    secretName: ledgerx-tls  # If using manual certificates
+
+---
+# Managed Certificate (Google-managed SSL)
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: ledgerx-cert
+  namespace: ledgerx
+spec:
+  domains:
+  - api.ledgerx.example.com  # Replace with your domain
+
+---
+# Optional: Cloud Armor Security Policy
+# Protects against DDoS and application attacks
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeSecurityPolicy
+metadata:
+  name: ledgerx-security-policy
+  namespace: ledgerx
+spec:
+  description: "Security policy for LedgerX API"
+  
+  # Default rule (allow by default)
+  rule:
+  - action: "allow"
+    priority: 2147483647
+    match:
+      versionedExpr: "SRC_IPS_V1"
+      config:
+        srcIpRanges:
+        - "*"
+    description: "Default rule - allow all"
+  
+  # Rate limiting rule
+  - action: "rate_based_ban"
+    priority: 1000
+    match:
+      versionedExpr: "SRC_IPS_V1"
+      config:
+        srcIpRanges:
+        - "*"
+    description: "Rate limit to 100 requests per minute per IP"
+    rateLimitOptions:
+      conformAction: "allow"
+      exceedAction: "deny(429)"
+      enforceOnKey: "IP"
+      rateLimitThreshold:
+        count: 100
+        intervalSec: 60
+      banDurationSec: 600  # Ban for 10 minutes
+  
+  # Block specific countries (example)
+  # - action: "deny(403)"
+  #   priority: 900
+  #   match:
+  #     expr:
+  #       expression: "origin.region_code == 'CN'"
+  #   description: "Block requests from specific regions"
+  
+  # SQL injection protection
+  - action: "deny(403)"
+    priority: 800
+    match:
+      expr:
+        expression: "evaluatePreconfiguredExpr('sqli-stable')"
+    description: "SQL injection protection"
+  
+  # XSS protection
+  - action: "deny(403)"
+    priority: 700
+    match:
+      expr:
+        expression: "evaluatePreconfiguredExpr('xss-stable')"
+    description: "Cross-site scripting protection"
+
+---
+# Instructions for setting up Ingress:
+#
+# 1. Reserve static IP:
+#    gcloud compute addresses create ledgerx-ip --global
+#
+# 2. Get the IP:
+#    gcloud compute addresses describe ledgerx-ip --global --format="get(address)"
+#
+# 3. Point your domain to this IP:
+#    A record: api.ledgerx.example.com → <static-ip>
+#
+# 4. Apply ingress:
+#    kubectl apply -f ingress.yaml
+#
+# 5. Wait for certificate provisioning (10-15 minutes):
+#    kubectl describe managedcertificate ledgerx-cert -n ledgerx
+#
+# 6. Test:
+#    curl https://api.ledgerx.example.com/health

@@ -1,0 +1,221 @@
+# k8s/deployment.yaml
+# Kubernetes Deployment for LedgerX API with Cloud SQL Proxy Sidecar
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledgerx-api
+  namespace: ledgerx
+  labels:
+    app: ledgerx-api
+    version: v2.2.0
+    tier: backend
+spec:
+  replicas: 2  # Start with 2 pods, HPA will scale as needed
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: ledgerx-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: ledgerx-api
+        version: v2.2.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: ledgerx-sa
+      
+      # Security Context for Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+      # ========================================
+      # Main Application Container
+      # ========================================
+      - name: ledgerx-api
+        image: gcr.io/ledgerx-mlops/ledgerx-api:latest
+        imagePullPolicy: Always
+        
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        
+        # Environment Variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: ledgerx-config
+        
+        # Environment Variables from Secrets
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: ledgerx-secrets
+              key: DB_USER
+        
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ledgerx-secrets
+              key: DB_PASSWORD
+        
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ledgerx-secrets
+              key: JWT_SECRET_KEY
+        
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /secrets/gcp/key.json
+        
+        # Cloud SQL connection via Unix socket (through proxy sidecar)
+        - name: DB_HOST
+          value: "127.0.0.1"  # Localhost via Cloud SQL Proxy
+        
+        # Resource Limits and Requests
+        resources:
+          requests:
+            cpu: "250m"      # 0.25 cores
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"     # 1 core
+            memory: "1Gi"
+        
+        # Health Checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        # Startup Probe (for slow-starting containers)
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 30  # 30 * 10 = 300 seconds max startup time
+        
+        # Volume Mounts
+        volumeMounts:
+        - name: gcp-service-account
+          mountPath: /secrets/gcp
+          readOnly: true
+        
+        # Security Context for Container
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false  # Set to true if app doesn't write to disk
+          runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
+      
+      # ========================================
+      # Cloud SQL Proxy Sidecar Container
+      # ========================================
+      - name: cloud-sql-proxy
+        image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:latest
+        
+        args:
+        - "--structured-logs"
+        - "--port=5432"
+        - "ledgerx-mlops:us-central1:ledgerx-db"
+        
+        ports:
+        - name: sql-proxy
+          containerPort: 5432
+          protocol: TCP
+        
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+        
+        # Health check for proxy
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+      
+      # Volumes
+      volumes:
+      - name: gcp-service-account
+        secret:
+          secretName: ledgerx-secrets
+          items:
+          - key: GCP_SERVICE_ACCOUNT_KEY
+            path: key.json
+      
+      # Pod Scheduling
+      affinity:
+        # Prefer spreading pods across different nodes
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ledgerx-api
+              topologyKey: kubernetes.io/hostname
+      
+      # Tolerations (if using preemptible nodes)
+      tolerations:
+      - key: "cloud.google.com/gke-preemptible"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+---
+# Service Account for GKE Workload Identity
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ledgerx-sa
+  namespace: ledgerx
+  annotations:
+    iam.gke.io/gcp-service-account: ledgerx-sa@ledgerx-mlops.iam.gserviceaccount.com

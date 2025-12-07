@@ -1,0 +1,11 @@
+# k8s/namespace.yaml
+# Kubernetes Namespace for LedgerX Application
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ledgerx
+  labels:
+    name: ledgerx
+    environment: production
+    app: invoice-intelligence

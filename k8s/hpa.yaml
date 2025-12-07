@@ -1,0 +1,136 @@
+# k8s/hpa.yaml
+# Horizontal Pod Autoscaler for LedgerX API
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ledgerx-hpa
+  namespace: ledgerx
+  labels:
+    app: ledgerx-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ledgerx-api
+  
+  # Pod scaling configuration
+  minReplicas: 2   # Minimum pods for high availability
+  maxReplicas: 10  # Maximum pods (adjust based on load)
+  
+  # Scaling behavior
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 minutes before scaling down
+      policies:
+      - type: Percent
+        value: 50  # Scale down by 50% of current pods
+        periodSeconds: 60
+      - type: Pods
+        value: 2   # Or scale down by 2 pods
+        periodSeconds: 60
+      selectPolicy: Min  # Choose the policy that scales down the least
+    
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Scale up immediately
+      policies:
+      - type: Percent
+        value: 100  # Double the pods
+        periodSeconds: 15
+      - type: Pods
+        value: 4    # Or add 4 pods
+        periodSeconds: 15
+      selectPolicy: Max  # Choose the policy that scales up the most
+  
+  # Metrics to scale on
+  metrics:
+  # CPU-based scaling
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Scale when CPU > 70%
+  
+  # Memory-based scaling
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80  # Scale when Memory > 80%
+  
+  # Custom metrics (optional - requires metrics server)
+  # - type: Pods
+  #   pods:
+  #     metric:
+  #       name: http_requests_per_second
+  #     target:
+  #       type: AverageValue
+  #       averageValue: "1000"  # Scale when RPS > 1000
+
+---
+# VerticalPodAutoscaler (Optional - for right-sizing pods)
+# Requires VPA to be installed on the cluster
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: ledgerx-vpa
+  namespace: ledgerx
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ledgerx-api
+  
+  updatePolicy:
+    updateMode: "Auto"  # or "Recreate" or "Off"
+  
+  resourcePolicy:
+    containerPolicies:
+    - containerName: ledgerx-api
+      minAllowed:
+        cpu: 100m
+        memory: 256Mi
+      maxAllowed:
+        cpu: 2000m
+        memory: 2Gi
+      controlledResources: ["cpu", "memory"]
+
+---
+# PodDisruptionBudget (Ensures availability during disruptions)
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ledgerx-pdb
+  namespace: ledgerx
+spec:
+  minAvailable: 1  # At least 1 pod must be available
+  selector:
+    matchLabels:
+      app: ledgerx-api
+  
+  # OR use maxUnavailable instead:
+  # maxUnavailable: 1  # At most 1 pod can be unavailable
+
+---
+# Instructions:
+#
+# 1. Apply HPA:
+#    kubectl apply -f hpa.yaml
+#
+# 2. Verify HPA status:
+#    kubectl get hpa -n ledgerx
+#    kubectl describe hpa ledgerx-hpa -n ledgerx
+#
+# 3. Watch autoscaling in action:
+#    kubectl get hpa ledgerx-hpa -n ledgerx -w
+#
+# 4. Generate load to test (from a pod or external):
+#    while true; do curl http://ledgerx-svc/health; done
+#
+# 5. Check pod count:
+#    kubectl get pods -n ledgerx -w
+#
+# Note: Metrics Server must be installed for HPA to work:
+#    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml

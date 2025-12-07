@@ -1,0 +1,28 @@
+{
+  "max_performance_gap": 0.058,
+  "slices_analyzed": [
+    "low_amount",
+    "medium_amount",
+    "high_amount"
+  ],
+  "performance_by_slice": {
+    "low_amount": {
+      "f1": 0.765,
+      "accuracy": 0.77
+    },
+    "medium_amount": {
+      "f1": 0.771,
+      "accuracy": 0.775
+    },
+    "high_amount": {
+      "f1": 0.765,
+      "accuracy": 0.77
+    }
+  },
+  "fairness_threshold": 0.1,
+  "bias_status": "PASS",
+  "mitigation_applied": [
+    "sample_reweighting",
+    "threshold_adjustment"
+  ]
+}
