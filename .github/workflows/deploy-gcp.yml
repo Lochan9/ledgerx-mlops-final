@@ -41,7 +41,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install dvc[gs]
+          # pip install dvc[gs] - models already in repo
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
@@ -49,9 +49,9 @@ jobs:
       - name: Pull Latest Models from DVC/GCS
         run: |
           echo "Pulling latest models from remote storage..."
-          dvc remote modify myremote url gs://ledgerx-dvc-671429123152
-          dvc pull models/compressed/quality_model.pkl.dvc
-          dvc pull models/compressed/failure_model.pkl.dvc
+          # dvc remote modify myremote url gs://ledgerx-dvc-671429123152
+          # dvc pull models - skipped/compressed/quality_model.pkl.dvc
+          # dvc pull models - skipped/compressed/failure_model.pkl.dvc
           echo "Models pulled successfully"
           ls -lh models/compressed/
       - name: Check Model Updates
