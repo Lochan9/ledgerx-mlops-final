@@ -1,4 +1,4 @@
-﻿# .github/workflows/deploy-gcp-complete.yml
+# .github/workflows/deploy-gcp-complete.yml
 # Complete CI/CD Pipeline for LedgerX Cloud Run Deployment
 # Satisfies all PDF automation requirements
 
@@ -30,7 +30,7 @@ jobs:
   # JOB 1: PULL LATEST MODELS & VALIDATE
   # ========================================================================
   pull-and-validate:
-    name: 📦 Pull Latest Models from Registry
+    name: ?? Pull Latest Models from Registry
     runs-on: ubuntu-latest
     
     outputs:
@@ -39,30 +39,30 @@ jobs:
       failure_f1: ${{ steps.evaluate.outputs.failure_f1 }}
     
     steps:
-      - name: 📥 Checkout Repository
+      - name: ?? Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
       
-      - name: 🐍 Setup Python
+      - name: ?? Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
           cache: 'pip'
       
-      - name: 📚 Install Dependencies
+      - name: ?? Install Dependencies
         run: |
           pip install -r requirements.txt
           pip install dvc[gs]
       
-      - name: 🔐 Authenticate to GCP
+      - name: ?? Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       
-      - name: 📊 Pull Latest Models from DVC/GCS
+      - name: ?? Pull Latest Models from DVC/GCS
         run: |
-          echo "🔄 Pulling latest models from remote storage..."
+          echo "?? Pulling latest models from remote storage..."
           
           # Configure DVC remote
           dvc remote modify myremote url gs://ledgerx-dvc-671429123152
@@ -71,25 +71,25 @@ jobs:
           dvc pull models/compressed/quality_model.pkl.dvc
           dvc pull models/compressed/failure_model.pkl.dvc
           
-          echo "✅ Models pulled successfully"
+          echo "? Models pulled successfully"
           ls -lh models/compressed/
       
-      - name: 🔍 Check Model Updates
+      - name: ?? Check Model Updates
         id: check_models
         run: |
           # Check if models were updated
           if git diff --name-only HEAD~1 | grep -q "models/"; then
             echo "updated=true" >> $GITHUB_OUTPUT
-            echo "📦 New models detected"
+            echo "?? New models detected"
           else
             echo "updated=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No model updates"
+            echo "?? No model updates"
           fi
       
-      - name: 🧪 Validate Model Performance
+      - name: ?? Validate Model Performance
         id: evaluate
         run: |
-          echo "🎯 Evaluating model performance..."
+          echo "?? Evaluating model performance..."
           python src/training/evaluate_models.py
           
           # Extract F1 scores
@@ -99,8 +99,8 @@ jobs:
           echo "quality_f1=$QUALITY_F1" >> $GITHUB_OUTPUT
           echo "failure_f1=$FAILURE_F1" >> $GITHUB_OUTPUT
           
-          echo "📊 Quality Model F1: $QUALITY_F1"
-          echo "📊 Failure Model F1: $FAILURE_F1"
+          echo "?? Quality Model F1: $QUALITY_F1"
+          echo "?? Failure Model F1: $FAILURE_F1"
           
           # Validate against thresholds
           python -c "
@@ -110,10 +110,10 @@ jobs:
           assert quality_f1 >= $MIN_F1_QUALITY, f'Quality F1 {quality_f1:.3f} below threshold $MIN_F1_QUALITY'
           assert failure_f1 >= $MIN_F1_FAILURE, f'Failure F1 {failure_f1:.3f} below threshold $MIN_F1_FAILURE'
           
-          print('✅ Model performance validated!')
+          print('? Model performance validated!')
           "
       
-      - name: 📤 Upload Models as Artifacts
+      - name: ?? Upload Models as Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ml-models
@@ -126,7 +126,7 @@ jobs:
   # JOB 2: BUILD & PUSH DOCKER IMAGE
   # ========================================================================
   build-and-push:
-    name: 🐳 Build & Push Docker Image
+    name: ?? Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: pull-and-validate
     
@@ -134,34 +134,34 @@ jobs:
       image_url: ${{ steps.build.outputs.image_url }}
     
     steps:
-      - name: 📥 Checkout
+      - name: ?? Checkout
         uses: actions/checkout@v3
       
-      - name: 📦 Download Models
+      - name: ?? Download Models
         uses: actions/download-artifact@v3
         with:
           name: ml-models
           path: models/
       
-      - name: 🔐 Authenticate to GCP
+      - name: ?? Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       
-      - name: ☁️ Setup Cloud SDK
+      - name: ?? Setup Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
       
-      - name: 🐳 Configure Docker for Artifact Registry
+      - name: ?? Configure Docker for Artifact Registry
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
       
-      - name: 🏗️ Build Docker Image
+      - name: ??? Build Docker Image
         id: build
         run: |
           IMAGE_URL="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}"
           IMAGE_TAG="v$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA:0:7}"
           
-          echo "🔨 Building image: $IMAGE_URL:$IMAGE_TAG"
+          echo "?? Building image: $IMAGE_URL:$IMAGE_TAG"
           
           docker build \
             -f Dockerfile.cloudrun \
@@ -172,20 +172,20 @@ jobs:
             .
           
           echo "image_url=$IMAGE_URL:$IMAGE_TAG" >> $GITHUB_OUTPUT
-          echo "✅ Build complete"
+          echo "? Build complete"
       
-      - name: 🧪 Test Docker Image
+      - name: ?? Test Docker Image
         run: |
           docker run --rm \
             ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
-            python -c "import src.inference.api_fastapi; print('✅ Container OK')"
+            python -c "import src.inference.api_fastapi; print('? Container OK')"
       
-      - name: 📤 Push to Artifact Registry
+      - name: ?? Push to Artifact Registry
         run: |
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ steps.build.outputs.image_url }}
           
-          echo "✅ Images pushed:"
+          echo "? Images pushed:"
           echo "   - latest"
           echo "   - ${{ steps.build.outputs.image_url }}"
   
@@ -193,26 +193,26 @@ jobs:
   # JOB 3: DEPLOY TO CLOUD RUN
   # ========================================================================
   deploy-to-cloudrun:
-    name: 🚀 Deploy to Cloud Run
+    name: ?? Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: build-and-push
     
     steps:
-      - name: 📥 Checkout
+      - name: ?? Checkout
         uses: actions/checkout@v3
       
-      - name: 🔐 Authenticate to GCP
+      - name: ?? Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       
-      - name: ☁️ Setup Cloud SDK
+      - name: ?? Setup Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
       
-      - name: 🚀 Deploy to Cloud Run
+      - name: ?? Deploy to Cloud Run
         id: deploy
         run: |
-          echo "🚀 Deploying to Cloud Run..."
+          echo "?? Deploying to Cloud Run..."
           
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}:latest \
@@ -230,11 +230,11 @@ jobs:
             --set-cloudsql-instances "ledgerx-mlops:us-central1:ledgerx-db" \
             --service-account "ledgerx-sa@ledgerx-mlops.iam.gserviceaccount.com"
           
-          echo "✅ Deployment initiated"
+          echo "? Deployment initiated"
       
-      - name: 🔍 Monitor Deployment Status
+      - name: ?? Monitor Deployment Status
         run: |
-          echo "📊 Monitoring deployment status..."
+          echo "?? Monitoring deployment status..."
           
           # Wait for deployment to complete
           for i in {1..30}; do
@@ -245,19 +245,19 @@ jobs:
             echo "Attempt $i/30: Status = $STATUS"
             
             if [ "$STATUS" == "True" ]; then
-              echo "✅ Deployment successful!"
+              echo "? Deployment successful!"
               break
             fi
             
             if [ $i -eq 30 ]; then
-              echo "❌ Deployment timed out"
+              echo "? Deployment timed out"
               exit 1
             fi
             
             sleep 10
           done
       
-      - name: 🌐 Get Service URL
+      - name: ?? Get Service URL
         id: get_url
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
@@ -265,11 +265,11 @@ jobs:
             --format 'value(status.url)')
           
           echo "service_url=$SERVICE_URL" >> $GITHUB_OUTPUT
-          echo "🌐 Service URL: $SERVICE_URL"
+          echo "?? Service URL: $SERVICE_URL"
       
-      - name: ✅ Health Check
+      - name: ? Health Check
         run: |
-          echo "🧪 Testing deployment health..."
+          echo "?? Testing deployment health..."
           sleep 15  # Wait for service to be ready
           
           SERVICE_URL="${{ steps.get_url.outputs.service_url }}"
@@ -278,17 +278,17 @@ jobs:
           RESPONSE=$(curl -s -f "$SERVICE_URL/health" || echo "FAILED")
           
           if [ "$RESPONSE" == "FAILED" ]; then
-            echo "❌ Health check failed!"
+            echo "? Health check failed!"
             exit 1
           fi
           
-          echo "✅ Health check passed!"
+          echo "? Health check passed!"
           echo "Response: $RESPONSE"
       
-      - name: 📝 Log Deployment Details
+      - name: ?? Log Deployment Details
         run: |
           echo "=================================================="
-          echo "🎉 Deployment Summary"
+          echo "?? Deployment Summary"
           echo "=================================================="
           echo "Service: ${{ env.SERVICE_NAME }}"
           echo "Region: ${{ env.REGION }}"
@@ -310,20 +310,20 @@ jobs:
   # JOB 4: POST-DEPLOYMENT VALIDATION
   # ========================================================================
   post-deployment-tests:
-    name: 🧪 Post-Deployment Validation
+    name: ?? Post-Deployment Validation
     runs-on: ubuntu-latest
     needs: deploy-to-cloudrun
     
     steps:
-      - name: 📥 Checkout
+      - name: ?? Checkout
         uses: actions/checkout@v3
       
-      - name: 🔐 Authenticate to GCP
+      - name: ?? Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       
-      - name: 🌐 Get Service URL
+      - name: ?? Get Service URL
         id: get_url
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
@@ -331,26 +331,26 @@ jobs:
             --format 'value(status.url)')
           echo "service_url=$SERVICE_URL" >> $GITHUB_OUTPUT
       
-      - name: 🧪 API Integration Tests
+      - name: ?? API Integration Tests
         run: |
           SERVICE_URL="${{ steps.get_url.outputs.service_url }}"
           
-          echo "🧪 Running integration tests..."
+          echo "?? Running integration tests..."
           
           # Test 1: Health endpoint
           echo "Test 1: Health check"
           curl -f "$SERVICE_URL/health" || exit 1
-          echo "✅ Health check passed"
+          echo "? Health check passed"
           
           # Test 2: Metrics endpoint
           echo "Test 2: Metrics endpoint"
           curl -f "$SERVICE_URL/metrics" || exit 1
-          echo "✅ Metrics accessible"
+          echo "? Metrics accessible"
           
           # Test 3: API docs
           echo "Test 3: API documentation"
           curl -f "$SERVICE_URL/docs" || exit 1
-          echo "✅ Documentation accessible"
+          echo "? Documentation accessible"
           
           # Test 4: Authentication
           echo "Test 4: Token endpoint"
@@ -359,17 +359,17 @@ jobs:
             -d "username=admin&password=admin123" || echo "FAILED")
           
           if [ "$TOKEN_RESPONSE" == "FAILED" ]; then
-            echo "⚠️ Authentication test skipped (may require database)"
+            echo "?? Authentication test skipped (may require database)"
           else
-            echo "✅ Authentication working"
+            echo "? Authentication working"
           fi
           
           echo ""
-          echo "✅ All integration tests passed!"
+          echo "? All integration tests passed!"
       
-      - name: 📊 Monitor Initial Performance
+      - name: ?? Monitor Initial Performance
         run: |
-          echo "📊 Checking service metrics..."
+          echo "?? Checking service metrics..."
           
           # Get current revision
           REVISION=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
@@ -383,20 +383,20 @@ jobs:
             --limit 10 \
             --format json
       
-      - name: ✅ Deployment Success Notification
+      - name: ? Deployment Success Notification
         if: success()
         run: |
-          echo "🎉 Deployment completed successfully!"
-          echo "🌐 Service URL: ${{ steps.get_url.outputs.service_url }}"
-          echo "📊 Quality F1: ${{ needs.pull-and-validate.outputs.quality_f1 }}"
-          echo "📊 Failure F1: ${{ needs.pull-and-validate.outputs.failure_f1 }}"
+          echo "?? Deployment completed successfully!"
+          echo "?? Service URL: ${{ steps.get_url.outputs.service_url }}"
+          echo "?? Quality F1: ${{ needs.pull-and-validate.outputs.quality_f1 }}"
+          echo "?? Failure F1: ${{ needs.pull-and-validate.outputs.failure_f1 }}"
       
-      - name: ❌ Deployment Failure Notification
+      - name: ? Deployment Failure Notification
         if: failure()
         run: |
-          echo "❌ Deployment failed!"
-          echo "📝 Check logs: gcloud logging read 'resource.type=cloud_run_revision' --limit 50"
+          echo "? Deployment failed!"
+          echo "?? Check logs: gcloud logging read 'resource.type=cloud_run_revision' --limit 50"
           
           # Optional: Rollback to previous revision
-          echo "⏮️ Consider rollback: gcloud run services update-traffic ${{ env.SERVICE_NAME }} --to-revisions=PREVIOUS=100 --region ${{ env.REGION }}"
+          echo "?? Consider rollback: gcloud run services update-traffic ${{ env.SERVICE_NAME }} --to-revisions=PREVIOUS=100 --region ${{ env.REGION }}"
 
