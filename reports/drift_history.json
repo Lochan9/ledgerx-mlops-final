@@ -217,5 +217,103 @@
         "method": "ks_test"
       }
     }
+  },
+  {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "drifted_features": [],
+    "num_drifted_features": 0,
+    "total_features": 54,
+    "timestamp": "2025-12-07T14:54:15.013117",
+    "should_retrain": false,
+    "drift_details": {}
+  },
+  {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "drifted_features": [],
+    "num_drifted_features": 0,
+    "total_features": 22,
+    "timestamp": "2025-12-07T14:56:59.715427",
+    "should_retrain": false,
+    "drift_details": {}
+  },
+  {
+    "drift_score": 0.09090909090909091,
+    "drift_detected": true,
+    "drifted_features": [
+      "blur_score",
+      "ocr_confidence"
+    ],
+    "num_drifted_features": 2,
+    "total_features": 22,
+    "timestamp": "2025-12-07T15:03:06.888348",
+    "should_retrain": false,
+    "drift_details": {
+      "blur_score": {
+        "drifted": true,
+        "p_value": 4.299639880078712e-06,
+        "statistic": 0.1166,
+        "method": "ks_test"
+      },
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 3.2286358509953592e-28,
+        "statistic": 0.2571,
+        "method": "ks_test"
+      }
+    }
+  },
+  {
+    "drift_score": 0.09090909090909091,
+    "drift_detected": true,
+    "drifted_features": [
+      "ocr_confidence",
+      "blur_score"
+    ],
+    "num_drifted_features": 2,
+    "total_features": 22,
+    "timestamp": "2025-12-07T15:06:16.923835",
+    "should_retrain": false,
+    "drift_details": {
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 3.2286358509953592e-28,
+        "statistic": 0.2571,
+        "method": "ks_test"
+      },
+      "blur_score": {
+        "drifted": true,
+        "p_value": 4.299639880078712e-06,
+        "statistic": 0.1166,
+        "method": "ks_test"
+      }
+    }
+  },
+  {
+    "drift_score": 0.09090909090909091,
+    "drift_detected": true,
+    "drifted_features": [
+      "blur_score",
+      "ocr_confidence"
+    ],
+    "num_drifted_features": 2,
+    "total_features": 22,
+    "timestamp": "2025-12-07T15:06:59.606819",
+    "should_retrain": false,
+    "drift_details": {
+      "blur_score": {
+        "drifted": true,
+        "p_value": 4.299639880078712e-06,
+        "statistic": 0.1166,
+        "method": "ks_test"
+      },
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 3.2286358509953592e-28,
+        "statistic": 0.2571,
+        "method": "ks_test"
+      }
+    }
   }
 ]
