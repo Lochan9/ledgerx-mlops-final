@@ -1,0 +1,19 @@
+
+Subject: LedgerX Model Retraining Triggered
+
+Dear Team,
+
+Data drift has been detected in the LedgerX invoice intelligence system:
+
+- Drift Score: 9.1%
+- Drifted Features: ocr_confidence, blur_score
+- Timestamp: 2025-12-07 15:20:02
+
+Automated retraining has been initiated.
+
+Monitor progress: https://github.com/Lochan9/ledgerx-mlops-final/actions
+
+Best regards,
+LedgerX MLOps System
+
+======================================================================

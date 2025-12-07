@@ -518,7 +518,7 @@ function updateAll() {
 
     // Update today's count
     const today = new Date().toISOString().split('T')[0];
-    const todayCount = STATE.invoices.filter(i => i.timestamp.startsWith(today)).length;
+    const todayCount = STATE.invoices.filter(i => i.timestamp && i.timestamp && i.timestamp && i.timestamp.startsWith(today)).length;
     document.getElementById('todayCount').textContent = todayCount;
 
     // Render tables

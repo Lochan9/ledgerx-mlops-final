@@ -16,8 +16,8 @@ from scipy import stats
 logger = logging.getLogger(__name__)
 
 # Drift thresholds
-DRIFT_SCORE_THRESHOLD = 0.15  # 15% of features drifting
-FEATURE_DRIFT_THRESHOLD = 0.30  # 30% drift in any feature
+DRIFT_SCORE_THRESHOLD = 0.05  # 5% of features drifting (MORE SENSITIVE FOR DEMO)
+FEATURE_DRIFT_THRESHOLD = 0.05  # 5% drift in any feature (MORE SENSITIVE FOR DEMO)
 
 def convert_to_python_types(obj):
     """Convert NumPy types to Python native types"""

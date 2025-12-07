@@ -315,5 +315,147 @@
         "method": "ks_test"
       }
     }
+  },
+  {
+    "drift_score": 0.0,
+    "drift_detected": false,
+    "drifted_features": [],
+    "num_drifted_features": 0,
+    "total_features": 54,
+    "timestamp": "2025-12-07T15:42:31.476770",
+    "should_retrain": false,
+    "drift_details": {}
+  },
+  {
+    "drift_score": 0.05555555555555555,
+    "drift_detected": true,
+    "drifted_features": [
+      "ocr_confidence",
+      "total_amount",
+      "blur_score"
+    ],
+    "num_drifted_features": 3,
+    "total_features": 54,
+    "timestamp": "2025-12-07T15:44:51.256825",
+    "should_retrain": false,
+    "drift_details": {
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 2.703e-321,
+        "statistic": 0.8157,
+        "method": "ks_test"
+      },
+      "total_amount": {
+        "drifted": true,
+        "p_value": 1.003e-321,
+        "statistic": 0.8888,
+        "method": "ks_test"
+      },
+      "blur_score": {
+        "drifted": true,
+        "p_value": 7.752534135899142e-213,
+        "statistic": 0.6742,
+        "method": "ks_test"
+      }
+    }
+  },
+  {
+    "drift_score": 0.05555555555555555,
+    "drift_detected": true,
+    "drifted_features": [
+      "ocr_confidence",
+      "total_amount",
+      "blur_score"
+    ],
+    "num_drifted_features": 3,
+    "total_features": 54,
+    "timestamp": "2025-12-07T15:47:30.724139",
+    "should_retrain": true,
+    "drift_details": {
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 2.703e-321,
+        "statistic": 0.8157,
+        "method": "ks_test"
+      },
+      "total_amount": {
+        "drifted": true,
+        "p_value": 1.003e-321,
+        "statistic": 0.8888,
+        "method": "ks_test"
+      },
+      "blur_score": {
+        "drifted": true,
+        "p_value": 7.752534135899142e-213,
+        "statistic": 0.6742,
+        "method": "ks_test"
+      }
+    }
+  },
+  {
+    "drift_score": 0.05555555555555555,
+    "drift_detected": true,
+    "drifted_features": [
+      "blur_score",
+      "ocr_confidence",
+      "total_amount"
+    ],
+    "num_drifted_features": 3,
+    "total_features": 54,
+    "timestamp": "2025-12-07T15:49:03.212381",
+    "should_retrain": true,
+    "drift_details": {
+      "blur_score": {
+        "drifted": true,
+        "p_value": 7.752534135899142e-213,
+        "statistic": 0.6742,
+        "method": "ks_test"
+      },
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 2.703e-321,
+        "statistic": 0.8157,
+        "method": "ks_test"
+      },
+      "total_amount": {
+        "drifted": true,
+        "p_value": 1.003e-321,
+        "statistic": 0.8888,
+        "method": "ks_test"
+      }
+    }
+  },
+  {
+    "drift_score": 0.05555555555555555,
+    "drift_detected": true,
+    "drifted_features": [
+      "ocr_confidence",
+      "blur_score",
+      "total_amount"
+    ],
+    "num_drifted_features": 3,
+    "total_features": 54,
+    "timestamp": "2025-12-07T15:50:01.203811",
+    "should_retrain": true,
+    "drift_details": {
+      "ocr_confidence": {
+        "drifted": true,
+        "p_value": 2.703e-321,
+        "statistic": 0.8157,
+        "method": "ks_test"
+      },
+      "blur_score": {
+        "drifted": true,
+        "p_value": 7.752534135899142e-213,
+        "statistic": 0.6742,
+        "method": "ks_test"
+      },
+      "total_amount": {
+        "drifted": true,
+        "p_value": 1.003e-321,
+        "statistic": 0.8888,
+        "method": "ks_test"
+      }
+    }
   }
 ]

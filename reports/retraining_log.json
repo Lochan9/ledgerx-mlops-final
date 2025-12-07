@@ -248,5 +248,47 @@
         }
       }
     }
+  },
+  {
+    "retraining_triggered": true,
+    "trigger_reasons": [
+      "DATA_DRIFT"
+    ],
+    "timestamp": "2025-12-07T15:50:00.408282",
+    "details": {
+      "drift": {
+        "drift_score": 0.05555555555555555,
+        "drift_detected": true,
+        "drifted_features": [
+          "ocr_confidence",
+          "blur_score",
+          "total_amount"
+        ],
+        "num_drifted_features": 3,
+        "total_features": 54,
+        "timestamp": "2025-12-07T15:50:01.203811",
+        "should_retrain": true,
+        "drift_details": {
+          "ocr_confidence": {
+            "drifted": true,
+            "p_value": 2.703e-321,
+            "statistic": 0.8157,
+            "method": "ks_test"
+          },
+          "blur_score": {
+            "drifted": true,
+            "p_value": 7.752534135899142e-213,
+            "statistic": 0.6742,
+            "method": "ks_test"
+          },
+          "total_amount": {
+            "drifted": true,
+            "p_value": 1.003e-321,
+            "statistic": 0.8888,
+            "method": "ks_test"
+          }
+        }
+      }
+    }
   }
 ]
