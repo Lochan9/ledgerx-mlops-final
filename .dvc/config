@@ -1,5 +1,7 @@
 [core]
-    remote = gcs_storage
+    remote = myremote
 ['remote "gcs_storage"']
     url = gs://ledgerx-mlops-dvc-storage/dvc-cache
     projectname = ledgerx-mlops
+['remote "myremote"']
+    url = gs://ledgerx-mlops-dvc-storage
