@@ -12,11 +12,11 @@ False Negatives: 195
 
 === FAILURE MODEL ===
 Confusion Matrix [rows=true, cols=pred]:
-TN=1394  FP=77
-FN=196  TP=333
+TN=1402  FP=69
+FN=197  TP=332
 
-False Positives: 77
-False Negatives: 196
+False Positives: 69
+False Negatives: 197
 
 
 Slice analysis files (per-task):

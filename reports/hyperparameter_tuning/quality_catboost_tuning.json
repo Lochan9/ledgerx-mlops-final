@@ -1,21 +1,147 @@
 {
-  "model": "CatBoost",
-  "task": "quality",
-  "n_trials": 100,
+  "model": "quality_catboost",
   "best_params": {
-    "iterations": 600,
-    "learning_rate": 0.00876834555586394,
-    "depth": 9,
-    "l2_leaf_reg": 7.52551598684107,
-    "bagging_temperature": 0.0631064304715568,
-    "random_strength": 0.17638799478766257,
-    "min_data_in_leaf": 98,
-    "max_bin": 259,
-    "subsample": 0.649458378196954,
-    "colsample_bylevel": 0.983904729069866
+    "depth": 6,
+    "learning_rate": 0.2536999076681772,
+    "iterations": 393,
+    "l2_leaf_reg": 6.387926357773329,
+    "border_count": 66,
+    "random_strength": 1.5599452033620265,
+    "bagging_temperature": 0.05808361216819946
   },
-  "cv_f1_mean": 0.7828417068518883,
-  "test_f1": 0.7767857142857143,
-  "test_auc": 0.8292090220253673,
-  "timestamp": "2025-12-04T03:47:11.423250"
+  "best_f1_score": 1.0,
+  "n_trials": 10,
+  "timestamp": "2025-12-06T22:59:22.685938",
+  "all_trials": [
+    {
+      "number": 0,
+      "params": {
+        "depth": 6,
+        "learning_rate": 0.2536999076681772,
+        "iterations": 393,
+        "l2_leaf_reg": 6.387926357773329,
+        "border_count": 66,
+        "random_strength": 1.5599452033620265,
+        "bagging_temperature": 0.05808361216819946
+      },
+      "value": 1.0
+    },
+    {
+      "number": 1,
+      "params": {
+        "depth": 10,
+        "learning_rate": 0.07725378389307355,
+        "iterations": 383,
+        "l2_leaf_reg": 1.185260448662222,
+        "border_count": 249,
+        "random_strength": 8.324426408004218,
+        "bagging_temperature": 0.21233911067827616
+      },
+      "value": 1.0
+    },
+    {
+      "number": 2,
+      "params": {
+        "depth": 5,
+        "learning_rate": 0.018659959624904916,
+        "iterations": 222,
+        "l2_leaf_reg": 5.72280788469014,
+        "border_count": 128,
+        "random_strength": 2.9122914019804194,
+        "bagging_temperature": 0.6118528947223795
+      },
+      "value": 1.0
+    },
+    {
+      "number": 3,
+      "params": {
+        "depth": 4,
+        "learning_rate": 0.027010527749605478,
+        "iterations": 246,
+        "l2_leaf_reg": 5.104629857953324,
+        "border_count": 207,
+        "random_strength": 1.9967378215835974,
+        "bagging_temperature": 0.5142344384136116
+      },
+      "value": 1.0
+    },
+    {
+      "number": 4,
+      "params": {
+        "depth": 8,
+        "learning_rate": 0.011711509955524094,
+        "iterations": 343,
+        "l2_leaf_reg": 2.5347171131856236,
+        "border_count": 46,
+        "random_strength": 9.488855372533333,
+        "bagging_temperature": 0.9656320330745594
+      },
+      "value": 1.0
+    },
+    {
+      "number": 5,
+      "params": {
+        "depth": 9,
+        "learning_rate": 0.028180680291847244,
+        "iterations": 139,
+        "l2_leaf_reg": 7.158097238609412,
+        "border_count": 130,
+        "random_strength": 1.2203823484477883,
+        "bagging_temperature": 0.4951769101112702
+      },
+      "value": 1.0
+    },
+    {
+      "number": 6,
+      "params": {
+        "depth": 4,
+        "learning_rate": 0.22038218939289875,
+        "iterations": 203,
+        "l2_leaf_reg": 6.962700559185838,
+        "border_count": 101,
+        "random_strength": 5.200680211778108,
+        "bagging_temperature": 0.5467102793432796
+      },
+      "value": 1.0
+    },
+    {
+      "number": 7,
+      "params": {
+        "depth": 5,
+        "learning_rate": 0.27051668818999286,
+        "iterations": 410,
+        "l2_leaf_reg": 9.455490474077703,
+        "border_count": 232,
+        "random_strength": 5.978999788110851,
+        "bagging_temperature": 0.9218742350231168
+      },
+      "value": 1.0
+    },
+    {
+      "number": 8,
+      "params": {
+        "depth": 4,
+        "learning_rate": 0.01947558230629543,
+        "iterations": 118,
+        "l2_leaf_reg": 3.927972976869379,
+        "border_count": 119,
+        "random_strength": 2.713490317738959,
+        "bagging_temperature": 0.8287375091519293
+      },
+      "value": 1.0
+    },
+    {
+      "number": 9,
+      "params": {
+        "depth": 6,
+        "learning_rate": 0.026000059117302653,
+        "iterations": 317,
+        "l2_leaf_reg": 2.2683180247728636,
+        "border_count": 211,
+        "random_strength": 0.7455064367977082,
+        "bagging_temperature": 0.9868869366005173
+      },
+      "value": 1.0
+    }
+  ]
 }
