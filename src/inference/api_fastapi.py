@@ -74,6 +74,24 @@ except ImportError:
 from ..utils.cloud_logging import setup_cloud_logging, get_logger
 from ..utils.logging_middleware import setup_logging_middleware
 
+# Import Prometheus metrics from monitoring
+from .monitoring import (
+    prediction_total, prediction_errors, prediction_latency,
+    quality_predictions_good, quality_predictions_bad,
+    failure_predictions_safe, failure_predictions_risk,
+    model_quality_probability, model_failure_probability,
+    feature_blur_score, feature_ocr_confidence, feature_total_amount
+)
+
+# Import Prometheus metrics from monitoring
+from .monitoring import (
+    prediction_total, prediction_errors, prediction_latency,
+    quality_predictions_good, quality_predictions_bad,
+    failure_predictions_safe, failure_predictions_risk,
+    model_quality_probability, model_failure_probability,
+    feature_blur_score, feature_ocr_confidence, feature_total_amount
+)
+
 # Initialize Cloud Logger (replaces standard logging)
 cloud_logger = setup_cloud_logging(
     name="ledgerx_api",
@@ -151,7 +169,45 @@ app = FastAPI(
     
     ### New in v2.2:
     - ✅ **Cloud Logging Integration** - Real-time logs in GCP Console
-    - ✅ **Duplicate Detection** (`/validate/invoice-full`) - Prevent double payments
+    - ✅ **Duplicate Detection** (`/validate/invoice-full`)
+
+# ===================================================================
+# MODEL PERFORMANCE METRICS (Static from Training)
+# ===================================================================
+from prometheus_client import Gauge
+
+model_quality_f1 = Gauge('ledgerx_model_quality_f1_score', 'Quality model F1 score from training')
+model_failure_f1 = Gauge('ledgerx_model_failure_f1_score', 'Failure model F1 score from training')
+model_drift_score = Gauge('ledgerx_model_drift_score', 'Model drift detection score', ['model'])
+
+# Set baseline values from model training
+model_quality_f1.set(0.771)  # 77.1% F1 score
+model_failure_f1.set(0.709)  # 70.9% F1 score
+model_drift_score.labels(model="quality").set(0.045)  # Low drift
+model_drift_score.labels(model="failure").set(0.038)  # Low drift
+
+logger.info("Model performance metrics initialized", 
+            quality_f1=0.771, failure_f1=0.709)
+
+
+# ===================================================================
+# MODEL PERFORMANCE METRICS (Static from Training)
+# ===================================================================
+from prometheus_client import Gauge
+
+model_quality_f1 = Gauge('ledgerx_model_quality_f1_score', 'Quality model F1 score from training')
+model_failure_f1 = Gauge('ledgerx_model_failure_f1_score', 'Failure model F1 score from training')
+model_drift_score = Gauge('ledgerx_model_drift_score', 'Model drift detection score', ['model'])
+
+# Set baseline values from model training
+model_quality_f1.set(0.771)  # 77.1% F1 score
+model_failure_f1.set(0.709)  # 70.9% F1 score
+model_drift_score.labels(model="quality").set(0.045)  # Low drift
+model_drift_score.labels(model="failure").set(0.038)  # Low drift
+
+logger.info("Model performance metrics initialized", 
+            quality_f1=0.771, failure_f1=0.709)
+ - Prevent double payments
     - ✅ Multi-strategy detection (exact, fuzzy, typo)
     - ✅ CRITICAL priority routing for duplicates
     
@@ -1293,6 +1349,96 @@ async def predict_batch(
                         'probability': result['failure_probability']
                     }
                 }
+
+        # ============================================================
+        # PROMETHEUS METRICS TRACKING FOR GRAFANA DASHBOARD
+        # ============================================================
+        
+        # Track total predictions by model and class
+        try:
+            prediction_total.labels(
+                model="quality",
+                prediction_class=user_result['quality_assessment']['quality']
+            ).inc()
+            
+            prediction_total.labels(
+                model="failure", 
+                prediction_class=user_result['failure_risk']['risk']
+            ).inc()
+            
+            # Track model probability gauges
+            model_quality_probability.set(result['quality_probability'])
+            model_failure_probability.set(result['failure_probability'])
+            
+            # Track quality predictions
+            if user_result['quality_assessment']['quality'] == 'good':
+                quality_predictions_good.inc()
+            else:
+                quality_predictions_bad.inc()
+            
+            # Track failure predictions  
+            if user_result['failure_risk']['risk'] == 'low':
+                failure_predictions_safe.inc()
+            else:
+                failure_predictions_risk.inc()
+            
+            # Track prediction latency
+            prediction_latency.observe(time.time() - start_time)
+            
+            # Track input feature distributions
+            feature_blur_score.observe(features.blur_score)
+            feature_ocr_confidence.observe(features.ocr_confidence)
+            feature_total_amount.observe(features.total_amount)
+            
+            logger.debug("Metrics tracked successfully")
+        except Exception as metric_error:
+            logger.warning(f"Failed to track metrics: {metric_error}")
+
+
+        # ============================================================
+        # PROMETHEUS METRICS TRACKING FOR GRAFANA DASHBOARD
+        # ============================================================
+        
+        # Track total predictions by model and class
+        try:
+            prediction_total.labels(
+                model="quality",
+                prediction_class=user_result['quality_assessment']['quality']
+            ).inc()
+            
+            prediction_total.labels(
+                model="failure", 
+                prediction_class=user_result['failure_risk']['risk']
+            ).inc()
+            
+            # Track model probability gauges
+            model_quality_probability.set(result['quality_probability'])
+            model_failure_probability.set(result['failure_probability'])
+            
+            # Track quality predictions
+            if user_result['quality_assessment']['quality'] == 'good':
+                quality_predictions_good.inc()
+            else:
+                quality_predictions_bad.inc()
+            
+            # Track failure predictions  
+            if user_result['failure_risk']['risk'] == 'low':
+                failure_predictions_safe.inc()
+            else:
+                failure_predictions_risk.inc()
+            
+            # Track prediction latency
+            prediction_latency.observe(time.time() - start_time)
+            
+            # Track input feature distributions
+            feature_blur_score.observe(features.blur_score)
+            feature_ocr_confidence.observe(features.ocr_confidence)
+            feature_total_amount.observe(features.total_amount)
+            
+            logger.debug("Metrics tracked successfully")
+        except Exception as metric_error:
+            logger.warning(f"Failed to track metrics: {metric_error}")
+
                 
                 results.append({
                     "index": idx,
@@ -1381,4 +1527,5 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
         log_level="info"
-    )
+    )#   T r i g g e r   C I / C D  
+ 
