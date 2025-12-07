@@ -1,0 +1,385 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    LEDGERX MLOPS - CONFIGURATION REFERENCE
+═══════════════════════════════════════════════════════════════════════════════
+
+🔐 PASSWORDS & CREDENTIALS
+═══════════════════════════════════════════════════════════════════════════════
+
+Database Passwords:
+  Cloud SQL postgres user:  MyNewPass123!
+  Cloud SQL ledgerx_user:   LedgerX2024!
+
+API Test Users:
+  Admin:    username: admin       password: admin123
+  User:     username: john_doe    password: password123
+  Viewer:   username: jane_viewer password: viewer123
+
+Email Alerts:
+  Gmail App Password: wadt hjrk uqlb wofm
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🌐 GCP PROJECT INFO
+═══════════════════════════════════════════════════════════════════════════════
+
+Project ID:       ledgerx-mlops
+Project Number:   671429123152
+Region:           us-central1
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🗄️ CLOUD SQL DATABASES
+═══════════════════════════════════════════════════════════════════════════════
+
+Instance 1: ledgerx-db
+  IP Address:  34.41.11.190
+  Region:      us-central1-c
+  Tier:        db-f1-micro
+  Database:    ledgerx
+  User:        ledgerx_user
+  Password:    LedgerX2024!
+  Connection:  ledgerx-mlops:us-central1:ledgerx-db
+
+Instance 2: ledgerx-postgres
+  IP Address:  136.114.85.208
+  Region:      us-central1-c
+  Tier:        db-f1-micro
+  Status:      RUNNABLE
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔌 PORTS & URLS
+═══════════════════════════════════════════════════════════════════════════════
+
+Local Development:
+  API Server:          http://localhost:8000
+  API Docs:            http://localhost:8000/docs
+  Health Check:        http://localhost:8000/health
+  Prometheus Metrics:  http://localhost:8000/metrics
+  
+Database:
+  Cloud SQL Proxy:     localhost:5432
+  PostgreSQL Port:     5432
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 ENVIRONMENT VARIABLES
+═══════════════════════════════════════════════════════════════════════════════
+
+PowerShell Commands:
+  $env:GOOGLE_CLOUD_PROJECT = "ledgerx-mlops"
+  $env:DATABASE_URL = "postgresql://ledgerx_user:LedgerX2024!@localhost:5432/ledgerx"
+  $env:LOG_LEVEL = "INFO"
+  $env:ENABLE_CLOUD_LOGGING = "true"
+  $env:GCP_REGION = "us-central1"
+
+.env File Content:
+  GOOGLE_CLOUD_PROJECT=ledgerx-mlops
+  DATABASE_URL=postgresql://ledgerx_user:LedgerX2024!@localhost:5432/ledgerx
+  LOG_LEVEL=INFO
+  ENABLE_CLOUD_LOGGING=true
+  GCP_REGION=us-central1
+  EMAIL_PASSWORD=wadt hjrk uqlb wofm
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📂 IMPORTANT FILE LOCATIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Project:
+  Root:              D:\vsCOde\ledgerx-mlops-final
+  Virtual Env:       D:\vsCOde\ledgerx-mlops-final\.venv
+
+Key Files:
+  Cloud Logging:     src/utils/cloud_logging.py
+  Middleware:        src/utils/logging_middleware.py
+  API Main:          src/inference/api_fastapi.py
+  Database:          src/utils/database.py
+  Auth:              src/inference/auth.py
+  
+Database:
+  Cloud SQL Proxy:   cloud-sql-proxy-v2.exe
+  Schema:            schema.sql
+  Migration:         migrate_database.py
+
+Configuration:
+  Environment:       .env
+  Requirements:      requirements.txt
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 STARTUP SEQUENCE (3 WINDOWS REQUIRED)
+═══════════════════════════════════════════════════════════════════════════════
+
+WINDOW 1: Cloud SQL Proxy (Keep Running)
+──────────────────────────────────────────────────────────────────────────────
+cd D:\vsCOde\ledgerx-mlops-final
+.\cloud-sql-proxy-v2.exe ledgerx-mlops:us-central1:ledgerx-db
+
+Expected Output:
+  Listening on 127.0.0.1:5432
+  Ready for new connections!
+
+WINDOW 2: API Server (Keep Running)
+──────────────────────────────────────────────────────────────────────────────
+cd D:\vsCOde\ledgerx-mlops-final
+.\.venv\Scripts\Activate.ps1
+$env:DATABASE_URL = "postgresql://ledgerx_user:LedgerX2024!@localhost:5432/ledgerx"
+$env:GOOGLE_CLOUD_PROJECT = "ledgerx-mlops"
+uvicorn src.inference.api_fastapi:app --reload --port 8000
+
+Expected Output:
+  INFO: Uvicorn running on http://127.0.0.1:8000
+  INFO: Application startup complete.
+
+WINDOW 3: Testing/Commands
+──────────────────────────────────────────────────────────────────────────────
+cd D:\vsCOde\ledgerx-mlops-final
+.\.venv\Scripts\Activate.ps1
+
+Use for: Testing API, running commands, etc.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔗 GCP CONSOLE LINKS
+═══════════════════════════════════════════════════════════════════════════════
+
+Cloud Logging Console:
+  https://console.cloud.google.com/logs/query?project=ledgerx-mlops
+
+Cloud SQL Instances:
+  https://console.cloud.google.com/sql/instances?project=ledgerx-mlops
+
+Cloud Run Services:
+  https://console.cloud.google.com/run?project=ledgerx-mlops
+
+GCP Main Console:
+  https://console.cloud.google.com/?project=ledgerx-mlops
+
+API & Services:
+  https://console.cloud.google.com/apis?project=ledgerx-mlops
+
+IAM & Admin:
+  https://console.cloud.google.com/iam-admin?project=ledgerx-mlops
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔍 USEFUL LOG QUERIES (Copy-Paste into GCP Console)
+═══════════════════════════════════════════════════════════════════════════════
+
+All Application Logs:
+  logName="projects/ledgerx-mlops/logs/ledgerx_api"
+  timestamp >= "2025-12-06T20:00:00Z"
+
+Authentication Events:
+  jsonPayload.event_type="user_authentication"
+
+Failed Authentication:
+  jsonPayload.event_type="authentication_failed"
+
+ML Predictions:
+  jsonPayload.event_type="invoice_prediction"
+
+All Errors:
+  severity >= ERROR
+  timestamp >= "2025-12-06T20:00:00Z"
+
+API Requests:
+  jsonPayload.message=~"Request started.*"
+
+Slow Requests (>1000ms):
+  jsonPayload.latency_ms > 1000
+
+Specific User Activity:
+  jsonPayload.user_id="admin"
+
+Recent Activity (Last Hour):
+  logName="projects/ledgerx-mlops/logs/ledgerx_api"
+  timestamp >= "2025-12-06T20:00:00Z"
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚡ QUICK TEST COMMANDS
+═══════════════════════════════════════════════════════════════════════════════
+
+Health Check:
+  Invoke-WebRequest http://localhost:8000/health
+
+Get Authentication Token:
+  $response = Invoke-WebRequest -Uri "http://localhost:8000/token" `
+      -Method POST `
+      -ContentType "application/x-www-form-urlencoded" `
+      -Body "username=admin&password=admin123"
+  
+  $token = ($response.Content | ConvertFrom-Json).access_token
+  Write-Host "Token: $token"
+
+Open API Documentation:
+  Start-Process "http://localhost:8000/docs"
+
+Open GCP Logs:
+  Start-Process "https://console.cloud.google.com/logs/query?project=ledgerx-mlops"
+
+Check If Server Running:
+  Test-NetConnection -ComputerName localhost -Port 8000
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔄 RESTART SEQUENCE (If System Reboots)
+═══════════════════════════════════════════════════════════════════════════════
+
+Step 1: Start Cloud SQL Proxy (Window 1)
+──────────────────────────────────────────────────────────────────────────────
+cd D:\vsCOde\ledgerx-mlops-final
+.\cloud-sql-proxy-v2.exe ledgerx-mlops:us-central1:ledgerx-db
+
+Wait for: "Ready for new connections!"
+
+Step 2: Set Environment Variables (Window 2)
+──────────────────────────────────────────────────────────────────────────────
+cd D:\vsCOde\ledgerx-mlops-final
+.\.venv\Scripts\Activate.ps1
+$env:DATABASE_URL = "postgresql://ledgerx_user:LedgerX2024!@localhost:5432/ledgerx"
+$env:GOOGLE_CLOUD_PROJECT = "ledgerx-mlops"
+
+Step 3: Start API Server (Window 2)
+──────────────────────────────────────────────────────────────────────────────
+uvicorn src.inference.api_fastapi:app --reload --port 8000
+
+Wait for: "Application startup complete."
+
+Step 4: Verify (Window 3)
+──────────────────────────────────────────────────────────────────────────────
+Invoke-WebRequest http://localhost:8000/health
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🗂️ DATABASE CONNECTION STRINGS
+═══════════════════════════════════════════════════════════════════════════════
+
+Via Cloud SQL Proxy (Local Development):
+  postgresql://ledgerx_user:LedgerX2024!@localhost:5432/ledgerx
+
+Direct Connection (if needed):
+  postgresql://ledgerx_user:LedgerX2024!@34.41.11.190:5432/ledgerx
+
+Connection Name (for Cloud Run):
+  ledgerx-mlops:us-central1:ledgerx-db
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 MONITORING & LOGS
+═══════════════════════════════════════════════════════════════════════════════
+
+Saved Log Query Name:
+  "LedgerX Application Logs"
+
+Common Event Types to Query:
+  - application_startup
+  - application_shutdown
+  - user_authentication
+  - authentication_failed
+  - invoice_prediction
+  - prediction_error
+  - api_request
+  - slow_request
+
+Log Severity Levels:
+  - DEBUG
+  - INFO
+  - WARNING
+  - ERROR
+  - CRITICAL
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🛠️ TROUBLESHOOTING COMMANDS
+═══════════════════════════════════════════════════════════════════════════════
+
+Check If Proxy Running:
+  Test-NetConnection -ComputerName localhost -Port 5432
+
+Check If API Running:
+  Test-NetConnection -ComputerName localhost -Port 8000
+
+List All Environment Variables:
+  Get-ChildItem env: | Where-Object { $_.Name -like "*GOOGLE*" -or $_.Name -like "*DATABASE*" }
+
+Test Database Connection:
+  python -c "from src.utils.database import get_db_connection; conn = get_db_connection(); print('Connected!'); conn.close()"
+
+Check Python Path:
+  Get-Command python
+
+Reset Cloud SQL User Password:
+  gcloud sql users set-password ledgerx_user `
+    --instance=ledgerx-db `
+    --password="LedgerX2024!" `
+    --project=ledgerx-mlops
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📝 DEPLOYMENT COMMANDS
+═══════════════════════════════════════════════════════════════════════════════
+
+Deploy to Cloud Run:
+  gcloud run deploy ledgerx-api `
+    --source . `
+    --region us-central1 `
+    --project ledgerx-mlops `
+    --set-env-vars GOOGLE_CLOUD_PROJECT=ledgerx-mlops `
+    --set-env-vars LOG_LEVEL=INFO `
+    --allow-unauthenticated
+
+Get Service URL:
+  $URL = gcloud run services describe ledgerx-api `
+    --region us-central1 `
+    --project ledgerx-mlops `
+    --format='value(status.url)'
+  Write-Host $URL
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💾 BACKUP COMMANDS
+═══════════════════════════════════════════════════════════════════════════════
+
+Backup API File:
+  Copy-Item src\inference\api_fastapi.py src\inference\api_fastapi.py.backup
+
+Restore from Backup:
+  Copy-Item src\inference\api_fastapi.py.backup src\inference\api_fastapi.py
+
+Export Database:
+  gcloud sql export sql ledgerx-db gs://ledgerx-mlops-backups/backup.sql `
+    --database=ledgerx `
+    --project=ledgerx-mlops
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 IMPORTANT NOTES
+═══════════════════════════════════════════════════════════════════════════════
+
+- Cloud SQL Proxy MUST be running for database access
+- DATABASE_URL must be set before starting API
+- Use 3 separate PowerShell windows for proxy, server, testing
+- Logs appear in GCP within 5-10 seconds
+- Free tier: 50 GB/month Cloud Logging, ~$7/month Cloud SQL
+- Token expires in 60 minutes (3600 seconds)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📞 SUPPORT RESOURCES
+═══════════════════════════════════════════════════════════════════════════════
+
+Documentation Files:
+  - CLOUD_LOGGING_GUIDE.md
+  - CLOUD_LOGGING_QUICK_REFERENCE.txt
+  - COMPLETE_DEPLOYMENT_GUIDE.md
+  - WINDOWS_INSTALLATION_GUIDE.md
+
+Test Suite:
+  python test_cloud_logging.py
+
+═══════════════════════════════════════════════════════════════════════════════
+                              SAVE THIS FILE!
+═══════════════════════════════════════════════════════════════════════════════

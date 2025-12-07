@@ -44,6 +44,7 @@ prometheus-fastapi-instrumentator==6.1.0
 evidently==0.4.12
 rapidfuzz==3.5.2
 scipy==1.11.4
+google-cloud-logging==3.8.0
 
 # SECRET MANAGER (was duplicate)
 google-cloud-secret-manager==2.16.4

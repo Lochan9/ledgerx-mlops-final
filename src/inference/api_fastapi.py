@@ -1,8 +1,8 @@
 # src/inference/api_fastapi.py
 
 """
-LedgerX – FastAPI Inference Deployment with Math Validation & Duplicate Detection
-==================================================================================
+LedgerX – FastAPI Inference Deployment with Cloud Logging Integration
+======================================================================
 
 Run with:
     uvicorn src.inference.api_fastapi:app --reload --port 8000
@@ -10,14 +10,17 @@ Run with:
 Features:
     - OAuth2 Authentication with Role-Based Access Control
     - Math Validation Pipeline
-    - Duplicate Detection (NEW!)
+    - Duplicate Detection
     - Full Invoice Validation Pipeline
     - Smart Routing Decisions
     - Cost Optimization (Rate Limiting + Caching)
     - Batch Processing
     - Admin Dashboards
+    - **NEW: Cloud Logging with Structured Logs**
 """
 
+import os
+import time
 import logging
 from datetime import timedelta, datetime
 from fastapi import FastAPI, HTTPException, Depends, status, Request, File, UploadFile
@@ -26,7 +29,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, Any, List
 import json
-import time
 from pathlib import Path
 import io
 import re
@@ -53,12 +55,8 @@ from ..stages.duplicate_detection import detect_duplicates
 try:
     from ..utils.document_ai_ocr import get_processor
     DOCUMENT_AI_ENABLED = True
-    logger_init = logging.getLogger("ledgerx_fastapi")
-    logger_init.info("[INIT] ✅ Document AI enabled for OCR")
 except ImportError:
     DOCUMENT_AI_ENABLED = False
-    logger_init = logging.getLogger("ledgerx_fastapi")
-    logger_init.warning("[INIT] ⚠️ Document AI not available, falling back to basic extraction")
 
 # Import Cloud SQL database helpers
 try:
@@ -67,19 +65,29 @@ try:
         delete_invoice, track_document_ai_usage, get_monthly_document_ai_usage
     )
     CLOUD_SQL_ENABLED = True
-    logger_init.info("[INIT] ✅ Cloud SQL database enabled")
 except ImportError:
     CLOUD_SQL_ENABLED = False
-    logger_init.warning("[INIT] ⚠️ Cloud SQL not available")
 
 # -------------------------------------------------------------------
-# LOGGING
+# CLOUD LOGGING - UPDATED SECTION
 # -------------------------------------------------------------------
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
+from ..utils.cloud_logging import setup_cloud_logging, get_logger
+from ..utils.logging_middleware import setup_logging_middleware
+
+# Initialize Cloud Logger (replaces standard logging)
+cloud_logger = setup_cloud_logging(
+    name="ledgerx_api",
+    log_level=os.getenv("LOG_LEVEL", "INFO")
 )
-logger = logging.getLogger("ledgerx_fastapi")
+logger = get_logger(name="ledgerx_api")
+
+# Log initialization
+logger.info(
+    "LedgerX API components initializing",
+    event_type="initialization",
+    document_ai_enabled=DOCUMENT_AI_ENABLED,
+    cloud_sql_enabled=CLOUD_SQL_ENABLED
+)
 
 # -------------------------------------------------------------------
 # DUPLICATE DETECTION CONFIGURATION
@@ -93,9 +101,9 @@ HISTORICAL_INVOICES_PATH = PROJECT_ROOT / "test_data" / "historical_invoices.csv
 try:
     from ..utils.rate_limiter import rate_limiter, check_rate_limit
     RATE_LIMITING_ENABLED = True
-    logger.info("[INIT] ✅ Rate limiting enabled for cost protection")
+    logger.info("Rate limiting enabled for cost protection")
 except ImportError:
-    logger.warning("[INIT] ⚠️ Rate limiter not found - running without cost protection!")
+    logger.warning("Rate limiter not found - running without cost protection")
     RATE_LIMITING_ENABLED = False
     
     async def check_rate_limit(request: Request):
@@ -107,9 +115,9 @@ except ImportError:
 try:
     from ..utils.prediction_cache import prediction_cache, get_cached_or_predict, get_cache_stats
     CACHING_ENABLED = True
-    logger.info("[INIT] ✅ Prediction caching enabled (40% cost savings)")
+    logger.info("Prediction caching enabled (40% cost savings)")
 except ImportError:
-    logger.warning("[INIT] ⚠️ Prediction cache not found - running without caching")
+    logger.warning("Prediction cache not found - running without caching")
     CACHING_ENABLED = False
     
     def get_cached_or_predict(features, predict_func):
@@ -142,6 +150,7 @@ app = FastAPI(
     ## ✨ Features v2.2
     
     ### New in v2.2:
+    - ✅ **Cloud Logging Integration** - Real-time logs in GCP Console
     - ✅ **Duplicate Detection** (`/validate/invoice-full`) - Prevent double payments
     - ✅ Multi-strategy detection (exact, fuzzy, typo)
     - ✅ CRITICAL priority routing for duplicates
@@ -173,16 +182,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# -------------------------------------------------------------------
-# HEALTH CHECK ENDPOINTS
-# -------------------------------------------------------------------
-@app.get("/", tags=["System"])
-async def root():
-    return {"message": "LedgerX API", "status": "running", "version": "2.2.0"}
 
-@app.get("/health", tags=["System"])
-async def health_check():
-    return {"status": "healthy", "service": "LedgerX API", "version": "2.2.0"}
+# -------------------------------------------------------------------
+# CLOUD LOGGING MIDDLEWARE - NEW ADDITION
+# -------------------------------------------------------------------
+setup_logging_middleware(
+    app,
+    logger_name="ledgerx_api",
+    enable_performance_monitoring=True,
+    slow_request_threshold_ms=1000.0
+)
+logger.info("FastAPI middleware configured with Cloud Logging")
+
+# -------------------------------------------------------------------
+# PROMETHEUS INSTRUMENTATION (Optional)
+# -------------------------------------------------------------------
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+    logger.info("Prometheus metrics exposed at /metrics")
+except ImportError:
+    logger.debug("Prometheus instrumentation not available")
+
 # -------------------------------------------------------------------
 # INPUT SCHEMAS WITH VALIDATION
 # -------------------------------------------------------------------
@@ -234,30 +255,133 @@ class PredictionResponse(BaseModel):
     user: str
     timestamp: str
 
+# ===================================================================
+# APPLICATION LIFECYCLE EVENTS
+# ===================================================================
+
+@app.on_event("startup")
+async def startup_event():
+    """Application startup - log configuration with structured data"""
+    logger.info(
+        "LedgerX API starting",
+        event_type="application_startup",
+        version="2.2.0",
+        environment=os.getenv("ENVIRONMENT", "production"),
+        document_ai_enabled=DOCUMENT_AI_ENABLED,
+        cloud_sql_enabled=CLOUD_SQL_ENABLED,
+        rate_limiting_enabled=RATE_LIMITING_ENABLED,
+        caching_enabled=CACHING_ENABLED,
+        features={
+            "authentication": "oauth2",
+            "math_validation": True,
+            "duplicate_detection": True,
+            "batch_processing": True,
+            "cloud_logging": True
+        }
+    )
+    
+    logger.info("=" * 70)
+    logger.info("🚀 LedgerX Invoice Intelligence API v2.2")
+    logger.info("=" * 70)
+    logger.info("Features:")
+    logger.info("  ✅ Authentication: OAuth2 + Role-Based Access Control")
+    logger.info("  ✅ Math Validation: Calculation verification")
+    logger.info("  ✅ Duplicate Detection: Prevent double payments")
+    logger.info("  ✅ Full Pipeline: Complete validation workflow")
+    logger.info("  ✅ Smart Routing: Automatic decision engine")
+    logger.info(f"  ✅ Rate Limiting: {'ENABLED' if RATE_LIMITING_ENABLED else 'DISABLED'}")
+    logger.info(f"  ✅ Prediction Caching: {'ENABLED (40% savings)' if CACHING_ENABLED else 'DISABLED'}")
+    logger.info("  ✅ Batch Processing: 1-1000 invoices")
+    logger.info("  ✅ Cloud Logging: ENABLED - Logs in GCP Console")
+    logger.info("=" * 70)
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Application shutdown"""
+    logger.info(
+        "LedgerX API shutting down",
+        event_type="application_shutdown",
+        timestamp=datetime.utcnow().isoformat()
+    )
+
+# -------------------------------------------------------------------
+# HEALTH CHECK ENDPOINTS
+# -------------------------------------------------------------------
+@app.get("/", tags=["System"])
+async def root():
+    """Root endpoint"""
+    logger.debug("Root endpoint accessed")
+    return {
+        "message": "LedgerX API", 
+        "status": "running", 
+        "version": "2.2.0",
+        "cloud_logging": True
+    }
+
+@app.get("/health", tags=["System"])
+async def health_check():
+    """Health check endpoint with system status"""
+    logger.debug("Health check requested", endpoint="/health")
+    return {
+        "status": "healthy",
+        "service": "LedgerX API",
+        "version": "2.2.0",
+        "timestamp": datetime.utcnow().isoformat(),
+        "cloud_logging": True,
+        "services": {
+            "document_ai": DOCUMENT_AI_ENABLED,
+            "cloud_sql": CLOUD_SQL_ENABLED,
+            "rate_limiting": RATE_LIMITING_ENABLED,
+            "caching": CACHING_ENABLED
+        }
+    }
+
 # -------------------------------------------------------------------
 # AUTHENTICATION ENDPOINTS
 # -------------------------------------------------------------------
 @app.post("/token", response_model=Token, tags=["🔐 Authentication"])
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """**OAuth2 compatible token login**"""
-    logger.info(f"[AUTH] 🔑 Login attempt for user: {form_data.username}")
+async def login(
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends()
+):
+    """**OAuth2 compatible token login with Cloud Logging**"""
     
+    # Attempt authentication
     user = authenticate_user(form_data.username, form_data.password)
+    
     if not user:
-        logger.warning(f"[AUTH] ❌ Failed login attempt for user: {form_data.username}")
+        # Log failed attempt with structured data
+        logger.warning(
+            "Failed authentication attempt",
+            event_type="authentication_failed",
+            username=form_data.username,
+            ip_address=request.client.host if request.client else "unknown",
+            timestamp=datetime.utcnow().isoformat()
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username, "role": user.role},
         expires_delta=access_token_expires
     )
     
-    logger.info(f"[AUTH] ✅ Successful login for user: {form_data.username} (role: {user.role})")
+    # Log successful authentication with structured data
+    logger.info(
+        "User authenticated successfully",
+        event_type="user_authentication",
+        user_id=user.username,
+        user_role=user.role,
+        auth_method="password",
+        ip_address=request.client.host if request.client else "unknown",
+        token_expires_minutes=ACCESS_TOKEN_EXPIRE_MINUTES,
+        timestamp=datetime.utcnow().isoformat()
+    )
     
     return {
         "access_token": access_token,
@@ -268,28 +392,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 @app.get("/users/me", response_model=User, tags=["🔐 Authentication"])
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     """Get current user information. Requires valid authentication token."""
-    logger.info(f"[AUTH] 👤 User info requested: {current_user.username}")
+    logger.debug("User info requested", user_id=current_user.username)
     return current_user
-
-# -------------------------------------------------------------------
-# HEALTH CHECK
-# -------------------------------------------------------------------
-@app.get("/health", tags=["💚 Health"])
-async def health_check():
-    """Health check endpoint - no authentication required."""
-    return {
-        "status": "healthy",
-        "version": "2.2.0",
-        "features": {
-            "authentication": "enabled",
-            "math_validation": "enabled",
-            "duplicate_detection": "enabled",
-            "rate_limiting": RATE_LIMITING_ENABLED,
-            "caching": CACHING_ENABLED,
-            "batch_processing": "enabled"
-        },
-        "timestamp": datetime.utcnow().isoformat()
-    }
 
 # ============================================================================
 # MATH VALIDATION ENDPOINTS
@@ -303,16 +407,34 @@ async def validate_invoice_math_endpoint(
     _: None = Depends(check_rate_limit)
 ):
     """**📊 Math Validation Only**"""
-    logger.info("="*60)
-    logger.info(f"[MATH-VAL] 📥 Request from user: {current_user.username}")
-    logger.info(f"[MATH-VAL] 📄 File: {file.filename}")
-    logger.info("="*60)
+    start_time = time.time()
+    
+    logger.info(
+        "Math validation request",
+        event_type="math_validation_start",
+        user_id=current_user.username,
+        filename=file.filename
+    )
     
     try:
         contents = await file.read()
         invoice_data = json.loads(contents)
         
         validation_result = validate_invoice_math(invoice_data)
+        
+        latency_ms = (time.time() - start_time) * 1000
+        
+        # Log validation result
+        logger.info(
+            "Math validation completed",
+            event_type="math_validation_complete",
+            user_id=current_user.username,
+            filename=file.filename,
+            is_valid=validation_result['is_valid'],
+            confidence=validation_result['confidence'],
+            error_count=validation_result['error_count'],
+            latency_ms=latency_ms
+        )
         
         response = {
             "status": "ok",
@@ -327,22 +449,25 @@ async def validate_invoice_math_endpoint(
             }
         }
         
-        status_emoji = "✅" if validation_result['is_valid'] else "❌"
-        logger.info(
-            f"{status_emoji} [MATH-VAL] {file.filename}: "
-            f"{'PASSED' if validation_result['is_valid'] else 'FAILED'} "
-            f"(confidence: {validation_result['confidence']:.2%}, "
-            f"errors: {validation_result['error_count']})"
-        )
-        logger.info("="*60)
-        
         return response
     
     except json.JSONDecodeError as e:
-        logger.error(f"[MATH-VAL] ❌ Invalid JSON: {str(e)}")
+        logger.error(
+            "Invalid JSON in math validation",
+            error_type="JSONDecodeError",
+            error_message=str(e),
+            filename=file.filename
+        )
         raise HTTPException(status_code=400, detail=f"Invalid JSON file: {str(e)}")
     except Exception as e:
-        logger.error(f"[MATH-VAL] ❌ Error: {str(e)}")
+        logger.exception(
+            "Math validation failed",
+            event_type="math_validation_error",
+            user_id=current_user.username,
+            filename=file.filename,
+            error_type=type(e).__name__,
+            error_message=str(e)
+        )
         raise HTTPException(status_code=500, detail=f"Validation failed: {str(e)}")
 
 
@@ -358,7 +483,7 @@ async def validate_full_invoice_pipeline(
     
     ## Pipeline Stages:
     1. ✅ Math Validation - Verify calculations
-    2. ✅ Duplicate Detection - Check for duplicate invoices (NEW!)
+    2. ✅ Duplicate Detection - Check for duplicate invoices
     3. ✅ Quality Assessment - ML model prediction
     4. ✅ Failure Risk - ML model prediction
     5. ✅ Smart Routing - Automatic decision with priority
@@ -373,12 +498,16 @@ async def validate_full_invoice_pipeline(
     - **HIGH** (24 hr SLA): Quality issues
     - **NONE**: Auto-process (all checks passed)
     """
-    logger.info("="*70)
-    logger.info(f"[FULL-VAL] 🔄 Complete pipeline validation from: {current_user.username}")
-    logger.info(f"[FULL-VAL] 📄 File: {file.filename}")
-    logger.info("="*70)
-    
     start_time = time.time()
+    invoice_id = f"val_{int(time.time())}"
+    
+    logger.info(
+        "Full validation pipeline started",
+        event_type="full_validation_start",
+        user_id=current_user.username,
+        filename=file.filename,
+        invoice_id=invoice_id
+    )
     
     try:
         contents = await file.read()
@@ -387,32 +516,33 @@ async def validate_full_invoice_pipeline(
         # ====================================================================
         # STAGE 1: Math Validation
         # ====================================================================
-        logger.info("[FULL-VAL] 📊 Stage 1/5: Math Validation")
+        logger.info("Stage 1/5: Math Validation", invoice_id=invoice_id)
         math_result = validate_invoice_math(invoice_data)
-        math_status = "✅ PASS" if math_result['is_valid'] else "❌ FAIL"
-        logger.info(f"[FULL-VAL] Math: {math_status} (confidence: {math_result['confidence']:.2%})")
+        math_status = "PASS" if math_result['is_valid'] else "FAIL"
+        logger.info(f"Math validation: {math_status}", invoice_id=invoice_id, confidence=math_result['confidence'])
         
         # ====================================================================
-        # STAGE 2: Duplicate Detection (NEW!)
+        # STAGE 2: Duplicate Detection
         # ====================================================================
-        logger.info("[FULL-VAL] 🔍 Stage 2/5: Duplicate Detection")
+        logger.info("Stage 2/5: Duplicate Detection", invoice_id=invoice_id)
         duplicate_result = detect_duplicates(invoice_data, HISTORICAL_INVOICES_PATH)
-        dup_status = "🚨 DUPLICATE" if duplicate_result['is_duplicate'] else "✅ UNIQUE"
+        dup_status = "DUPLICATE" if duplicate_result['is_duplicate'] else "UNIQUE"
         logger.info(
-            f"[FULL-VAL] Duplicate Check: {dup_status} "
-            f"(found: {duplicate_result['duplicate_count']}, "
-            f"confidence: {duplicate_result['highest_confidence']:.2%})"
+            f"Duplicate check: {dup_status}",
+            invoice_id=invoice_id,
+            duplicate_count=duplicate_result['duplicate_count'],
+            confidence=duplicate_result['highest_confidence']
         )
         
         # ====================================================================
         # STAGE 3 & 4: Quality Model + Failure Model
         # ====================================================================
-        logger.info("[FULL-VAL] 🤖 Stage 3/5: ML Model Predictions")
+        logger.info("Stage 3/5: ML Model Predictions", invoice_id=invoice_id)
         
         if CACHING_ENABLED:
             ml_predictions = get_cached_or_predict(invoice_data, predict_invoice)
             if ml_predictions.get('from_cache'):
-                logger.info("[FULL-VAL] ✨ Cache HIT - Using cached predictions")
+                logger.info("Cache HIT - Using cached predictions", invoice_id=invoice_id)
         else:
             ml_predictions = predict_invoice(invoice_data)
         
@@ -430,13 +560,17 @@ async def validate_full_invoice_pipeline(
             'probability': ml_predictions['failure_probability']
         }
         
-        logger.info(f"[FULL-VAL] Quality: {quality_assessment['quality'].upper()}")
-        logger.info(f"[FULL-VAL] Failure Risk: {failure_risk['risk'].upper()}")
+        logger.info(
+            "ML predictions complete",
+            invoice_id=invoice_id,
+            quality=quality_assessment['quality'],
+            failure_risk=failure_risk['risk']
+        )
         
         # ====================================================================
         # STAGE 5: Smart Routing Decision
         # ====================================================================
-        logger.info("[FULL-VAL] 🎯 Stage 4/5: Routing Decision")
+        logger.info("Stage 4/5: Routing Decision", invoice_id=invoice_id)
         routing_decision = determine_routing(
             math_result, 
             duplicate_result,
@@ -444,9 +578,11 @@ async def validate_full_invoice_pipeline(
             failure_risk
         )
         logger.info(
-            f"[FULL-VAL] Decision: {routing_decision['action']} "
-            f"(Priority: {routing_decision['priority']}, "
-            f"Reason: {routing_decision['reason']})"
+            "Routing decision made",
+            invoice_id=invoice_id,
+            action=routing_decision['action'],
+            priority=routing_decision['priority'],
+            reason=routing_decision['reason']
         )
         
         processing_time = time.time() - start_time
@@ -476,16 +612,35 @@ async def validate_full_invoice_pipeline(
             }
         }
         
-        logger.info(f"[FULL-VAL] ✅ Pipeline complete in {processing_time:.3f}s")
-        logger.info("="*70)
+        logger.info(
+            "Full validation pipeline complete",
+            event_type="full_validation_complete",
+            invoice_id=invoice_id,
+            user_id=current_user.username,
+            processing_time_ms=processing_time * 1000,
+            routing_action=routing_decision['action'],
+            routing_priority=routing_decision['priority']
+        )
         
         return response
     
     except json.JSONDecodeError as e:
-        logger.error(f"[FULL-VAL] ❌ Invalid JSON: {str(e)}")
+        logger.error(
+            "Invalid JSON in full validation",
+            error_type="JSONDecodeError",
+            error_message=str(e),
+            filename=file.filename
+        )
         raise HTTPException(status_code=400, detail=f"Invalid JSON file: {str(e)}")
     except Exception as e:
-        logger.exception(f"[FULL-VAL] ❌ Pipeline failed")
+        logger.exception(
+            "Full validation pipeline failed",
+            event_type="full_validation_error",
+            invoice_id=invoice_id,
+            user_id=current_user.username,
+            error_type=type(e).__name__,
+            error_message=str(e)
+        )
         raise HTTPException(status_code=500, detail=f"Validation failed: {str(e)}")
 
 
@@ -599,19 +754,27 @@ async def predict_invoice_endpoint(
     current_user: User = Depends(require_any_authenticated),
     _: None = Depends(check_rate_limit)
 ):
-    """🤖 ML Model Predictions"""
-    logger.info("="*60)
-    logger.info(f"[API] 🤖 Prediction request from: {current_user.username}")
-    logger.info(f"[API] 📄 Invoice: {features.invoice_number}")
-    logger.info("="*60)
+    """🤖 ML Model Predictions with Cloud Logging"""
+    start_time = time.time()
+    invoice_id = features.invoice_number
+    
+    logger.info(
+        "Prediction request",
+        event_type="prediction_start",
+        user_id=current_user.username,
+        invoice_id=invoice_id,
+        vendor_name=features.vendor_name
+    )
     
     try:
         if CACHING_ENABLED:
             result = get_cached_or_predict(features.dict(), predict_invoice)
-            if result.get('from_cache'):
-                logger.info(f"[API] ✨ Cache HIT for invoice: {features.invoice_number}")
+            cache_hit = result.get('from_cache', False)
+            if cache_hit:
+                logger.info("Cache HIT", invoice_id=invoice_id)
         else:
             result = predict_invoice(features.dict())
+            cache_hit = False
         
         user_result = {
             'quality_assessment': {
@@ -628,9 +791,22 @@ async def predict_invoice_endpoint(
             'warnings': result.get('warnings', [])
         }
         
-        logger.info(f"[API] Quality: {user_result['quality_assessment']['quality'].upper()}")
-        logger.info(f"[API] Failure Risk: {user_result['failure_risk']['risk'].upper()}")
-        logger.info("="*60)
+        latency_ms = (time.time() - start_time) * 1000
+        
+        # Log prediction with structured data
+        logger.log_prediction(
+            user_id=current_user.username,
+            invoice_id=invoice_id,
+            quality_prediction=user_result['quality_assessment']['quality'],
+            failure_prediction=user_result['failure_risk']['risk'],
+            latency_ms=latency_ms,
+            model_version="v1.2.0",
+            confidence_quality=user_result['quality_assessment']['confidence'],
+            confidence_failure=user_result['failure_risk']['probability'],
+            cache_hit=cache_hit,
+            vendor_name=features.vendor_name,
+            total_amount=features.total_amount
+        )
         
         return PredictionResponse(
             status="ok",
@@ -640,15 +816,18 @@ async def predict_invoice_endpoint(
         )
         
     except Exception as e:
-        logger.exception(f"[API] ❌ Error during inference for user: {current_user.username}")
+        logger.exception(
+            "Prediction failed",
+            event_type="prediction_error",
+            invoice_id=invoice_id,
+            user_id=current_user.username,
+            error_type=type(e).__name__,
+            error_message=str(e)
+        )
         raise HTTPException(status_code=400, detail=str(e))
 
-# -------------------------------------------------------------------
-# BATCH PREDICTION ENDPOINT
-# -------------------------------------------------------------------
-
 # ============================================================================
-# IMAGE UPLOAD WITH OCR (NEW!)
+# IMAGE UPLOAD WITH OCR
 # ============================================================================
 
 @app.post("/upload/image", tags=["📤 Upload & OCR"])
@@ -674,20 +853,27 @@ async def upload_and_process_image(
     
     Returns complete validation results with extracted data
     """
-    logger.info("="*70)
-    logger.info(f"[IMAGE-UPLOAD] 📸 Image processing from: {current_user.username}")
-    logger.info(f"[IMAGE-UPLOAD] 📄 File: {file.filename} ({file.content_type})")
-    logger.info("="*70)
-    
     start_time = time.time()
+    invoice_id = f"img_{int(time.time())}"
+    
+    logger.info(
+        "Image upload and processing started",
+        event_type="image_upload_start",
+        user_id=current_user.username,
+        filename=file.filename,
+        content_type=file.content_type,
+        invoice_id=invoice_id
+    )
     
     try:
         # Step 1: Read file bytes
         contents = await file.read()
+        file_size_kb = len(contents) / 1024
         
         # Step 2: Process with Document AI (95%+ accuracy)
         if DOCUMENT_AI_ENABLED:
-            logger.info("[IMAGE-UPLOAD] 🔍 Processing with Google Document AI...")
+            ocr_start = time.time()
+            logger.info("Processing with Google Document AI", invoice_id=invoice_id)
             
             doc_ai = get_processor()
             invoice_data = doc_ai.process_invoice(
@@ -695,23 +881,48 @@ async def upload_and_process_image(
                 mime_type=file.content_type or "image/jpeg"
             )
             
-            # Add file size
-            invoice_data["file_size_kb"] = len(contents) / 1024
+            ocr_time_ms = (time.time() - ocr_start) * 1000
             
-            logger.info(f"[IMAGE-UPLOAD] ✅ Document AI extracted:")
-            logger.info(f"  Invoice #: {invoice_data.get('invoice_number')}")
-            logger.info(f"  Vendor: {invoice_data.get('vendor_name')}")
-            logger.info(f"  Amount: {invoice_data.get('currency')} {invoice_data.get('total_amount')}")
-            logger.info(f"  Date: {invoice_data.get('invoice_date')}")
-            logger.info(f"  Confidence: {invoice_data.get('ocr_confidence', 0):.2%}")
+            # Add file size
+            invoice_data["file_size_kb"] = file_size_kb
+            
+            # Log OCR processing
+            logger.log_ocr_processing(
+                invoice_id=invoice_id,
+                ocr_engine="document_ai",
+                confidence=invoice_data.get('ocr_confidence', 0.0),
+                processing_time_ms=ocr_time_ms,
+                page_count=1,
+                file_size_kb=file_size_kb
+            )
+            
+            logger.info(
+                "Document AI extraction complete",
+                invoice_id=invoice_id,
+                invoice_number=invoice_data.get('invoice_number'),
+                vendor=invoice_data.get('vendor_name'),
+                amount=invoice_data.get('total_amount'),
+                confidence=invoice_data.get('ocr_confidence')
+            )
             
             # Track Document AI usage in database
             if CLOUD_SQL_ENABLED:
-                track_document_ai_usage(current_user.id)
-                logger.info("[IMAGE-UPLOAD] 📊 Document AI usage tracked")
+                track_document_ai_usage(current_user.username)
+                monthly_usage = get_monthly_document_ai_usage()
+                
+                # Log cost event
+                logger.log_cost_event(
+                    service="document_ai",
+                    operation="process_document",
+                    cost_usd=0.0015,
+                    units_consumed=1,
+                    monthly_usage=monthly_usage,
+                    monthly_limit=1000,
+                    user_id=current_user.username
+                )
         else:
             # Fallback to basic extraction (not recommended for production)
-            logger.warning("[IMAGE-UPLOAD] ⚠️ Using fallback extraction (low accuracy)")
+            logger.warning("Using fallback extraction (low accuracy)", invoice_id=invoice_id)
             invoice_data = {
                 "invoice_number": f"AUTO-{datetime.utcnow().year}-{file.filename[:10]}",
                 "vendor_name": "Unknown Vendor",
@@ -721,12 +932,12 @@ async def upload_and_process_image(
                 "blur_score": 50.0,
                 "contrast_score": 60.0,
                 "ocr_confidence": 0.5,
-                "file_size_kb": len(contents) / 1024,
+                "file_size_kb": file_size_kb,
                 "vendor_freq": 0.05
             }
         
         # Step 3: Run validation pipeline
-        logger.info("[IMAGE-UPLOAD] 🔄 Running validation pipeline...")
+        logger.info("Running validation pipeline", invoice_id=invoice_id)
         
         # Math validation
         math_result = validate_invoice_math(invoice_data)
@@ -795,19 +1006,29 @@ async def upload_and_process_image(
             "timestamp": datetime.utcnow().isoformat()
         }
         
-        logger.info(f"[IMAGE-UPLOAD] ✅ Complete pipeline finished in {processing_time:.3f}s")
-        logger.info(f"[IMAGE-UPLOAD] Quality: {quality_assessment['quality']}, Risk: {failure_risk['risk']}")
-        logger.info("="*70)
+        logger.info(
+            "Image processing pipeline complete",
+            event_type="image_processing_complete",
+            invoice_id=invoice_id,
+            processing_time_ms=processing_time * 1000,
+            quality=quality_assessment['quality'],
+            failure_risk=failure_risk['risk'],
+            routing_action=routing_decision['action']
+        )
         
         return response
         
     except Exception as e:
-        logger.error(f"[IMAGE-UPLOAD] ❌ Processing error: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.exception(
+            "Image processing failed",
+            event_type="image_processing_error",
+            invoice_id=invoice_id,
+            user_id=current_user.username,
+            filename=file.filename,
+            error_type=type(e).__name__,
+            error_message=str(e)
+        )
         raise HTTPException(status_code=500, detail=f"Image processing failed: {str(e)}")
-
-
 
 
 # ====================================================================
@@ -833,7 +1054,11 @@ async def get_my_invoices(
         
         invoices = get_user_invoices(user_data['id'], limit=1000)
         
-        logger.info(f"[USER-DATA] 📋 Fetched {len(invoices)} invoices for {current_user.username}")
+        logger.info(
+            "User invoices retrieved",
+            user_id=current_user.username,
+            invoice_count=len(invoices)
+        )
         
         return {
             "status": "ok",
@@ -843,7 +1068,11 @@ async def get_my_invoices(
         }
         
     except Exception as e:
-        logger.error(f"[USER-DATA] Error fetching invoices: {e}")
+        logger.exception(
+            "Failed to fetch user invoices",
+            user_id=current_user.username,
+            error_type=type(e).__name__
+        )
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/user/invoices/save", tags=["👤 User Data"])
@@ -867,7 +1096,13 @@ async def save_user_invoice(
         invoice_id = save_invoice(user_data['id'], invoice)
         
         if invoice_id:
-            logger.info(f"[USER-DATA] 💾 Invoice saved: ID={invoice_id}, User={current_user.username}")
+            logger.info(
+                "Invoice saved to Cloud SQL",
+                event_type="invoice_saved",
+                user_id=current_user.username,
+                invoice_id=invoice_id,
+                invoice_number=invoice.get('invoice_number')
+            )
             return {
                 "status": "saved",
                 "invoice_id": invoice_id,
@@ -877,7 +1112,11 @@ async def save_user_invoice(
             raise HTTPException(status_code=500, detail="Failed to save invoice")
             
     except Exception as e:
-        logger.error(f"[USER-DATA] Error saving invoice: {e}")
+        logger.exception(
+            "Failed to save invoice",
+            user_id=current_user.username,
+            error_type=type(e).__name__
+        )
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/user/invoices/{invoice_id}", tags=["👤 User Data"])
@@ -898,14 +1137,28 @@ async def delete_user_invoice(
         deleted = delete_invoice(invoice_id, user_data['id'])
         
         if deleted:
-            logger.info(f"[USER-DATA] 🗑️ Invoice deleted: ID={invoice_id}")
+            logger.info(
+                "Invoice deleted",
+                event_type="invoice_deleted",
+                user_id=current_user.username,
+                invoice_id=invoice_id
+            )
             return {"status": "deleted", "invoice_id": invoice_id}
         else:
             raise HTTPException(status_code=404, detail="Invoice not found or unauthorized")
             
     except Exception as e:
-        logger.error(f"[USER-DATA] Error deleting invoice: {e}")
+        logger.exception(
+            "Failed to delete invoice",
+            user_id=current_user.username,
+            invoice_id=invoice_id,
+            error_type=type(e).__name__
+        )
         raise HTTPException(status_code=500, detail=str(e))
+
+# ====================================================================
+# ADMIN ENDPOINTS
+# ====================================================================
 
 @app.get("/admin/document-ai-usage", tags=["👑 Admin"])
 async def get_doc_ai_usage(current_user: User = Depends(require_admin)):
@@ -920,6 +1173,12 @@ async def get_doc_ai_usage(current_user: User = Depends(require_admin)):
     try:
         usage = get_monthly_document_ai_usage()
         
+        logger.info(
+            "Document AI usage queried",
+            user_id=current_user.username,
+            monthly_usage=usage
+        )
+        
         return {
             "usage_this_month": usage,
             "free_tier_limit": 1000,
@@ -929,103 +1188,9 @@ async def get_doc_ai_usage(current_user: User = Depends(require_admin)):
         }
         
     except Exception as e:
-        logger.error(f"[ADMIN] Error getting Document AI usage: {e}")
+        logger.exception("Failed to get Document AI usage")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/batch", tags=["🤖 ML Predictions"])
-async def predict_batch(
-    invoices: List[InvoiceFeatures],
-    request: Request,
-    current_user: User = Depends(require_user),
-    _: None = Depends(check_rate_limit)
-):
-    """📦 Batch Prediction for Multiple Invoices"""
-    logger.info("="*60)
-    logger.info(f"[BATCH] 📦 Request from: {current_user.username}")
-    logger.info(f"[BATCH] 📊 Batch size: {len(invoices)}")
-    logger.info("="*60)
-    
-    if len(invoices) > 1000:
-        raise HTTPException(status_code=400, detail="Batch size exceeds maximum of 1000")
-    
-    if len(invoices) == 0:
-        raise HTTPException(status_code=400, detail="Batch must contain at least 1 invoice")
-    
-    start_time = time.time()
-    results = []
-    cache_hits = 0
-    errors = 0
-    
-    try:
-        for idx, invoice in enumerate(invoices):
-            try:
-                if CACHING_ENABLED:
-                    result = get_cached_or_predict(invoice.dict(), predict_invoice)
-                    if result.get('from_cache'):
-                        cache_hits += 1
-                else:
-                    result = predict_invoice(invoice.dict())
-                
-                user_result = {
-                    'quality_assessment': {
-                        'quality': 'bad' if result['quality_bad'] == 1 else 'good',
-                        'probability': result['quality_probability']
-                    },
-                    'failure_risk': {
-                        'risk': 'high' if result['failure_probability'] > 0.7 
-                               else 'medium' if result['failure_probability'] > 0.3 
-                               else 'low',
-                        'probability': result['failure_probability']
-                    }
-                }
-                
-                results.append({
-                    "index": idx,
-                    "invoice_number": invoice.invoice_number,
-                    "prediction": user_result,
-                    "status": "success"
-                })
-                
-            except Exception as e:
-                errors += 1
-                logger.warning(f"[BATCH] ⚠️ Error processing invoice {idx}: {e}")
-                results.append({
-                    "index": idx,
-                    "invoice_number": invoice.invoice_number,
-                    "error": str(e),
-                    "status": "error"
-                })
-        
-        processing_time = time.time() - start_time
-        
-        logger.info(f"[BATCH] ✅ Processed {len(invoices)} invoices in {processing_time:.2f}s")
-        logger.info(f"[BATCH] Success: {len(invoices) - errors}, Errors: {errors}, Cache hits: {cache_hits}")
-        logger.info("="*60)
-        
-        return {
-            "status": "ok",
-            "batch_size": len(invoices),
-            "results": results,
-            "summary": {
-                "total": len(invoices),
-                "successful": len(invoices) - errors,
-                "errors": errors,
-                "cache_hits": cache_hits,
-                "cache_hit_rate": f"{(cache_hits/len(invoices))*100:.1f}%",
-                "processing_time_seconds": round(processing_time, 2),
-                "avg_time_per_invoice": round(processing_time / len(invoices), 3)
-            },
-            "user": current_user.username,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        
-    except Exception as e:
-        logger.exception(f"[BATCH] ❌ Failed for user: {current_user.username}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# -------------------------------------------------------------------
-# ADMIN ENDPOINTS
-# -------------------------------------------------------------------
 @app.get("/admin/costs", tags=["👑 Admin"])
 async def get_cost_stats(current_user: User = Depends(require_admin)):
     """💰 Cost and Usage Statistics - **Requires Admin role**"""
@@ -1074,56 +1239,146 @@ async def get_cache_statistics(current_user: User = Depends(require_admin)):
     }
 
 # -------------------------------------------------------------------
-# STARTUP EVENT
+# BATCH PREDICTION ENDPOINT
 # -------------------------------------------------------------------
-@app.on_event("startup")
-async def startup_event():
-    """Application startup event - logs configuration"""
-    logger.info("=" * 70)
-    logger.info("🚀 LedgerX Invoice Intelligence API v2.2")
-    logger.info("=" * 70)
-    logger.info("Features:")
-    logger.info("  ✅ Authentication: OAuth2 + Role-Based Access Control")
-    logger.info("  ✅ Math Validation: Calculation verification")
-    logger.info("  ✅ Duplicate Detection: NEW - Prevent double payments")
-    logger.info("  ✅ Full Pipeline: Complete validation workflow")
-    logger.info("  ✅ Smart Routing: Automatic decision engine")
-    logger.info(f"  ✅ Rate Limiting: {'ENABLED' if RATE_LIMITING_ENABLED else 'DISABLED'}")
-    logger.info(f"  ✅ Prediction Caching: {'ENABLED (40% savings)' if CACHING_ENABLED else 'DISABLED'}")
-    logger.info("  ✅ Batch Processing: 1-1000 invoices")
-    logger.info("  ✅ Cost Dashboards: Admin-only monitoring")
+
+@app.post("/predict/batch", tags=["🤖 ML Predictions"])
+async def predict_batch(
+    invoices: List[InvoiceFeatures],
+    request: Request,
+    current_user: User = Depends(require_user),
+    _: None = Depends(check_rate_limit)
+):
+    """📦 Batch Prediction for Multiple Invoices (1-1000)"""
+    start_time = time.time()
+    batch_id = f"batch_{int(time.time())}"
     
-    if RATE_LIMITING_ENABLED:
-        logger.info("=" * 70)
-        logger.info("Rate Limiting:")
-        logger.info("  - IP Limit: 50/hour, 200/day")
-        logger.info("  - Budget Protection: $1.67/day")
+    logger.info(
+        "Batch prediction started",
+        event_type="batch_prediction_start",
+        user_id=current_user.username,
+        batch_size=len(invoices),
+        batch_id=batch_id
+    )
     
-    if CACHING_ENABLED:
-        logger.info("=" * 70)
-        logger.info("Prediction Caching:")
-        logger.info("  - Cache Size: 1000 predictions")
-        logger.info("  - TTL: 5 minutes")
-        logger.info("  - Expected Savings: 30-40%")
+    if len(invoices) > 1000:
+        raise HTTPException(status_code=400, detail="Batch size exceeds maximum of 1000")
     
-    logger.info("=" * 70)
-    logger.info("Test Credentials:")
-    logger.info("  - admin / admin123 (Admin - Full Access)")
-    logger.info("  - john_doe / password123 (User)")
-    logger.info("  - jane_viewer / viewer123 (Readonly)")
+    if len(invoices) == 0:
+        raise HTTPException(status_code=400, detail="Batch must contain at least 1 invoice")
     
-    logger.info("=" * 70)
-    logger.info("Endpoints:")
-    logger.info("  - POST /validate/math - Math validation")
-    logger.info("  - POST /validate/invoice-full - Complete pipeline + duplicates")
+    results = []
+    cache_hits = 0
+    errors = 0
     
-    logger.info("=" * 70)
-    logger.info("Admin Endpoints:")
-    logger.info("  - GET /admin/costs - Cost dashboard")
-    logger.info("  - GET /admin/cache - Cache statistics")
-    
-    logger.info("=" * 70)
-    logger.info("📖 API Documentation: http://localhost:8000/docs")
-    logger.info("=" * 70)
+    try:
+        for idx, invoice in enumerate(invoices):
+            try:
+                if CACHING_ENABLED:
+                    result = get_cached_or_predict(invoice.dict(), predict_invoice)
+                    if result.get('from_cache'):
+                        cache_hits += 1
+                else:
+                    result = predict_invoice(invoice.dict())
+                
+                user_result = {
+                    'quality_assessment': {
+                        'quality': 'bad' if result['quality_bad'] == 1 else 'good',
+                        'probability': result['quality_probability']
+                    },
+                    'failure_risk': {
+                        'risk': 'high' if result['failure_probability'] > 0.7 
+                               else 'medium' if result['failure_probability'] > 0.3 
+                               else 'low',
+                        'probability': result['failure_probability']
+                    }
+                }
+                
+                results.append({
+                    "index": idx,
+                    "invoice_number": invoice.invoice_number,
+                    "prediction": user_result,
+                    "status": "success"
+                })
+                
+            except Exception as e:
+                errors += 1
+                logger.warning(
+                    "Batch item processing error",
+                    batch_id=batch_id,
+                    index=idx,
+                    error_type=type(e).__name__
+                )
+                results.append({
+                    "index": idx,
+                    "invoice_number": invoice.invoice_number,
+                    "error": str(e),
+                    "status": "error"
+                })
+        
+        processing_time = time.time() - start_time
+        
+        logger.info(
+            "Batch prediction complete",
+            event_type="batch_prediction_complete",
+            batch_id=batch_id,
+            user_id=current_user.username,
+            batch_size=len(invoices),
+            successful=len(invoices) - errors,
+            errors=errors,
+            cache_hits=cache_hits,
+            cache_hit_rate=(cache_hits/len(invoices))*100 if len(invoices) > 0 else 0,
+            processing_time_ms=processing_time * 1000,
+            avg_time_per_invoice_ms=(processing_time / len(invoices)) * 1000
+        )
+        
+        return {
+            "status": "ok",
+            "batch_size": len(invoices),
+            "results": results,
+            "summary": {
+                "total": len(invoices),
+                "successful": len(invoices) - errors,
+                "errors": errors,
+                "cache_hits": cache_hits,
+                "cache_hit_rate": f"{(cache_hits/len(invoices))*100:.1f}%",
+                "processing_time_seconds": round(processing_time, 2),
+                "avg_time_per_invoice": round(processing_time / len(invoices), 3)
+            },
+            "user": current_user.username,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        logger.exception(
+            "Batch prediction failed",
+            event_type="batch_prediction_error",
+            batch_id=batch_id,
+            user_id=current_user.username,
+            batch_size=len(invoices),
+            error_type=type(e).__name__,
+            error_message=str(e)
+        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 
+# ===================================================================
+# RUN THE APP
+# ===================================================================
+
+if __name__ == "__main__":
+    import uvicorn
+    
+    logger.info(
+        "Starting LedgerX API server",
+        host="0.0.0.0",
+        port=8000
+    )
+    
+    uvicorn.run(
+        "src.inference.api_fastapi:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )

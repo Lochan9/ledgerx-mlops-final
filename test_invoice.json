@@ -1,0 +1,15 @@
+﻿{
+    "currency":  "USD",
+    "invoice_date":  "2024-12-06",
+    "total_amount":  1500,
+    "invoice_number":  "INV-TEST-001",
+    "vendor_name":  "Tech Supplies Inc",
+    "line_items":  [
+                       {
+                           "unit_price":  150,
+                           "description":  "Laptops",
+                           "total":  1500,
+                           "quantity":  10
+                       }
+                   ]
+}
