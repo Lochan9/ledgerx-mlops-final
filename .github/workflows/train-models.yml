@@ -42,7 +42,7 @@ jobs:
       
       - name: Pull Data from DVC
         run: |
-          dvc remote add -d myremote gs://ledgerx-dvc-671429123152 2>/dev/null || dvc remote modify myremote url gs://ledgerx-dvc-671429123152
+          dvc remote add -d myremote gs://ledgerx-mlops-dvc-storage 2>/dev/null || dvc remote modify myremote url gs://ledgerx-mlops-dvc-storage
           dvc pull
       
       - name: Train Models
