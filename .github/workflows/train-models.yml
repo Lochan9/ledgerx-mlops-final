@@ -43,7 +43,7 @@ jobs:
       - name: Pull Data from DVC
         run: |
           dvc remote add -d myremote gs://ledgerx-mlops-dvc-storage 2>/dev/null || dvc remote modify myremote url gs://ledgerx-mlops-dvc-storage
-          dvc pull
+          # dvc pull - skipped, files in repo
       
       - name: Train Models
         run: python src/training/train_all_models.py
