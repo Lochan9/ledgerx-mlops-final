@@ -95,11 +95,11 @@ stages:
       size: 2211629
     - path: models/failure_model.pkl
       hash: md5
-      md5: a5e6b417c34051d8d3d7782ecddd6295
-      size: 2115328
+      md5: 0a4d417101155722449ab57a95eb0a6d
+      size: 5000845
     - path: models/quality_model.pkl
       hash: md5
-      md5: c7236e1227d4c2f6c48353f8d017eef4
+      md5: 16c3567351a51ceec47f676909c12909
       size: 356094
     - path: src/training/evaluate_models.py
       hash: md5
@@ -108,12 +108,12 @@ stages:
     outs:
     - path: reports/failure_best_roc.png
       hash: md5
-      md5: cd0dbace60db43f59dd83f5286093cba
-      size: 32217
+      md5: d100f11f9689808df3dadd47312c5a5a
+      size: 32279
     - path: reports/failure_perm_importance.png
       hash: md5
-      md5: 3e0d95ab7aa0703fc89bbb70e1ec6ee9
-      size: 37848
+      md5: 7d6be5a54bbc1508a56514d4da0fad5e
+      size: 37901
     - path: reports/quality_best_roc.png
       hash: md5
       md5: 88bf7093608869a53cd61e83fe50c4a2
@@ -135,11 +135,11 @@ stages:
       size: 2211629
     - path: models/failure_model.pkl
       hash: md5
-      md5: a5e6b417c34051d8d3d7782ecddd6295
-      size: 2115328
+      md5: 0a4d417101155722449ab57a95eb0a6d
+      size: 5000845
     - path: models/quality_model.pkl
       hash: md5
-      md5: c7236e1227d4c2f6c48353f8d017eef4
+      md5: 16c3567351a51ceec47f676909c12909
       size: 356094
     - path: src/training/error_analysis.py
       hash: md5
@@ -148,12 +148,12 @@ stages:
     outs:
     - path: reports/error_analysis/failure_false_negatives.csv
       hash: md5
-      md5: ccc0b8a91d0e0755fcc35862474cb957
-      size: 61999
+      md5: b74eb40a575ce533b2feae5bf54d4ac5
+      size: 62456
     - path: reports/error_analysis/failure_false_positives.csv
       hash: md5
-      md5: b0e48f2bffab64f743d7ee6f11341078
-      size: 21873
+      md5: 004afcf8cdce18fbe652c0149c9302dc
+      size: 19373
     - path: reports/error_analysis/quality_false_negatives.csv
       hash: md5
       md5: d9d7706f21b87d86bb7d1ee510229bb6
@@ -167,8 +167,8 @@ stages:
     deps:
     - path: reports/model_leaderboard.json
       hash: md5
-      md5: 23f28ba48aae32f93cc600f3f6005170
-      size: 1403
+      md5: 0c18b969461f897619b746aa76d26a64
+      size: 1401
     - path: src/reporting/generate_summary_report.py
       hash: md5
       md5: ada6b9e4a6803c5d2ba2236bd5251016
