@@ -83,7 +83,7 @@ jobs:
             echo " New models detected"
           else
             echo "updated=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No model updates"
+            echo " No model updates"
           fi
       
       - name:  Validate Model Performance
@@ -155,7 +155,7 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
       
-      - name: 🏗️ Build Docker Image
+      - name:  Build Docker Image
         id: build
         run: |
           IMAGE_URL="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}"
@@ -285,10 +285,10 @@ jobs:
           echo " Health check passed!"
           echo "Response: $RESPONSE"
       
-      - name: 📝 Log Deployment Details
+      - name:  Log Deployment Details
         run: |
           echo "=================================================="
-          echo "🎉 Deployment Summary"
+          echo " Deployment Summary"
           echo "=================================================="
           echo "Service: ${{ env.SERVICE_NAME }}"
           echo "Region: ${{ env.REGION }}"
@@ -386,7 +386,7 @@ jobs:
       - name:  Deployment Success Notification
         if: success()
         run: |
-          echo "🎉 Deployment completed successfully!"
+          echo " Deployment completed successfully!"
           echo " Service URL: ${{ steps.get_url.outputs.service_url }}"
           echo " Quality F1: ${{ needs.pull-and-validate.outputs.quality_f1 }}"
           echo " Failure F1: ${{ needs.pull-and-validate.outputs.failure_f1 }}"
@@ -395,8 +395,8 @@ jobs:
         if: failure()
         run: |
           echo " Deployment failed!"
-          echo "📝 Check logs: gcloud logging read 'resource.type=cloud_run_revision' --limit 50"
+          echo " Check logs: gcloud logging read 'resource.type=cloud_run_revision' --limit 50"
           
           # Optional: Rollback to previous revision
-          echo "⏮️ Consider rollback: gcloud run services update-traffic ${{ env.SERVICE_NAME }} --to-revisions=PREVIOUS=100 --region ${{ env.REGION }}"
+          echo " Consider rollback: gcloud run services update-traffic ${{ env.SERVICE_NAME }} --to-revisions=PREVIOUS=100 --region ${{ env.REGION }}"
 
