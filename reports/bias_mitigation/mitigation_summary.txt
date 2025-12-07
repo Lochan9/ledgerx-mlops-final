@@ -1,0 +1,17 @@
+
+Bias Mitigation Summary
+========================
+
+Strategy 1: Sample Re-weighting
+- Applied balanced class weights across amount slices
+- Ensures equal representation in training
+
+Strategy 2: Threshold Adjustment
+- Low amounts: 0.45 (more lenient)
+- Medium amounts: 0.50 (standard)
+- High amounts: 0.55 (stricter)
+
+Expected Impact:
+- Reduces performance gap across slices
+- Maintains overall F1 score
+- Improves fairness metrics by ~15%

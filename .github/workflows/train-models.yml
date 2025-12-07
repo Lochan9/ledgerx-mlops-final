@@ -1,0 +1,102 @@
+name: Automated Model Training & Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/**'
+      - 'src/training/**'
+      - 'dvc.yaml'
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday 2 AM
+  workflow_dispatch:
+
+env:
+  MIN_F1_QUALITY: 0.75
+  MIN_F1_FAILURE: 0.68
+  MAX_BIAS_GAP: 0.10
+
+jobs:
+  train-validate-deploy:
+    name: Train, Validate & Deploy Models
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install shap fairlearn
+      
+      - name: Authenticate GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Pull Data from DVC
+        run: |
+          dvc remote modify myremote url gs://ledgerx-dvc-671429123152
+          dvc pull
+      
+      - name: Train Models
+        run: python src/training/train_all_models.py
+      
+      - name: Run SHAP Analysis
+        run: python sensitivity_analysis.py
+      
+      - name: Bias Detection
+        run: python src/training/error_analysis.py
+      
+      - name: Validate Performance
+        run: |
+          python -c "
+          import json
+          with open('reports/model_leaderboard.json') as f:
+              data = json.load(f)
+          quality_f1 = data['quality'][0]['f1']
+          failure_f1 = data['failure'][0]['f1']
+          assert quality_f1 >= $MIN_F1_QUALITY, f'Quality F1 {quality_f1} < $MIN_F1_QUALITY'
+          assert failure_f1 >= $MIN_F1_FAILURE, f'Failure F1 {failure_f1} < $MIN_F1_FAILURE'
+          print(f'✅ Validation passed: Q={quality_f1:.3f}, F={failure_f1:.3f}')
+          "
+      
+      - name: Check Bias Metrics
+        run: |
+          python -c "
+          import json
+          with open('reports/bias_metrics.json') as f:
+              bias = json.load(f)
+          max_gap = bias.get('max_performance_gap', 0)
+          assert max_gap <= $MAX_BIAS_GAP, f'Bias gap {max_gap} > $MAX_BIAS_GAP'
+          print(f'✅ Bias check passed: gap={max_gap:.3f}')
+          "
+      
+      - name: Push Models to Registry
+        if: success()
+        run: |
+          dvc add models/compressed/quality_model.pkl
+          dvc add models/compressed/failure_model.pkl
+          dvc push
+          git add models/compressed/*.dvc
+          git commit -m "Update models [skip ci]" || true
+      
+      - name: Notify Success
+        if: success()
+        run: |
+          echo "✅ Training successful!"
+          echo "Quality F1: $(cat reports/model_leaderboard.json | jq -r '.quality[0].f1')"
+          echo "Failure F1: $(cat reports/model_leaderboard.json | jq -r '.failure[0].f1')"
+      
+      - name: Notify Failure & Rollback
+        if: failure()
+        run: |
+          echo "❌ Training failed - rolling back to previous models"
+          git checkout HEAD~1 models/compressed/*.pkl.dvc
+          dvc checkout
+          echo "⏮️ Rollback complete"
