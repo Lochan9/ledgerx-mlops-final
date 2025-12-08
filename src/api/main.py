@@ -90,11 +90,11 @@ def init_connection_pool():
         # Check if running in Cloud Run
         if os.getenv('K_SERVICE'):
             # Cloud Run - Unix socket
-            instance = 'ledgerx-mlops:us-central1-c:ledgerx-db'
+            instance = 'ledgerx-mlops:us-central1:ledgerx-postgres'
             connection_pool = psycopg2.pool.SimpleConnectionPool(
                 1, 10,
                 host=f'/cloudsql/{instance}',
-                database='ledgerx_db',
+                database='ledgerx',
                 user='postgres',
                 password=os.getenv('DB_PASSWORD', '')
             )
@@ -104,7 +104,7 @@ def init_connection_pool():
                 1, 10,
                 host='34.41.11.190',
                 port=5432,
-                database='ledgerx_db',
+                database='ledgerx',
                 user='postgres',
                 password=os.getenv('DB_PASSWORD', '')
             )

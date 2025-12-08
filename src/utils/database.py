@@ -97,6 +97,13 @@ def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
 
     except Exception as e:
         logger.error(f"[DB] ? Error fetching user {username}: {e}")
+        # CRITICAL: Rollback failed transaction
+        try:
+            conn = get_db_connection()
+            conn.rollback()
+            logger.info("[DB] Transaction rolled back")
+        except:
+            pass
         return None
 
 def create_user(username: str, email: str, full_name: str, password: str, role: str = "user") -> bool:

@@ -1,8 +1,4 @@
-﻿# Updated 2025-11-30 12:43
-# =============================================================================
-# LEDGERX FASTAPI DOCKERFILE - Cloud Run Optimized
-# =============================================================================
-
+﻿# Dockerfile.cloudrun - FIXED
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -24,15 +20,16 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy application
 COPY src/ /app/src/
+
+# CRITICAL FIX: Copy models
 COPY models/ /app/models/
+
+# Copy test data
 COPY test_data/ /app/test_data/
 
-# Environment
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 
 EXPOSE 8000
 
-# Run FastAPI
 CMD ["uvicorn", "src.inference.api_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
-

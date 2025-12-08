@@ -441,7 +441,7 @@ async def validate_invoice_math_endpoint(
         "Math validation request",
         event_type="math_validation_start",
         user_id=current_user.username,
-        filename=file.filename
+        uploaded_file=file.filename
     )
     
     try:
@@ -457,7 +457,7 @@ async def validate_invoice_math_endpoint(
             "Math validation completed",
             event_type="math_validation_complete",
             user_id=current_user.username,
-            filename=file.filename,
+            uploaded_file=file.filename,
             is_valid=validation_result['is_valid'],
             confidence=validation_result['confidence'],
             error_count=validation_result['error_count'],
@@ -484,7 +484,7 @@ async def validate_invoice_math_endpoint(
             "Invalid JSON in math validation",
             error_type="JSONDecodeError",
             error_message=str(e),
-            filename=file.filename
+            uploaded_file=file.filename
         )
         raise HTTPException(status_code=400, detail=f"Invalid JSON file: {str(e)}")
     except Exception as e:
@@ -492,7 +492,7 @@ async def validate_invoice_math_endpoint(
             "Math validation failed",
             event_type="math_validation_error",
             user_id=current_user.username,
-            filename=file.filename,
+            uploaded_file=file.filename,
             error_type=type(e).__name__,
             error_message=str(e)
         )
@@ -533,7 +533,7 @@ async def validate_full_invoice_pipeline(
         "Full validation pipeline started",
         event_type="full_validation_start",
         user_id=current_user.username,
-        filename=file.filename,
+        uploaded_file=file.filename,
         invoice_id=invoice_id
     )
     
@@ -657,7 +657,7 @@ async def validate_full_invoice_pipeline(
             "Invalid JSON in full validation",
             error_type="JSONDecodeError",
             error_message=str(e),
-            filename=file.filename
+            uploaded_file=file.filename
         )
         raise HTTPException(status_code=400, detail=f"Invalid JSON file: {str(e)}")
     except Exception as e:
@@ -888,7 +888,7 @@ async def upload_and_process_image(
         "Image upload and processing started",
         event_type="image_upload_start",
         user_id=current_user.username,
-        filename=file.filename,
+        uploaded_file=file.filename,
         content_type=file.content_type,
         invoice_id=invoice_id
     )
@@ -1052,7 +1052,7 @@ async def upload_and_process_image(
             event_type="image_processing_error",
             invoice_id=invoice_id,
             user_id=current_user.username,
-            filename=file.filename,
+            uploaded_file=file.filename,
             error_type=type(e).__name__,
             error_message=str(e)
         )
