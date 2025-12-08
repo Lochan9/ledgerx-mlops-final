@@ -1,4 +1,4 @@
-﻿name: 🚀 LedgerX MLOps - Complete CI/CD Pipeline
+﻿name: 🚀 LedgerX MLOps(Cloud run) - Complete CI/CD Pipeline
 
 on:
   push:
@@ -236,7 +236,7 @@ jobs:
             --min-instances=0 \
             --max-instances=10 \
             --add-cloudsql-instances=${{ env.CLOUD_SQL_INSTANCE }} \
-            --set-env-vars="ENVIRONMENT=production,DB_NAME=ledgerx,DB_USER=postgres,DB_HOST=/cloudsql/${{ env.CLOUD_SQL_INSTANCE }},DB_PORT=5432,GIT_SHA=${{ github.sha }},BUILD_NUMBER=${{ github.run_number }}" \
+            --set-env-vars="ENVIRONMENT=production,DB_NAME=ledgerx,DB_USER=postgres,DB_HOST=/cloudsql/${{ env.CLOUD_SQL_INSTANCE }},DB_PORT=5432" \
             --set-secrets="DB_PASSWORD=db-password:latest,OPENAI_API_KEY=openai-api-key:latest" \
             --service-account=671429123152-compute@developer.gserviceaccount.com \
             --labels="deployed-by=github-actions,git-sha=${{ github.sha }},build=${{ github.run_number }}"
