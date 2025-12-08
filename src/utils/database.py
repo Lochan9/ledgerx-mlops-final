@@ -19,60 +19,55 @@ logger = logging.getLogger(__name__)
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Connection pool
-_connection = None
+# No connection pooling - create fresh each time to avoid transaction errors
+# This is the CRITICAL FIX for "transaction aborted" errors
 
 def get_db_connection():
-    """Get database connection using DATABASE_URL (Cloud Run compatible)"""
-    global _connection
-
-    if _connection is None or _connection.closed:
-        # Use DATABASE_URL from Secret Manager (Cloud Run)
-        database_url = os.getenv("DATABASE_URL")
+    """
+    Get FRESH database connection (no pooling/reuse)
+    Creates new connection each time to prevent "transaction aborted" state
+    """
+    # Always create new connection (don't reuse)
+    database_url = os.getenv("DATABASE_URL")
+    
+    if database_url:
+        # Parse the DATABASE_URL for Cloud Run Unix socket
+        logger.info("[DB] Using DATABASE_URL from Secret Manager")
         
-        if database_url:
-            # Parse the DATABASE_URL for Cloud Run Unix socket
-            logger.info("[DB] Using DATABASE_URL from Secret Manager")
+        if "/cloudsql/" in database_url:
+            parts = database_url.split("@")
+            user_pass = parts[0].replace("postgresql://", "")
+            socket_path = parts[1]
             
-            # For Cloud Run, DATABASE_URL format is:
-            # postgresql://user:pass@/cloudsql/project:region:instance/dbname
-            if "/cloudsql/" in database_url:
-                # Extract components for Unix socket connection
-                # Format: postgresql://postgres:password@/cloudsql/connection-name/database
-                parts = database_url.split("@")
-                user_pass = parts[0].replace("postgresql://", "")
-                socket_path = parts[1]
-                
-                user, password = user_pass.split(":")
-                # socket_path is like: /cloudsql/project:region:instance/dbname
-                db_parts = socket_path.split("/")
-                connection_name = db_parts[2]  # project:region:instance
-                database = db_parts[3] if len(db_parts) > 3 else "ledgerx_db"
-                
-                _connection = psycopg2.connect(
-                    host=f"/cloudsql/{connection_name}",
-                    database=database,
-                    user=user,
-                    password=password
-                )
-                logger.info(f"[DB] ? Connected via Unix socket: /cloudsql/{connection_name}")
-            else:
-                # Regular TCP connection (local development)
-                _connection = psycopg2.connect(database_url)
-                logger.info("[DB] ? Connected via TCP (development)")
-        else:
-            # Fallback to old environment variables (legacy)
-            logger.warning("[DB] ??  DATABASE_URL not found, using legacy config")
-            _connection = psycopg2.connect(
-                host=os.getenv("DB_HOST", "localhost"),
-                port=int(os.getenv("DB_PORT", "5432")),
-                database=os.getenv("DB_NAME", "ledgerx_db"),
-                user=os.getenv("DB_USER", "postgres"),
-                password=os.getenv("DB_PASSWORD", "")
+            user, password = user_pass.split(":")
+            db_parts = socket_path.split("/")
+            connection_name = db_parts[2]
+            database = db_parts[3] if len(db_parts) > 3 else "ledgerx"
+            
+            conn = psycopg2.connect(
+                host=f"/cloudsql/{connection_name}",
+                database=database,
+                user=user,
+                password=password
             )
-            logger.info("[DB] ? Connected via legacy config")
-
-    return _connection
+            logger.info(f"[DB] ✅ Connected via Unix socket: /cloudsql/{connection_name}")
+            return conn
+        else:
+            conn = psycopg2.connect(database_url)
+            logger.info("[DB] ✅ Connected via TCP")
+            return conn
+    else:
+        # Fallback to environment variables
+        logger.info("[DB] Using legacy config from env vars")
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            port=int(os.getenv("DB_PORT", "5432")),
+            database=os.getenv("DB_NAME", "ledgerx"),
+            user=os.getenv("DB_USER", "postgres"),
+            password=os.getenv("DB_PASSWORD", "")
+        )
+        logger.info("[DB] ✅ Connected via legacy config")
+        return conn
 
 # ============================================================================
 # USER OPERATIONS
@@ -140,37 +135,54 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # ============================================================================
 
 def save_invoice(user_id: int, invoice_data: Dict[str, Any]) -> Optional[int]:
-    """Save invoice to database"""
+    """Save invoice to database with all fields"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
         cursor.execute("""
             INSERT INTO invoices (
-                user_id, invoice_number, vendor_name, total_amount,
-                quality_score, failure_risk
-            ) VALUES (%s, %s, %s, %s, %s, %s)
+                user_id, invoice_number, vendor_name, total_amount, currency, invoice_date,
+                quality_prediction, quality_score, risk_prediction, risk_score,
+                file_name, file_type, file_size_kb, ocr_method, ocr_confidence,
+                subtotal, tax_amount, discount_amount
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         """, (
             user_id,
-            invoice_data.get('invoice_number'),
-            invoice_data.get('vendor_name'),
-            invoice_data.get('total_amount'),
-            invoice_data.get('quality_score'),
-            invoice_data.get('failure_risk')
+            invoice_data.get('invoice_number', 'N/A'),
+            invoice_data.get('vendor_name', 'Unknown'),
+            invoice_data.get('total_amount', 0),
+            invoice_data.get('currency', 'USD'),
+            invoice_data.get('invoice_date', datetime.now().date()),
+            invoice_data.get('quality_prediction', 'unknown'),
+            invoice_data.get('quality_score', 0),
+            invoice_data.get('risk_prediction', 'unknown'),
+            invoice_data.get('risk_score', 0),  # FIXED: was failure_risk
+            invoice_data.get('file_name', 'unknown'),
+            invoice_data.get('file_type', 'IMAGE'),
+            invoice_data.get('file_size_kb', 0),
+            invoice_data.get('ocr_method', 'document_ai'),
+            invoice_data.get('ocr_confidence', 0),
+            invoice_data.get('subtotal', 0),
+            invoice_data.get('tax_amount', 0),
+            invoice_data.get('discount_amount', 0)
         ))
 
         invoice_id = cursor.fetchone()[0]
         conn.commit()
         cursor.close()
 
-        logger.info(f"[DB] ? Invoice saved: ID={invoice_id}")
+        logger.info(f"[DB] ✅ Invoice saved: ID={invoice_id}")
         return invoice_id
 
     except Exception as e:
-        logger.error(f"[DB] ? Error saving invoice: {e}")
-        if conn:
-            conn.rollback()
+        logger.error(f"[DB] ❌ Error saving invoice: {e}")
+        try:
+            if conn:
+                conn.rollback()
+        except:
+            pass
         return None
 
 def get_user_invoices(user_id: int, limit: int = 100) -> List[Dict[str, Any]]:

@@ -1,4 +1,4 @@
-﻿# Core API dependencies only
+# Core API dependencies only
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
 pydantic==2.5.3
@@ -38,4 +38,3 @@ rapidfuzz==3.5.2
 openai==1.3.0
 
 # Hybrid AI
-sentence-transformers==2.2.2

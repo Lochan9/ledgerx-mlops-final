@@ -523,10 +523,10 @@
     </div>
 
     <script>
-        const API = 'https://ledgerx-api-zyz6umftna-uc.a.run.app';
+        const API = 'https://ledgerx-api-671429123152.us-central1.run.app';
         let token = null;
         
-        console.log('🚀 LedgerX v2.0 Clean');
+        console.log('🚀 LedgerX v3.0 Final');
         
         async function api(e, o = {}) {
             const h = {};
@@ -689,10 +689,19 @@
                 const d = await r.json();
                 console.log('✅ Upload OK:', d);
                 
-                const qc = d.quality?.prediction === 'good' ? 'success' : 'danger';
-                const fc = d.failure?.prediction === 'safe' ? 'success' : 'warning';
+                // Parse response (handle both old and new format)
+                const quality = d.result?.quality_assessment || d.quality || {};
+                const failure = d.result?.failure_risk || d.failure || {};
                 
-                con.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i><div><strong>Success!</strong><br>${f.name} processed</div></div><div class="detail-grid"><div class="detail-item"><div class="detail-label">QUALITY</div><div class="detail-value"><span class="badge badge-${qc}">${(d.quality?.prediction || 'N/A').toUpperCase()}</span></div></div><div class="detail-item"><div class="detail-label">CONFIDENCE</div><div class="detail-value">${((d.quality?.confidence || 0) * 100).toFixed(1)}%</div></div><div class="detail-item"><div class="detail-label">RISK</div><div class="detail-value"><span class="badge badge-${fc}">${(d.failure?.prediction || 'N/A').toUpperCase()}</span></div></div><div class="detail-item"><div class="detail-label">TIME</div><div class="detail-value">${(d.processing_time_ms || 0).toFixed(0)}ms</div></div></div><div style="text-align:right;margin-top:20px"><button class="btn btn-secondary" onclick="document.getElementById('uploadResult').style.display='none'"><i class="fas fa-times"></i> Close</button><button class="btn btn-primary" onclick="showPage('history')"><i class="fas fa-history"></i> History</button></div>`;
+                const qualityPred = quality.quality || quality.prediction || 'N/A';
+                const qualityConf = quality.confidence || 0;
+                const failurePred = failure.risk || failure.prediction || 'N/A';
+                const failureProb = failure.probability || failure.confidence || 0;
+                
+                const qc = qualityPred === 'good' ? 'success' : 'danger';
+                const fc = failurePred === 'safe' || failurePred === 'low' ? 'success' : 'warning';
+                
+                con.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle"></i><div><strong>Success!</strong><br>${f.name} processed</div></div><div class="detail-grid"><div class="detail-item"><div class="detail-label">QUALITY</div><div class="detail-value"><span class="badge badge-${qc}">${qualityPred.toUpperCase()}</span></div></div><div class="detail-item"><div class="detail-label">CONFIDENCE</div><div class="detail-value">${(qualityConf * 100).toFixed(1)}%</div></div><div class="detail-item"><div class="detail-label">RISK</div><div class="detail-value"><span class="badge badge-${fc}">${failurePred.toUpperCase()}</span></div></div><div class="detail-item"><div class="detail-label">RISK PROBABILITY</div><div class="detail-value">${(failureProb * 100).toFixed(1)}%</div></div></div><div style="text-align:right;margin-top:20px"><button class="btn btn-secondary" onclick="document.getElementById('uploadResult').style.display='none'"><i class="fas fa-times"></i> Close</button><button class="btn btn-primary" onclick="showPage('history')"><i class="fas fa-history"></i> History</button></div>`;
                 
                 setTimeout(() => { loadInvoices(); loadUsage(); }, 1000);
                 

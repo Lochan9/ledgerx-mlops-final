@@ -1044,6 +1044,48 @@ async def upload_and_process_image(
             routing_action=routing_decision['action']
         )
         
+        # ✅ CRITICAL: Save invoice to database
+        if CLOUD_SQL_ENABLED:
+            try:
+                user_data = get_user_by_username(current_user.username)
+                if user_data:
+                    # Prepare invoice for database with ALL required fields
+                    invoice_to_save = {
+                        'invoice_number': invoice_data.get('invoice_number', f'AUTO-{invoice_id}'),
+                        'vendor_name': invoice_data.get('vendor_name', 'Unknown'),
+                        'total_amount': invoice_data.get('total_amount', 0),
+                        'currency': invoice_data.get('currency', 'USD'),
+                        'invoice_date': invoice_data.get('invoice_date', datetime.utcnow().strftime("%Y-%m-%d")),
+                        'quality_prediction': quality_assessment['quality'],
+                        'quality_score': quality_assessment['probability'],
+                        'risk_prediction': failure_risk['risk'],
+                        'risk_score': failure_risk['probability'],
+                        'file_name': file.filename,
+                        'file_type': 'IMAGE',
+                        'file_size_kb': file_size_kb,
+                        'ocr_method': 'Document AI' if DOCUMENT_AI_ENABLED else 'Fallback',
+                        'ocr_confidence': invoice_data.get('ocr_confidence', 0),
+                        'subtotal': invoice_data.get('subtotal', invoice_data.get('total_amount', 0) * 0.93),
+                        'tax_amount': invoice_data.get('tax', invoice_data.get('total_amount', 0) * 0.07),
+                        'discount_amount': invoice_data.get('discount', 0)
+                    }
+                    
+                    saved_id = save_invoice(user_data['id'], invoice_to_save)
+                    if saved_id:
+                        logger.info(f"✅ Invoice saved to database: ID={saved_id}", invoice_id=invoice_id)
+                        response['saved_to_database'] = True
+                        response['database_id'] = saved_id
+                    else:
+                        logger.warning("⚠️ Invoice save returned None", invoice_id=invoice_id)
+                        response['saved_to_database'] = False
+                else:
+                    logger.warning("⚠️ User data not found", user=current_user.username)
+                    response['saved_to_database'] = False
+            except Exception as save_error:
+                logger.error(f"❌ Failed to save invoice: {save_error}", invoice_id=invoice_id)
+                response['saved_to_database'] = False
+                response['save_error'] = str(save_error)
+        
         return response
         
     except Exception as e:
