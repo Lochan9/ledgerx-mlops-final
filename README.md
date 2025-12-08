@@ -9,7 +9,7 @@
 
 > **Production-grade MLOps platform for automated invoice quality assessment and payment failure prediction using dual CatBoost models with 95% OCR accuracy via Google Document AI.**
 
-🌐 **Live Demo:** [LedgerX Dashboard](https://storage.googleapis.com/ledgerx-dashboard-671429123152/index.html)  
+🌐 **Live Demo:** [LedgerX Dashboard](https://storage.googleapis.com/ledgerx-dashboard-671429123152/index_v2.html)  
 🔗 **API Endpoint:** https://ledgerx-api-671429123152.us-central1.run.app  
 📊 **Model Performance:** Quality 87.15% Acc, 77.07% F1 | Failure 86.70% Acc, 71.40% F1
 
@@ -1037,4 +1037,5 @@ cat reports/drift_history.json
    git push origin feature/amazing-feature
    ```
 7. **Open a Pull Request**
+
 
