@@ -1,0 +1,92 @@
+[
+  {
+    "timestamp": "2025-12-08T17:01:28.572791",
+    "model": "quality",
+    "action": "DEPLOY",
+    "current_f1": 0.8409156766154737,
+    "previous_f1": 0.8409156766154737,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:48:15.912178",
+    "model": "quality",
+    "action": "DEPLOY",
+    "current_f1": 0.7707404103479036,
+    "previous_f1": 0.7707404103479036,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:48:15.981384",
+    "model": "failure",
+    "action": "DEPLOY",
+    "current_f1": 0.7139784946236559,
+    "previous_f1": 0.7139784946236559,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:49:23.128536",
+    "model": "failure",
+    "action": "DEPLOY",
+    "current_f1": 0.7139784946236559,
+    "previous_f1": 0.7139784946236559,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:50:50.941148",
+    "model": "quality",
+    "action": "DEPLOY",
+    "current_f1": 0.7707404103479036,
+    "previous_f1": 0.7707404103479036,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:50:50.999815",
+    "model": "failure",
+    "action": "DEPLOY",
+    "current_f1": 0.7139784946236559,
+    "previous_f1": 0.7139784946236559,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:56:27.448306",
+    "model": "quality",
+    "action": "ROLLBACK",
+    "reason": "F1 below threshold (0.7707 < 0.8)",
+    "current_f1": 0.7707404103479036,
+    "backup_f1": 0.7707404103479036,
+    "decision": "Reverted to backup"
+  },
+  {
+    "timestamp": "2025-12-08T17:56:27.518541",
+    "model": "failure",
+    "action": "ROLLBACK",
+    "reason": "F1 below threshold (0.7140 < 0.75)",
+    "current_f1": 0.7139784946236559,
+    "backup_f1": 0.7139784946236559,
+    "decision": "Reverted to backup"
+  },
+  {
+    "timestamp": "2025-12-08T17:58:54.956413",
+    "model": "quality",
+    "action": "DEPLOY",
+    "current_f1": 0.7707404103479036,
+    "previous_f1": 0.7707404103479036,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  },
+  {
+    "timestamp": "2025-12-08T17:58:55.030871",
+    "model": "failure",
+    "action": "DEPLOY",
+    "current_f1": 0.7139784946236559,
+    "previous_f1": 0.7139784946236559,
+    "improvement": 0.0,
+    "decision": "Approved for production"
+  }
+]

@@ -244,7 +244,7 @@ def train_quality():
     df = pd.read_csv(QUALITY_DATA_PATH)
 
     y = df["label_quality_bad"].astype(int)
-    X = df.drop(columns=["label_quality_bad", "file_name"])
+    X = df.drop(columns=["label_quality_bad", "file_name"], errors="ignore")  # errors='ignore' added
 
     numeric_features = list(X.columns)
 
@@ -294,6 +294,15 @@ def train_quality():
         X, y, test_size=0.2, stratify=y, random_state=42
     )
 
+    # ✅ NEW - Save test set for rollback validation
+    logger.info("[TEST] Saving quality test set for rollback validation...")
+    test_df = X_test.copy()
+    test_df['label_quality_bad'] = y_test.values
+    test_path = DATA_PROCESSED / "quality_test.csv"
+    test_df.to_csv(test_path, index=False)
+    logger.info(f"[TEST] ✅ Saved {len(test_df)} test samples → {test_path}")
+
+
     results = []
     for name, model in models.items():
         pipeline = Pipeline(steps=[("pre", preprocessor), ("clf", model)])
@@ -309,6 +318,15 @@ def train_quality():
     logger.info(
         f"[QUALITY] Best Model: {best_name} saved to {best_path}"
     )
+
+    # ✅ NEW - Save CatBoost native format for rollback
+    if best_name == "catboost":
+        logger.info("[CATBOOST] Extracting and saving native .cbm format...")
+        catboost_model = best_pipeline.named_steps['clf']
+        cbm_path = MODELS_DIR / "quality_catboost.cbm"
+        catboost_model.save_model(str(cbm_path))
+        logger.info(f"[CATBOOST] ✅ Saved quality_catboost.cbm → {cbm_path}")
+
 
     # MLflow Model Registry registration (local file-based)
     logger.info("[MLFLOW] Registering QUALITY model...")
@@ -362,6 +380,15 @@ def train_failure():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, stratify=y, random_state=42)
     logger.info(f"[FAILURE] Train: {len(X_train)}, Test: {len(X_test)}")
 
+    # ✅ NEW - Save test set for rollback validation
+    logger.info("[TEST] Saving failure test set for rollback validation...")
+    test_df = X_test.copy()
+    test_df['label_failure'] = y_test.values
+    test_path = DATA_PROCESSED / "failure_test.csv"
+    test_df.to_csv(test_path, index=False)
+    logger.info(f"[TEST] ✅ Saved {len(test_df)} test samples → {test_path}")
+
+
     # Models with class balancing
     models = {
         "logreg": LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42),
@@ -406,6 +433,15 @@ def train_failure():
     with open(model_path, "wb") as f:
         joblib.dump(best_pipeline, model_path)
     logger.info(f"[FAILURE] Best Model: {best_name} saved to {model_path}")
+
+    # ✅ NEW - Save CatBoost native format for rollback
+    if best_name == "catboost":
+        logger.info("[CATBOOST] Extracting and saving native .cbm format...")
+        catboost_model = best_pipeline.named_steps['clf']
+        cbm_path = MODELS_DIR / "failure_catboost.cbm"
+        catboost_model.save_model(str(cbm_path))
+        logger.info(f"[CATBOOST] ✅ Saved failure_catboost.cbm → {cbm_path}")
+
 
     # MLflow
     with mlflow.start_run(run_name=f"failure_{best_name}"):

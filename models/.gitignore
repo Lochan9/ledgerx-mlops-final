@@ -1,2 +1,6 @@
-/quality_model.pkl
-/failure_model.pkl
+# Runtime artifacts (don't track)
+*.backup
+*.failed_*
+*.old
+*.temp
+*.TEMP_FOR_TEST
