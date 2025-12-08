@@ -6,11 +6,20 @@ global:
   evaluation_interval: 15s
   external_labels:
     monitor: 'ledgerx-mlops'
-    environment: 'development'
+    environment: 'production'
 
 scrape_configs:
-  # LedgerX FastAPI on host machine
+  # LedgerX Cloud Run API (Production)
   - job_name: 'ledgerx-api'
+    metrics_path: '/metrics'
+    scheme: 'https'
+    static_configs:
+      - targets: ['ledgerx-api-671429123152.us-central1.run.app']
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # LedgerX Local API (if running)
+  - job_name: 'ledgerx-api-local'
     static_configs:
       - targets: ['host.docker.internal:8000']
     metrics_path: '/metrics'
