@@ -1,0 +1,1 @@
+SECRET MANAGER WAS THE PROBLEM! Plain env vars work perfectly!
