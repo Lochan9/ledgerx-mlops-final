@@ -379,9 +379,19 @@ function showModal(invoiceData) {
     const ocrPercent = (ocrConf * 100).toFixed(1);
     
     document.getElementById('modalTitle').textContent = `Invoice: ${inv.invoice_number || inv.id}`;
-    document.getElementById('modalScore').textContent = qualityPercent;
-    document.getElementById('modalScore').style.color = qualityScore > 0.7 ? 'var(--success)' : qualityScore > 0.4 ? 'var(--warning)' : 'var(--danger)';
-    document.getElementById('modalSubtitle').textContent = qualityScore > 0.7 ? 'High quality' : qualityScore > 0.4 ? 'Medium quality' : 'Low quality';
+    document.getElementById('modalScore').textContent = qualityPercent + '%';
+    
+    // Color based on quality score (higher = better)
+    if (qualityScore > 0.7) {
+        document.getElementById('modalScore').style.color = 'var(--success)';
+        document.getElementById('modalSubtitle').textContent = 'High Quality - Low Risk';
+    } else if (qualityScore > 0.4) {
+        document.getElementById('modalScore').style.color = 'var(--warning)';
+        document.getElementById('modalSubtitle').textContent = 'Medium Quality';
+    } else {
+        document.getElementById('modalScore').style.color = 'var(--danger)';
+        document.getElementById('modalSubtitle').textContent = 'Low Quality - Needs Review';
+    }
     document.getElementById('modalVendor').textContent = inv.vendor_name || 'Unknown';
     document.getElementById('modalAmount').textContent = `$${(inv.total_amount || 0).toFixed(2)}`;
     document.getElementById('modalDate').textContent = inv.invoice_date || inv.created_at?.split('T')[0] || 'N/A';
