@@ -365,7 +365,7 @@ docker push gcr.io/ledgerx-mlops/ledgerx-api:latest
 gcloud run services delete ledgerx-api --region=us-central1 --quiet
 
 gcloud run deploy ledgerx-api `
-  --image=gcr.io/ledgerx-mlops/ledgerx-api:latest `
+  --image=gcr.io/ledgerx-mlops/ledgerx-api:v3-clean `
   --region=us-central1 `
   --allow-unauthenticated `
   --port=8000 `
@@ -1210,3 +1210,4 @@ MIT License - See LICENSE file for details
 ---
 
 **🎓 Built for MLOps Innovation Expo - December 2025**
+
