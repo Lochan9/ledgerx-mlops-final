@@ -456,7 +456,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Tests | ${{ needs.test.outputs.test_status }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ✅ Success |" >> $GITHUB_STEP_SUMMARY
           echo "| Deploy | ✅ Success |" >> $GITHUB_STEP_SUMMARY
           echo "| Verify | ✅ Success |" >> $GITHUB_STEP_SUMMARY
