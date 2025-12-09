@@ -370,34 +370,70 @@ async function upload(files) {
 function showModal(invoiceData) {
     const inv = typeof invoiceData === 'string' ? JSON.parse(invoiceData) : invoiceData;
     
-    const qualityScore = parseFloat(inv.quality_score) || 0;
+    let qualityScore = parseFloat(inv.quality_score) || 0;
     const riskScore = parseFloat(inv.risk_score) || 0;
     const ocrConf = parseFloat(inv.ocr_confidence) || 0;
+    
+    // FIX: If prediction is "good" but score is low (<0.5), invert it
+    if (inv.quality_prediction === 'good' && qualityScore < 0.5) {
+        qualityScore = 1 - qualityScore;
+    }
     
     const qualityPercent = (qualityScore * 100).toFixed(1);
     const riskPercent = (riskScore * 100).toFixed(1);
     const ocrPercent = (ocrConf * 100).toFixed(1);
     
-    document.getElementById('modalTitle').textContent = `Invoice: ${inv.invoice_number || inv.id}`;
-    document.getElementById('modalScore').textContent = qualityPercent + '%';
+    // Determine risk flag message
+    let riskFlag = 'No anomalies detected';
+    let riskFlagColor = '#4CAF50';
     
-    // Color based on quality score (higher = better)
-    if (qualityScore > 0.7) {
-        document.getElementById('modalScore').style.color = 'var(--success)';
-        document.getElementById('modalSubtitle').textContent = 'High Quality - Low Risk';
-    } else if (qualityScore > 0.4) {
-        document.getElementById('modalScore').style.color = 'var(--warning)';
-        document.getElementById('modalSubtitle').textContent = 'Medium Quality';
-    } else {
-        document.getElementById('modalScore').style.color = 'var(--danger)';
-        document.getElementById('modalSubtitle').textContent = 'Low Quality - Needs Review';
+    if (riskScore > 0.7) {
+        riskFlag = 'High-risk flag: Payment failure probability elevated';
+        riskFlagColor = '#ff6b6b';
+    } else if (riskScore > 0.4) {
+        riskFlag = 'Medium-risk flag: Requires review';
+        riskFlagColor = '#ffc107';
     }
+    
+    // Populate modal
+    document.getElementById('modalTitle').textContent = `Invoice: ${inv.invoice_number || inv.id}`;
+    
+    // Risk Score (large display)
+    document.getElementById('modalRiskScore').textContent = riskPercent;
+    document.getElementById('modalRiskFlag').textContent = riskFlag;
+    document.getElementById('modalRiskFlag').style.color = 'white';
+    
+    // Vendor
     document.getElementById('modalVendor').textContent = inv.vendor_name || 'Unknown';
+    
+    // Amount
     document.getElementById('modalAmount').textContent = `$${(inv.total_amount || 0).toFixed(2)}`;
+    
+    // Show breakdown only if we have subtotal/tax data
+    const subtotal = inv.subtotal || 0;
+    const tax = inv.tax_amount || 0;
+    
+    if (subtotal > 0 && tax > 0) {
+        document.getElementById('modalSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('modalTax').textContent = `$${tax.toFixed(2)}`;
+    } else {
+        // Hide breakdown if no tax info
+        document.getElementById('modalSubtotal').textContent = 'N/A';
+        document.getElementById('modalTax').textContent = 'N/A';
+    }
+    
+    // Date
     document.getElementById('modalDate').textContent = inv.invoice_date || inv.created_at?.split('T')[0] || 'N/A';
-    document.getElementById('modalQuality').textContent = (inv.quality_prediction || 'N/A').toUpperCase();
-    document.getElementById('modalRisk').textContent = (inv.risk_prediction || 'N/A').toUpperCase();
-    document.getElementById('modalConf').textContent = `${ocrPercent}%`;
+    
+    // OCR Confidence
+    document.getElementById('modalOcrConf').textContent = `${ocrPercent}%`;
+    
+    // Quality Assessment
+    const qualityText = (inv.quality_prediction || 'N/A').toUpperCase();
+    document.getElementById('modalQuality').textContent = qualityText;
+    document.getElementById('modalQuality').style.color = qualityText === 'GOOD' ? 'var(--success)' : 'var(--danger)';
+    
+    document.getElementById('modalQualityConf').textContent = `${qualityPercent}%`;
     
     document.getElementById('invoiceModal').classList.add('active');
 }

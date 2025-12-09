@@ -222,18 +222,54 @@
                 <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
-                <div class="perf-metric">
-                    <div class="perf-label">QUALITY SCORE</div>
-                    <div class="perf-value-huge" id="modalScore" style="color: var(--success)">--</div>
-                    <div class="perf-subtitle" id="modalSubtitle">Assessment</div>
+                <!-- Anomaly Risk Score Section -->
+                <div class="perf-metric" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
+                    <div class="perf-label" style="color: white; font-size: 13px; opacity: 0.9;">ANOMALY RISK SCORE</div>
+                    <div class="perf-value-huge" id="modalRiskScore" style="color: white; font-size: 48px; font-weight: 700; margin: 10px 0;">--</div>
+                    <div class="perf-subtitle" id="modalRiskFlag" style="color: white; font-size: 14px; opacity: 0.95;">Analyzing invoice patterns...</div>
                 </div>
-                <div class="detail-grid">
-                    <div class="detail-item"><div class="detail-label">VENDOR</div><div class="detail-value" id="modalVendor">--</div></div>
-                    <div class="detail-item"><div class="detail-label">AMOUNT</div><div class="detail-value" id="modalAmount">--</div></div>
-                    <div class="detail-item"><div class="detail-label">DATE</div><div class="detail-value" id="modalDate">--</div></div>
-                    <div class="detail-item"><div class="detail-label">QUALITY</div><div class="detail-value" id="modalQuality">--</div></div>
-                    <div class="detail-item"><div class="detail-label">RISK</div><div class="detail-value" id="modalRisk">--</div></div>
-                    <div class="detail-item"><div class="detail-label">CONFIDENCE</div><div class="detail-value" id="modalConf">--</div></div>
+                
+                <!-- Vendor Information -->
+                <div style="background: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">VENDOR NAME</div>
+                    <div id="modalVendor" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">--</div>
+                </div>
+                
+                <!-- Financial Details -->
+                <div style="background: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--success);">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">INVOICE AMOUNT</div>
+                    <div id="modalAmount" style="font-size: 24px; font-weight: 700; color: var(--success);">--</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; font-size: 13px;">
+                        <div><span style="color: var(--text-muted);">Subtotal:</span> <span id="modalSubtotal">--</span></div>
+                        <div><span style="color: var(--text-muted);">Tax:</span> <span id="modalTax">--</span></div>
+                    </div>
+                </div>
+                
+                <!-- Date & Extraction -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">DATE ISSUED</div>
+                        <div id="modalDate" style="font-size: 16px; font-weight: 600;">--</div>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 8px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">EXTRACTION ACCURACY</div>
+                        <div id="modalOcrConf" style="font-size: 16px; font-weight: 600; color: var(--primary);">--</div>
+                    </div>
+                </div>
+                
+                <!-- AI Assessment -->
+                <div style="background: var(--card-bg); padding: 20px; border-radius: 8px;">
+                    <div style="font-size: 13px; font-weight: 600; margin-bottom: 15px; color: var(--text-primary);">AI QUALITY ASSESSMENT</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">QUALITY STATUS</div>
+                            <div id="modalQuality" style="font-size: 16px; font-weight: 600; color: var(--success);">--</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">CONFIDENCE</div>
+                            <div id="modalQualityConf" style="font-size: 16px; font-weight: 600; color: var(--primary);">--</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

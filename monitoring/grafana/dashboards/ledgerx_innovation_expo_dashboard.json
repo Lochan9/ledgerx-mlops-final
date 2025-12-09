@@ -1,1110 +1,1435 @@
 {
-    "id":  null,
-    "uid":  "ledgerx-demo",
-    "title":  "LedgerX Invoice Intelligence Platform - MLOps Dashboard",
-    "tags":  [
-                 "mlops",
-                 "ledgerx",
-                 "invoice-intelligence",
-                 "production"
-             ],
-    "timezone":  "browser",
-    "schemaVersion":  38,
-    "version":  1,
-    "refresh":  "5s",
-    "editable":  true,
-    "graphTooltip":  1,
-    "annotations":  {
-                        "list":  [
-                                     {
-                                         "datasource":  "Prometheus",
-                                         "enable":  true,
-                                         "expr":  "ALERTS{alertstate=\"firing\"}",
-                                         "iconColor":  "red",
-                                         "name":  "Alerts"
-                                     }
-                                 ]
-                    },
-    "panels":  [
-                   {
-                       "id":  1,
-                       "gridPos":  {
-                                       "h":  3,
-                                       "w":  24,
-                                       "x":  0,
-                                       "y":  0
-                                   },
-                       "type":  "row",
-                       "title":  "🎯 System Overview",
-                       "collapsed":  false
-                   },
-                   {
-                       "id":  2,
-                       "gridPos":  {
-                                       "h":  6,
-                                       "w":  4,
-                                       "x":  0,
-                                       "y":  3
-                                   },
-                       "type":  "stat",
-                       "title":  "API Status",
-                       "targets":  [
-                                       {
-                                           "expr":  "up{job=\"ledgerx-api\"}",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "background",
-                                       "graphMode":  "none",
-                                       "justifyMode":  "center",
-                                       "orientation":  "auto",
-                                       "reduceOptions":  {
-                                                             "values":  false,
-                                                             "calcs":  [
-                                                                           "lastNotNull"
-                                                                       ],
-                                                             "fields":  ""
-                                                         },
-                                       "textMode":  "value_and_name"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "mappings":  [
-                                                                             {
-                                                                                 "type":  "value",
-                                                                                 "value":  "1",
-                                                                                 "text":  "✅ HEALTHY"
-                                                                             },
-                                                                             {
-                                                                                 "type":  "value",
-                                                                                 "value":  "0",
-                                                                                 "text":  "❌ DOWN"
-                                                                             }
-                                                                         ],
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "red"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  1,
-                                                                                                 "color":  "green"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "short"
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  3,
-                       "gridPos":  {
-                                       "h":  6,
-                                       "w":  5,
-                                       "x":  4,
-                                       "y":  3
-                                   },
-                       "type":  "stat",
-                       "title":  "Total Predictions (Last 24h)",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(increase(ledgerx_predictions_total[24h]))",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center",
-                                       "orientation":  "auto",
-                                       "reduceOptions":  {
-                                                             "values":  false,
-                                                             "calcs":  [
-                                                                           "lastNotNull"
-                                                                       ],
-                                                             "fields":  ""
-                                                         },
-                                       "textMode":  "value_and_name"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "blue"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  100,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  1000,
-                                                                                                 "color":  "yellow"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "short",
-                                                            "decimals":  0
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  4,
-                       "gridPos":  {
-                                       "h":  6,
-                                       "w":  5,
-                                       "x":  9,
-                                       "y":  3
-                                   },
-                       "type":  "stat",
-                       "title":  "Average Response Time",
-                       "targets":  [
-                                       {
-                                           "expr":  "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center",
-                                       "orientation":  "auto"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  1,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  2,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "s",
-                                                            "decimals":  2
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  5,
-                       "gridPos":  {
-                                       "h":  6,
-                                       "w":  5,
-                                       "x":  14,
-                                       "y":  3
-                                   },
-                       "type":  "stat",
-                       "title":  "Quality Model F1 Score",
-                       "targets":  [
-                                       {
-                                           "expr":  "ledgerx_model_quality_f1_score",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "red"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.7,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.75,
-                                                                                                 "color":  "green"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "percentunit",
-                                                            "decimals":  3,
-                                                            "min":  0,
-                                                            "max":  1
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  6,
-                       "gridPos":  {
-                                       "h":  6,
-                                       "w":  5,
-                                       "x":  19,
-                                       "y":  3
-                                   },
-                       "type":  "stat",
-                       "title":  "Failure Model F1 Score",
-                       "targets":  [
-                                       {
-                                           "expr":  "ledgerx_model_failure_f1_score",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "red"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.65,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.7,
-                                                                                                 "color":  "green"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "percentunit",
-                                                            "decimals":  3,
-                                                            "min":  0,
-                                                            "max":  1
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  7,
-                       "gridPos":  {
-                                       "h":  3,
-                                       "w":  24,
-                                       "x":  0,
-                                       "y":  9
-                                   },
-                       "type":  "row",
-                       "title":  "📊 Prediction Analytics",
-                       "collapsed":  false
-                   },
-                   {
-                       "id":  8,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  12,
-                                       "x":  0,
-                                       "y":  12
-                                   },
-                       "type":  "timeseries",
-                       "title":  "Prediction Request Rate (by Model)",
-                       "targets":  [
-                                       {
-                                           "expr":  "rate(ledgerx_predictions_total{model=\"quality\"}[1m])",
-                                           "legendFormat":  "Quality Model",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "rate(ledgerx_predictions_total{model=\"failure\"}[1m])",
-                                           "legendFormat":  "Failure Model",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "lineWidth":  2,
-                                                                           "fillOpacity":  10,
-                                                                           "showPoints":  "never"
-                                                                       },
-                                                            "color":  {
-                                                                          "mode":  "palette-classic"
-                                                                      },
-                                                            "unit":  "reqps"
-                                                        }
-                                       },
-                       "options":  {
-                                       "tooltip":  {
-                                                       "mode":  "multi"
-                                                   },
-                                       "legend":  {
-                                                      "showLegend":  true,
-                                                      "displayMode":  "table",
-                                                      "placement":  "bottom",
-                                                      "calcs":  [
-                                                                    "mean",
-                                                                    "lastNotNull",
-                                                                    "max"
-                                                                ]
-                                                  }
-                                   }
-                   },
-                   {
-                       "id":  9,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  12,
-                                       "x":  12,
-                                       "y":  12
-                                   },
-                       "type":  "timeseries",
-                       "title":  "Prediction Latency Percentiles",
-                       "targets":  [
-                                       {
-                                           "expr":  "histogram_quantile(0.99, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
-                                           "legendFormat":  "p99",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "histogram_quantile(0.95, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
-                                           "legendFormat":  "p95",
-                                           "refId":  "B"
-                                       },
-                                       {
-                                           "expr":  "histogram_quantile(0.50, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
-                                           "legendFormat":  "p50 (median)",
-                                           "refId":  "C"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "lineWidth":  2,
-                                                                           "fillOpacity":  0
-                                                                       },
-                                                            "color":  {
-                                                                          "mode":  "palette-classic"
-                                                                      },
-                                                            "unit":  "s"
-                                                        }
-                                       },
-                       "options":  {
-                                       "tooltip":  {
-                                                       "mode":  "multi"
-                                                   },
-                                       "legend":  {
-                                                      "showLegend":  true,
-                                                      "displayMode":  "table",
-                                                      "placement":  "bottom",
-                                                      "calcs":  [
-                                                                    "mean",
-                                                                    "lastNotNull"
-                                                                ]
-                                                  }
-                                   }
-                   },
-                   {
-                       "id":  10,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  8,
-                                       "x":  0,
-                                       "y":  20
-                                   },
-                       "type":  "piechart",
-                       "title":  "Quality Predictions Distribution",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(ledgerx_predictions_total{model=\"quality\", prediction_class=\"good\"})",
-                                           "legendFormat":  "✅ Good Quality",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "sum(ledgerx_predictions_total{model=\"quality\", prediction_class=\"bad\"})",
-                                           "legendFormat":  "⚠️ Bad Quality",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "options":  {
-                                       "legend":  {
-                                                      "displayMode":  "table",
-                                                      "placement":  "right",
-                                                      "showLegend":  true,
-                                                      "values":  [
-                                                                     "value",
-                                                                     "percent"
-                                                                 ]
-                                                  },
-                                       "pieType":  "donut",
-                                       "displayLabels":  [
-                                                             "percent"
-                                                         ],
-                                       "tooltip":  {
-                                                       "mode":  "single"
-                                                   }
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "color":  {
-                                                                          "mode":  "palette-classic"
-                                                                      }
-                                                        },
-                                           "overrides":  [
-                                                             {
-                                                                 "matcher":  {
-                                                                                 "id":  "byName",
-                                                                                 "options":  "✅ Good Quality"
-                                                                             },
-                                                                 "properties":  [
-                                                                                    {
-                                                                                        "id":  "color",
-                                                                                        "value":  {
-                                                                                                      "fixedColor":  "green",
-                                                                                                      "mode":  "fixed"
-                                                                                                  }
-                                                                                    }
-                                                                                ]
-                                                             },
-                                                             {
-                                                                 "matcher":  {
-                                                                                 "id":  "byName",
-                                                                                 "options":  "⚠️ Bad Quality"
-                                                                             },
-                                                                 "properties":  [
-                                                                                    {
-                                                                                        "id":  "color",
-                                                                                        "value":  {
-                                                                                                      "fixedColor":  "red",
-                                                                                                      "mode":  "fixed"
-                                                                                                  }
-                                                                                    }
-                                                                                ]
-                                                             }
-                                                         ]
-                                       }
-                   },
-                   {
-                       "id":  11,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  8,
-                                       "x":  8,
-                                       "y":  20
-                                   },
-                       "type":  "piechart",
-                       "title":  "Failure Risk Distribution",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(ledgerx_predictions_total{model=\"failure\", prediction_class=\"safe\"})",
-                                           "legendFormat":  "✅ Safe",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "sum(ledgerx_predictions_total{model=\"failure\", prediction_class=\"risk\"})",
-                                           "legendFormat":  "⚠️ At Risk",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "options":  {
-                                       "legend":  {
-                                                      "displayMode":  "table",
-                                                      "placement":  "right",
-                                                      "showLegend":  true,
-                                                      "values":  [
-                                                                     "value",
-                                                                     "percent"
-                                                                 ]
-                                                  },
-                                       "pieType":  "donut",
-                                       "displayLabels":  [
-                                                             "percent"
-                                                         ]
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "color":  {
-                                                                          "mode":  "palette-classic"
-                                                                      }
-                                                        },
-                                           "overrides":  [
-                                                             {
-                                                                 "matcher":  {
-                                                                                 "id":  "byName",
-                                                                                 "options":  "✅ Safe"
-                                                                             },
-                                                                 "properties":  [
-                                                                                    {
-                                                                                        "id":  "color",
-                                                                                        "value":  {
-                                                                                                      "fixedColor":  "green",
-                                                                                                      "mode":  "fixed"
-                                                                                                  }
-                                                                                    }
-                                                                                ]
-                                                             },
-                                                             {
-                                                                 "matcher":  {
-                                                                                 "id":  "byName",
-                                                                                 "options":  "⚠️ At Risk"
-                                                                             },
-                                                                 "properties":  [
-                                                                                    {
-                                                                                        "id":  "color",
-                                                                                        "value":  {
-                                                                                                      "fixedColor":  "orange",
-                                                                                                      "mode":  "fixed"
-                                                                                                  }
-                                                                                    }
-                                                                                ]
-                                                             }
-                                                         ]
-                                       }
-                   },
-                   {
-                       "id":  12,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  8,
-                                       "x":  16,
-                                       "y":  20
-                                   },
-                       "type":  "bargauge",
-                       "title":  "Model Confidence Scores",
-                       "targets":  [
-                                       {
-                                           "expr":  "avg(ledgerx_quality_probability)",
-                                           "legendFormat":  "Quality Model",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "avg(ledgerx_failure_probability)",
-                                           "legendFormat":  "Failure Model",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "options":  {
-                                       "displayMode":  "gradient",
-                                       "orientation":  "horizontal",
-                                       "showUnfilled":  true
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "red"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.5,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.7,
-                                                                                                 "color":  "green"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "percentunit",
-                                                            "min":  0,
-                                                            "max":  1
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  13,
-                       "gridPos":  {
-                                       "h":  3,
-                                       "w":  24,
-                                       "x":  0,
-                                       "y":  28
-                                   },
-                       "type":  "row",
-                       "title":  "💰 Cost Optimization \u0026 Performance",
-                       "collapsed":  false
-                   },
-                   {
-                       "id":  14,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  6,
-                                       "x":  0,
-                                       "y":  31
-                                   },
-                       "type":  "stat",
-                       "title":  "Cache Hit Rate",
-                       "targets":  [
-                                       {
-                                           "expr":  "rate(ledgerx_cache_hits_total[5m]) / (rate(ledgerx_cache_hits_total[5m]) + rate(ledgerx_cache_misses_total[5m]))",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "background",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "red"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.5,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.7,
-                                                                                                 "color":  "green"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "percentunit",
-                                                            "decimals":  2
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  15,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  6,
-                                       "x":  6,
-                                       "y":  31
-                                   },
-                       "type":  "stat",
-                       "title":  "Rate Limit Hits (Last Hour)",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(increase(ledgerx_rate_limit_exceeded_total[1h]))",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  10,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  50,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "short"
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  16,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  6,
-                                       "x":  12,
-                                       "y":  31
-                                   },
-                       "type":  "stat",
-                       "title":  "Document AI Calls (Today)",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(increase(ledgerx_document_ai_calls_total[24h]))",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "area",
-                                       "justifyMode":  "center"
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  500,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  900,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "short"
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  17,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  6,
-                                       "x":  18,
-                                       "y":  31
-                                   },
-                       "type":  "stat",
-                       "title":  "Estimated Cost (Today)",
-                       "targets":  [
-                                       {
-                                           "expr":  "sum(increase(ledgerx_document_ai_calls_total[24h])) * 0.0015",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "options":  {
-                                       "colorMode":  "value",
-                                       "graphMode":  "none",
-                                       "justifyMode":  "center",
-                                       "text":  {
-                                                    "titleSize":  14,
-                                                    "valueSize":  28
-                                                }
-                                   },
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  1,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  5,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "currencyUSD",
-                                                            "decimals":  3
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  18,
-                       "gridPos":  {
-                                       "h":  3,
-                                       "w":  24,
-                                       "x":  0,
-                                       "y":  38
-                                   },
-                       "type":  "row",
-                       "title":  "🔍 Model Monitoring \u0026 Drift Detection",
-                       "collapsed":  false
-                   },
-                   {
-                       "id":  19,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  12,
-                                       "x":  0,
-                                       "y":  41
-                                   },
-                       "type":  "timeseries",
-                       "title":  "Model Drift Score (Threshold: 0.1)",
-                       "targets":  [
-                                       {
-                                           "expr":  "ledgerx_model_drift_score{model=\"quality\"}",
-                                           "legendFormat":  "Quality Model Drift",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "ledgerx_model_drift_score{model=\"failure\"}",
-                                           "legendFormat":  "Failure Model Drift",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "lineWidth":  2,
-                                                                           "fillOpacity":  20
-                                                                       },
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.1,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "short"
-                                                        }
-                                       },
-                       "options":  {
-                                       "tooltip":  {
-                                                       "mode":  "multi"
-                                                   },
-                                       "legend":  {
-                                                      "showLegend":  true,
-                                                      "displayMode":  "table",
-                                                      "placement":  "bottom",
-                                                      "calcs":  [
-                                                                    "mean",
-                                                                    "lastNotNull",
-                                                                    "max"
-                                                                ]
-                                                  }
-                                   }
-                   },
-                   {
-                       "id":  20,
-                       "gridPos":  {
-                                       "h":  8,
-                                       "w":  12,
-                                       "x":  12,
-                                       "y":  41
-                                   },
-                       "type":  "timeseries",
-                       "title":  "Model Performance Over Time",
-                       "targets":  [
-                                       {
-                                           "expr":  "ledgerx_model_quality_f1_score",
-                                           "legendFormat":  "Quality F1",
-                                           "refId":  "A"
-                                       },
-                                       {
-                                           "expr":  "ledgerx_model_failure_f1_score",
-                                           "legendFormat":  "Failure F1",
-                                           "refId":  "B"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "lineWidth":  2
-                                                                       },
-                                                            "unit":  "percentunit",
-                                                            "min":  0,
-                                                            "max":  1
-                                                        }
-                                       },
-                       "options":  {
-                                       "tooltip":  {
-                                                       "mode":  "multi"
-                                                   },
-                                       "legend":  {
-                                                      "showLegend":  true,
-                                                      "displayMode":  "table",
-                                                      "placement":  "bottom",
-                                                      "calcs":  [
-                                                                    "mean",
-                                                                    "lastNotNull"
-                                                                ]
-                                                  }
-                                   }
-                   },
-                   {
-                       "id":  21,
-                       "gridPos":  {
-                                       "h":  3,
-                                       "w":  24,
-                                       "x":  0,
-                                       "y":  49
-                                   },
-                       "type":  "row",
-                       "title":  "⚙️ System Resources \u0026 Health",
-                       "collapsed":  false
-                   },
-                   {
-                       "id":  22,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  8,
-                                       "x":  0,
-                                       "y":  52
-                                   },
-                       "type":  "timeseries",
-                       "title":  "Memory Usage",
-                       "targets":  [
-                                       {
-                                           "expr":  "process_resident_memory_bytes",
-                                           "legendFormat":  "Memory Used",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "fillOpacity":  20
-                                                                       },
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  400000000,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  500000000,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "bytes"
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  23,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  8,
-                                       "x":  8,
-                                       "y":  52
-                                   },
-                       "type":  "timeseries",
-                       "title":  "CPU Usage",
-                       "targets":  [
-                                       {
-                                           "expr":  "rate(process_cpu_seconds_total[5m])",
-                                           "legendFormat":  "CPU Usage",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "fillOpacity":  20
-                                                                       },
-                                                            "thresholds":  {
-                                                                               "mode":  "absolute",
-                                                                               "steps":  [
-                                                                                             {
-                                                                                                 "value":  0,
-                                                                                                 "color":  "green"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.5,
-                                                                                                 "color":  "yellow"
-                                                                                             },
-                                                                                             {
-                                                                                                 "value":  0.8,
-                                                                                                 "color":  "red"
-                                                                                             }
-                                                                                         ]
-                                                                           },
-                                                            "unit":  "percentunit"
-                                                        }
-                                       }
-                   },
-                   {
-                       "id":  24,
-                       "gridPos":  {
-                                       "h":  7,
-                                       "w":  8,
-                                       "x":  16,
-                                       "y":  52
-                                   },
-                       "type":  "timeseries",
-                       "title":  "HTTP Request Rate",
-                       "targets":  [
-                                       {
-                                           "expr":  "rate(http_requests_total[1m])",
-                                           "legendFormat":  "{{method}} {{endpoint}}",
-                                           "refId":  "A"
-                                       }
-                                   ],
-                       "fieldConfig":  {
-                                           "defaults":  {
-                                                            "custom":  {
-                                                                           "drawStyle":  "line",
-                                                                           "lineInterpolation":  "smooth",
-                                                                           "lineWidth":  1
-                                                                       },
-                                                            "unit":  "reqps"
-                                                        }
-                                       },
-                       "options":  {
-                                       "legend":  {
-                                                      "showLegend":  true,
-                                                      "displayMode":  "list",
-                                                      "placement":  "bottom"
-                                                  }
-                                   }
-                   }
-               ],
-    "time":  {
-                 "from":  "now-6h",
-                 "to":  "now"
-             },
-    "timepicker":  {
-                       "refresh_intervals":  [
-                                                 "5s",
-                                                 "10s",
-                                                 "30s",
-                                                 "1m",
-                                                 "5m",
-                                                 "15m"
-                                             ],
-                       "time_options":  [
-                                            "5m",
-                                            "15m",
-                                            "1h",
-                                            "6h",
-                                            "12h",
-                                            "24h",
-                                            "2d",
-                                            "7d"
-                                        ]
-                   },
-    "templating":  {
-                       "list":  [
-
-                                ]
-                   }
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "Prometheus",
+        "enable": true,
+        "expr": "ALERTS{alertstate=\"firing\"}",
+        "hide": false,
+        "iconColor": "red",
+        "name": "Alerts"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 3,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "🎯 System Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 100
+              },
+              {
+                "color": "yellow",
+                "value": 1000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 4,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "http_requests_total{handler=\"/upload/image\"}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Predictions (Last 24h)",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 9,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Average Response Time",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.7
+              },
+              {
+                "color": "green",
+                "value": 0.75
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 14,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "ledgerx_model_quality_f1_score",
+          "refId": "A"
+        }
+      ],
+      "title": "Quality Model F1 Score",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.65
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 5,
+        "x": 19,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "ledgerx_model_failure_f1_score",
+          "refId": "A"
+        }
+      ],
+      "title": "Failure Model F1 Score",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 7,
+      "panels": [],
+      "title": "📊 Prediction Analytics",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(http_requests_total{handler=\"/upload/image\"}[5m])",
+          "legendFormat": "Quality Model",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "expr": "rate(ledgerx_predictions_total{model=\"failure\"}[1m])",
+          "legendFormat": "Failure Model",
+          "refId": "B"
+        }
+      ],
+      "title": "Prediction Request Rate (by Model)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.99, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
+          "legendFormat": "p99",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(ledgerx_prediction_latency_seconds_bucket[5m]))",
+          "legendFormat": "p50 (median)",
+          "refId": "C"
+        }
+      ],
+      "title": "Prediction Latency Percentiles",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "✅ Good Quality"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "⚠️ Bad Quality"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 16
+      },
+      "id": 10,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "sum(ledgerx_predictions_total{model=\"quality\", prediction_class=\"good\"})",
+          "legendFormat": "✅ Good Quality",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(ledgerx_predictions_total{model=\"quality\", prediction_class=\"bad\"})",
+          "legendFormat": "⚠️ Bad Quality",
+          "refId": "B"
+        }
+      ],
+      "title": "Quality Predictions Distribution",
+      "type": "piechart"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "✅ Safe"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "⚠️ At Risk"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 16
+      },
+      "id": 11,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "sum(ledgerx_predictions_total{model=\"failure\", prediction_class=\"safe\"})",
+          "legendFormat": "✅ Safe",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(ledgerx_predictions_total{model=\"failure\", prediction_class=\"risk\"})",
+          "legendFormat": "⚠️ At Risk",
+          "refId": "B"
+        }
+      ],
+      "title": "Failure Risk Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 16
+      },
+      "id": 12,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "ledgerx_model_quality_f1_score",
+          "legendFormat": "Quality Model",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "ledgerx_model_failure_f1_score",
+          "legendFormat": "Failure Model",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Model Confidence Scores",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 13,
+      "panels": [],
+      "title": "💰 Cost Optimization & Performance",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 25
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "rate(ledgerx_cache_hits_total[5m]) / (rate(ledgerx_cache_hits_total[5m]) + rate(ledgerx_cache_misses_total[5m]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Rate",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 25
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "sum(increase(ledgerx_rate_limit_exceeded_total[1h]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Rate Limit Hits (Last Hour)",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 900
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 25
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "sum(increase(ledgerx_document_ai_calls_total[24h]))",
+          "refId": "A"
+        }
+      ],
+      "title": "Document AI Calls (Today)",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 25
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {
+          "titleSize": 14,
+          "valueSize": 28
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "sum(increase(ledgerx_document_ai_calls_total[24h])) * 0.0015",
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated Cost (Today)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 18,
+      "panels": [],
+      "title": "🔍 Model Monitoring & Drift Detection",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "ledgerx_model_drift_score{model=\"quality\"}",
+          "legendFormat": "Quality Model Drift",
+          "refId": "A"
+        },
+        {
+          "expr": "ledgerx_model_drift_score{model=\"failure\"}",
+          "legendFormat": "Failure Model Drift",
+          "refId": "B"
+        }
+      ],
+      "title": "Model Drift Score (Threshold: 0.1)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.0",
+      "targets": [
+        {
+          "expr": "ledgerx_model_quality_f1_score",
+          "legendFormat": "Quality F1",
+          "refId": "A"
+        },
+        {
+          "expr": "ledgerx_model_failure_f1_score",
+          "legendFormat": "Failure F1",
+          "refId": "B"
+        }
+      ],
+      "title": "Model Performance Over Time",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 21,
+      "panels": [],
+      "title": "⚙️ System Resources & Health",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineInterpolation": "smooth"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 400000000
+              },
+              {
+                "color": "red",
+                "value": 500000000
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 42
+      },
+      "id": 22,
+      "options": {},
+      "targets": [
+        {
+          "expr": "process_resident_memory_bytes",
+          "legendFormat": "Memory Used",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Usage",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineInterpolation": "smooth"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 0.8
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 42
+      },
+      "id": 23,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[5m])",
+          "legendFormat": "CPU Usage",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 1
+          },
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 42
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        }
+      },
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[1m])",
+          "legendFormat": "{{method}} {{endpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Request Rate",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [
+    "mlops",
+    "ledgerx",
+    "invoice-intelligence",
+    "production"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m"
+    ]
+  },
+  "timezone": "browser",
+  "title": "LedgerX Invoice Intelligence Platform - MLOps Dashboard",
+  "uid": "ledgerx-demo",
+  "version": 3
 }
