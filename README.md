@@ -124,6 +124,7 @@ LedgerX is an enterprise invoice intelligence platform that uses machine learnin
 │  Send Notifications (Email + Slack)                         │
 └─────────────────────────────────────────────────────────────┘
 ```
+<img width="437" height="1280" alt="image" src="https://github.com/user-attachments/assets/04f27fe8-5650-4e78-89ca-bbb6e4c995ac" />
 
 ---
 
@@ -1210,4 +1211,5 @@ MIT License - See LICENSE file for details
 ---
 
 **🎓 Built for MLOps Innovation Expo - December 2025**
+
 
