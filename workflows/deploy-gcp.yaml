@@ -1,0 +1,80 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'models/**'
+      - 'Dockerfile.cloudrun'
+      - '.github/workflows/deploy-gcp.yml'
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: ledgerx-mlops
+  GCP_REGION: us-central1
+  SERVICE_NAME: ledgerx-api
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.GCP_PROJECT_ID }}
+    
+    - name: Configure Docker
+      run: |
+        gcloud auth configure-docker gcr.io
+    
+    - name: Build Docker image
+      run: |
+        docker build -f Dockerfile.cloudrun \
+          -t gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest \
+          -t gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+          .
+    
+    - name: Push to Container Registry
+      run: |
+        docker push gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
+        docker push gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+    
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE_NAME }} \
+          --image gcr.io/${{ env.GCP_PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest \
+          --region ${{ env.GCP_REGION }} \
+          --platform managed \
+          --allow-unauthenticated \
+          --port 8000 \
+          --cpu 2 \
+          --memory 2Gi \
+          --timeout 300 \
+          --min-instances 0 \
+          --max-instances 10 \
+          --set-env-vars "ENVIRONMENT=production"
+    
+    - name: Get service URL
+      run: |
+        SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+          --region ${{ env.GCP_REGION }} \
+          --format 'value(status.url)')
+        echo "Service URL: $SERVICE_URL"
+        echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_ENV
+    
+    - name: Health check
+      run: |
+        sleep 10
+        curl -f ${{ env.SERVICE_URL }}/health || exit 1
+    
+    - name: Success notification
+      if: success()
+      run: |
+        echo "✅ Deployment successful!"
+        echo "Service: ${{ env.SERVICE_URL }}"

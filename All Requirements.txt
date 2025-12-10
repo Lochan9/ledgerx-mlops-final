@@ -1,0 +1,112 @@
+# File 1: requirements.txt
+# Core dependencies for development
+
+# Data Processing
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+
+# ML Models
+catboost==1.2.7
+mlflow==2.12.1
+
+# API
+fastapi==0.115.0
+uvicorn==0.30.0
+pydantic==2.8.2
+python-multipart==0.0.6
+
+# Authentication
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.1.2
+cryptography==42.0.2
+
+# Google Cloud
+google-cloud-documentai==2.20.0
+google-cloud-sql-connector==1.4.3
+google-cloud-logging==3.8.0
+google-cloud-storage==2.10.0
+google-cloud-secret-manager==2.16.4
+
+# Monitoring
+prometheus-client==0.19.0
+
+# Configuration & Utilities
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# DVC & Versioning
+dvc==3.51.0
+dvc-gdrive==2.20.0
+
+# Testing
+pytest==7.4.4
+pytest-cov==4.1.0
+pytest-asyncio==0.23.0
+
+# Development
+black==23.12.1
+flake8==6.1.0
+mypy==1.8.0
+isort==5.13.2
+
+---
+
+# File 2: requirements_api.txt
+# API-specific dependencies
+
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.4.2
+catboost==1.2.7
+mlflow==2.12.1
+fastapi==0.115.0
+uvicorn==0.30.0
+pydantic==2.8.2
+python-multipart==0.0.6
+python-jose==3.3.0
+passlib==1.7.4
+bcrypt==4.1.2
+cryptography==42.0.2
+google-cloud-documentai==2.20.0
+google-cloud-sql-connector==1.4.3
+google-cloud-logging==3.8.0
+google-cloud-storage==2.10.0
+prometheus-client==0.19.0
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+---
+
+# File 3: requirements_dev.txt
+# Development dependencies
+
+-r requirements.txt
+
+# Additional dev tools
+jupyter==1.0.0
+notebook==7.0.6
+ipython==8.19.0
+matplotlib==3.8.3
+seaborn==0.13.0
+
+# Code quality
+pylint==3.0.3
+autopep8==2.0.4
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+
+---
+
+# File 4: requirements_ci.txt
+# CI/CD pipeline dependencies
+
+pytest==7.4.4
+pytest-cov==4.1.0
+pytest-asyncio==0.23.0
+black==23.12.1
+flake8==6.1.0
+mypy==1.8.0
